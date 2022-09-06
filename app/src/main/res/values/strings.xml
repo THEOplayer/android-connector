@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">THEOplayer Connector</string>
+    <string name="theoplayer_license"></string>
 </resources>
