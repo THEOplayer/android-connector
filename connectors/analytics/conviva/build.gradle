@@ -31,5 +31,7 @@ android {
 }
 
 dependencies {
-
+    compileOnly 'com.theoplayer.theoplayer-sdk-android:unified:4.1.0'
+    compileOnly 'com.theoplayer.theoplayer-sdk-android:unified-ads-ima:4.1.0'
+    compileOnly 'com.conviva.sdk:conviva-core-sdk:4.0.23'
 }
