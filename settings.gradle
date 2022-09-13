@@ -17,3 +17,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "THEOplayer Connector"
 include ':app'
+include ':connectors:analytics:conviva'
