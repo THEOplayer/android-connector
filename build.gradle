@@ -5,6 +5,11 @@ plugins {
     id 'org.jetbrains.kotlin.android' version '1.7.10' apply false
 }
 
+task updateVersion() {
+    def sdkVersion = project.ext.sdkVersion
+    ant.replaceregexp(file: 'gradle.properties', match: 'sdkVersion=.*', replace: "sdkVersion=$sdkVersion", flags: 'g', byline: true)
+}
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
