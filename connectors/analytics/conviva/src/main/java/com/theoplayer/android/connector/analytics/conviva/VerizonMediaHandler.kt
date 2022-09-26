@@ -114,14 +114,28 @@ class VerizonMediaHandler {
     }
 
     private fun handleRemoveAdBreakEvent(removeAdBreakEvent: VerizonMediaAdBreakListEvent) {
-        removeAdBreakEvent.adBreak.removeEventListener(VerizonMediaAdBreakEventTypes.ADBREAK_BEGIN, this::handleAdBreakBeginEvent)
-        removeAdBreakEvent.adBreak.removeEventListener(VerizonMediaAdBreakEventTypes.ADBREAK_END, this::handleAdBreakEndEvent)
-        removeAdBreakEvent.adBreak.removeEventListener(VerizonMediaAdBreakEventTypes.ADBREAK_SKIP, this::handleAdBreakSkipEvent)
-        removeAdBreakEvent.adBreak.ads?.let { ads ->
+        removeAdBreakEventListeners(removeAdBreakEvent.adBreak)
+    }
+
+    private fun removeAdBreakEventListeners(adBreak: VerizonMediaAdBreak) {
+        adBreak.removeEventListener(VerizonMediaAdBreakEventTypes.ADBREAK_BEGIN, this::handleAdBreakBeginEvent)
+        adBreak.removeEventListener(VerizonMediaAdBreakEventTypes.ADBREAK_END, this::handleAdBreakEndEvent)
+        adBreak.removeEventListener(VerizonMediaAdBreakEventTypes.ADBREAK_SKIP, this::handleAdBreakSkipEvent)
+        adBreak.ads?.let { ads ->
             ads.forEach { ad ->
                 ad.removeEventListener(VerizonMediaAdEventTypes.AD_BEGIN, this::handleAdBeginEvent)
                 ad.removeEventListener(VerizonMediaAdEventTypes.AD_END, this::handleAdEndEvent)
             }
+        }
+    }
+
+    private fun removeListeners() {
+        player.removeEventListener(PlayerEventTypes.PLAYING, this::handlePlayingEvent)
+        player.removeEventListener(PlayerEventTypes.PAUSE, this::handlePauseEvent)
+        verizonMedia.ads.adBreaks.removeEventListener(VerizonMediaAdBreakListEventTypes.ADD_ADBREAK, this::handleAddAdBreakEvent)
+        verizonMedia.ads.adBreaks.removeEventListener(VerizonMediaAdBreakListEventTypes.REMOVE_ADBREAK, this::handleRemoveAdBreakEvent)
+        verizonMedia.ads.adBreaks.forEach { adBreak ->
+            removeAdBreakEventListeners(adBreak)
         }
     }
 
@@ -133,13 +147,6 @@ class VerizonMediaHandler {
     fun destroy() {
         // releasing of videoAnalytics & adAnalytics is done in ConvivaConnector
         removeListeners()
-    }
-
-    private fun removeListeners() {
-        player.removeEventListener(PlayerEventTypes.PLAYING, this::handlePlayingEvent)
-        player.removeEventListener(PlayerEventTypes.PAUSE, this::handlePauseEvent)
-        verizonMedia.ads.adBreaks.removeEventListener(VerizonMediaAdBreakListEventTypes.ADD_ADBREAK, this::handleAddAdBreakEvent)
-        verizonMedia.ads.adBreaks.removeEventListener(VerizonMediaAdBreakListEventTypes.REMOVE_ADBREAK, this::handleRemoveAdBreakEvent)
     }
 
 }
