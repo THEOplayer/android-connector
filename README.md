@@ -18,7 +18,7 @@ For more details about importing THEOplayer Unified Android SDK check the [docum
 | Connector    | Dependency       | Release |                      Documentation                      |
 |:-------------|:-----------------|:-------:|:-------------------------------------------------------:|
 | Conviva      | `conviva:+`      |  4.1.0  | [documentation](connectors/analytics/conviva/README.md) |
-| MediaSession | `mediasession:+` |  4.7.0  |   [documentation](connectors/mediasession/README.md)    |
+| MediaSession | `mediasession:+` |  4.8.0  |   [documentation](connectors/mediasession/README.md)    |
 
 Notes:
 * The `+` will fetch the latest released version of THEOplayer Android SDK Connector.
