@@ -64,6 +64,10 @@ class ConvivaConnector {
         videoAnalytics.setContentInfo(contentInfo)
     }
 
+    fun setAdInfo(adInfo: Map<String, Any>) {
+        adAnalytics.setAdInfo(adInfo)
+    }
+
     private fun setPlayerInfo() {
         val playerInfo = HashMap<String, Any>()
         playerInfo[ConvivaSdkConstants.FRAMEWORK_NAME] = "THEOplayer"
