@@ -19,3 +19,4 @@ rootProject.name = "THEOplayer Connector"
 include ':app'
 include ':connectors:empty'
 include ':connectors:analytics:conviva'
+include ':connectors:mediasession'
