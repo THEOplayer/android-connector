@@ -72,7 +72,9 @@ class PlaybackStateProvider(private val connector: MediaSessionConnector) {
     }
 
     private val onTimeUpdate = { _: TimeUpdateEvent ->
-        invalidatePlaybackState()
+        if (connector.shouldDispatchTimeUpdateEvents) {
+            invalidatePlaybackState()
+        }
     }
 
     private val onSourceChange = { _: SourceChangeEvent ->

@@ -73,6 +73,12 @@ class MediaSessionConnector(val mediaSession: MediaSessionCompat) {
         }
 
     var shouldDispatchUnsupportedActions: Boolean = false
+
+    /**
+     * Whether each timeupdate event should trigger an update in playback state.
+     */
+    var shouldDispatchTimeUpdateEvents: Boolean = false
+
     var debug: Boolean = BuildConfig.DEBUG
     var enabledPlaybackActions: Long = PlaybackStateProvider.DEFAULT_PLAYBACK_ACTIONS
     var customActionProviders: Array<CustomActionProvider> = arrayOf()
