@@ -46,6 +46,8 @@ class MediaSessionConnector(val mediaSession: MediaSessionCompat) {
     private val metadataProvider: MediaMetadataProvider = MediaMetadataProvider(this)
     private val playbackStateProvider: PlaybackStateProvider = PlaybackStateProvider(this)
 
+    val listeners: MutableList<MediaSessionListener> = mutableListOf()
+
     var player: Player? = null
         set(value) {
             if (field != null) {
@@ -75,7 +77,7 @@ class MediaSessionConnector(val mediaSession: MediaSessionCompat) {
     var shouldDispatchUnsupportedActions: Boolean = false
 
     /**
-     * Whether each timeupdate event should trigger an update in playback state.
+     * Whether each time update event should trigger an update in playback state.
      */
     var shouldDispatchTimeUpdateEvents: Boolean = false
 
@@ -128,11 +130,20 @@ class MediaSessionConnector(val mediaSession: MediaSessionCompat) {
         }
     }
 
+    fun addListener(listener: MediaSessionListener) {
+        listeners.add(listener)
+    }
+
+    fun removeListener(listener: MediaSessionListener) {
+        listeners.remove(listener)
+    }
+
     /**
      * Release mediaSession.
      */
     fun destroy() {
         mediaSession.release()
+        listeners.clear()
         if (debug) {
             Log.d(TAG, "MediaSession released")
         }

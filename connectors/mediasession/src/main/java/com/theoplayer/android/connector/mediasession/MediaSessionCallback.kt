@@ -58,6 +58,9 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         }
         if (shouldHandlePlaybackAction(ACTION_PLAY)) {
             connector.player?.play()
+            connector.listeners.forEach { listener ->
+                listener.onPlay()
+            }
 
             // Make sure the session is currently active and ready to receive commands.
             connector.setActive(true)
@@ -70,6 +73,9 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         }
         if (shouldHandlePlaybackAction(ACTION_PAUSE)) {
             connector.player?.pause()
+            connector.listeners.forEach { listener ->
+                listener.onPause()
+            }
         }
     }
 
@@ -105,8 +111,11 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
             Log.d(TAG, "MediaSessionCallback::onStop")
         }
         if (shouldHandlePlaybackAction(ACTION_STOP)) {
-            connector.player?.stop()
-            connector.setActive(false)
+//            connector.player?.stop()
+//            connector.setActive(false)
+            connector.listeners.forEach { listener ->
+                listener.onStop()
+            }
         }
     }
 
@@ -225,6 +234,9 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         }
         if (shouldHandlePlaybackAction(ACTION_SEEK_TO)) {
             connector.player?.currentTime = 1e-03 * positionMs
+            connector.listeners.forEach { listener ->
+                listener.onSeekTo(positionMs)
+            }
         }
     }
 
