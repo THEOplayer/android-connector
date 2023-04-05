@@ -14,10 +14,6 @@ class VideoHandler : ConvivaExperienceAnalytics.ICallback {
 
     private var currentSource: SourceDescription? = null
     private var isPlaybackRequested = false
-    private var currentTime: Double = 0.0
-    private var buffered: Double = 0.0
-    private var videoWidth: Int = 0
-    private var videoHeight: Int = 0
 
     constructor(player: Player, videoAnalytics: ConvivaVideoAnalytics) {
         this.player = player
@@ -27,7 +23,6 @@ class VideoHandler : ConvivaExperienceAnalytics.ICallback {
     }
 
     private fun attachListeners() {
-        player.addEventListener(PlayerEventTypes.TIMEUPDATE, this::handleTimeUpdateEvent)
         player.addEventListener(PlayerEventTypes.PLAY, this::handlePlayEvent)
         player.addEventListener(PlayerEventTypes.PLAYING, this::handlePlayingEvent)
         player.addEventListener(PlayerEventTypes.PAUSE, this::handlePauseEvent)
@@ -40,17 +35,6 @@ class VideoHandler : ConvivaExperienceAnalytics.ICallback {
         player.addEventListener(PlayerEventTypes.ENDED, this::handleEndedEvent)
         player.addEventListener(PlayerEventTypes.DURATIONCHANGE, this::handleDurationChangeEvent)
         player.addEventListener(PlayerEventTypes.RESIZE, this::handleResizeEvent)
-    }
-
-    private fun handleTimeUpdateEvent(timeUpdateEvent: TimeUpdateEvent) {
-        currentTime = timeUpdateEvent.currentTime
-        player.requestBuffered { timeRanges ->
-            if (timeRanges.length() > 0) {
-                buffered = timeRanges.getEnd(timeRanges.length() - 1)
-            }
-        }
-        player.requestVideoWidth { videoWidth = it }
-        player.requestVideoHeight { videoHeight = it }
     }
 
     private fun handlePlayEvent(playEvent: PlayEvent) {
@@ -131,9 +115,11 @@ class VideoHandler : ConvivaExperienceAnalytics.ICallback {
     }
 
     override fun update() {
-        videoAnalytics.reportPlaybackMetric(ConvivaSdkConstants.PLAYBACK.PLAY_HEAD_TIME, currentTime)
-        videoAnalytics.reportPlaybackMetric(ConvivaSdkConstants.PLAYBACK.BUFFER_LENGTH, buffered)
-        videoAnalytics.reportPlaybackMetric(ConvivaSdkConstants.PLAYBACK.RESOLUTION, videoWidth, videoHeight)
+        videoAnalytics.reportPlaybackMetric(ConvivaSdkConstants.PLAYBACK.PLAY_HEAD_TIME, player.currentTime)
+        videoAnalytics.reportPlaybackMetric(ConvivaSdkConstants.PLAYBACK.RESOLUTION, player.videoWidth, player.videoHeight)
+        player.buffered.lastOrNull()?.end?.let { buffered ->
+            videoAnalytics.reportPlaybackMetric(ConvivaSdkConstants.PLAYBACK.BUFFER_LENGTH, buffered)
+        }
         player.videoTracks
             .first { it.isEnabled }
             .activeQuality?.let { videoQuality ->
@@ -147,7 +133,6 @@ class VideoHandler : ConvivaExperienceAnalytics.ICallback {
     }
 
     private fun removeListeners() {
-        player.removeEventListener(PlayerEventTypes.TIMEUPDATE, this::handleTimeUpdateEvent)
         player.removeEventListener(PlayerEventTypes.PLAY, this::handlePlayEvent)
         player.removeEventListener(PlayerEventTypes.PLAYING, this::handlePlayingEvent)
         player.removeEventListener(PlayerEventTypes.PAUSE, this::handlePauseEvent)
@@ -163,10 +148,6 @@ class VideoHandler : ConvivaExperienceAnalytics.ICallback {
     }
 
     fun reset() {
-        currentTime = 0.0
-        buffered = 0.0
-        videoWidth = 0
-        videoHeight = 0
     }
 
     fun destroy() {

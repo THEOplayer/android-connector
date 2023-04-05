@@ -5,7 +5,6 @@ import com.conviva.sdk.ConvivaAdAnalytics
 import com.conviva.sdk.ConvivaAnalytics
 import com.conviva.sdk.ConvivaSdkConstants
 import com.conviva.sdk.ConvivaVideoAnalytics
-import com.theoplayer.android.api.SDKType
 import com.theoplayer.android.api.THEOplayerGlobal
 import com.theoplayer.android.api.event.player.DestroyEvent
 import com.theoplayer.android.api.event.player.PlayerEventTypes
@@ -33,11 +32,7 @@ class ConvivaConnector {
         this.videoAnalytics = ConvivaAnalytics.buildVideoAnalytics(appContext)
         this.adAnalytics = ConvivaAnalytics.buildAdAnalytics(appContext, videoAnalytics)
         this.videoHandler = VideoHandler(player, videoAnalytics)
-        if (THEOplayerGlobal.getSDKType() == SDKType.UNIFIED_ANDROID) {
-            this.adHandler = UnifiedAdHandler(player, videoAnalytics, adAnalytics)
-        } else {
-            this.adHandler = WebAdHandler(player, videoAnalytics, adAnalytics)
-        }
+        this.adHandler = AdHandler(player, videoAnalytics, adAnalytics)
 
         player.verizonMedia?.let { verizonMedia ->
             this.verizonMediaHandler = VerizonMediaHandler(player, verizonMedia, videoAnalytics, adAnalytics)
