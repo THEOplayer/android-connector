@@ -1,6 +1,6 @@
 package com.theoplayer.android.connector.mediasession
 
-import android.media.session.PlaybackState.STATE_NONE
+import android.media.session.PlaybackState.*
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
@@ -56,8 +56,17 @@ class MediaSessionConnector(val mediaSession: MediaSessionCompat) {
             field = value
             playbackStateProvider.setPlayer(field)
 
-            metadataProvider.clearMediaSessionMetadataDescription()
-            playbackStateProvider.updatePlaybackState(STATE_NONE)
+            if (player?.source == null) {
+                metadataProvider.clearMediaSessionMetadataDescription()
+                playbackStateProvider.updatePlaybackState(STATE_NONE)
+            } else {
+                metadataProvider.setMediaSessionMetadata(player?.source)
+                playbackStateProvider.updatePlaybackState(
+                    if (player?.isPaused == false) STATE_PLAYING
+                    else if (player?.isPaused == true) STATE_PAUSED
+                    else STATE_NONE
+                )
+            }
         }
 
     var queueNavigator: QueueNavigator? = null
