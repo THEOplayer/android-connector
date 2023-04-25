@@ -15,11 +15,13 @@ import com.theoplayer.android.api.source.SourceDescription
 import com.theoplayer.android.api.source.TypedSource
 import com.theoplayer.android.api.source.addescription.GoogleImaAdDescription
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConnector
+import com.theoplayer.android.connector.analytics.nielsen.NielsenConnector
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var theoplayerView: THEOplayerView
     private var convivaConnector: ConvivaConnector? = null
+    private var nielsenConnector: NielsenConnector? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,6 +30,7 @@ class MainActivity : AppCompatActivity() {
         setupTHEOplayer()
         setupGoogleImaIntegration()
         setupConviva()
+        setupNielsen()
     }
 
     private fun setupTHEOplayer() {
@@ -56,6 +59,11 @@ class MainActivity : AppCompatActivity() {
         convivaConnector?.setViewerId("viewer ID")
     }
 
+    private fun setupNielsen() {
+        val appId = "your_nielsen_app_id"
+        nielsenConnector = NielsenConnector(applicationContext, theoplayerView.player, appId, true)
+    }
+
     fun setSource(view: View) {
         theoplayerView.player.source = SourceDescription.Builder(
             TypedSource.Builder("https://cdn.theoplayer.com/video/big_buck_bunny/big_buck_bunny.m3u8")
@@ -68,6 +76,10 @@ class MainActivity : AppCompatActivity() {
         )
         .build()
         convivaConnector?.setAssetName("BigBuckBunny with Google IMA ads")
+        nielsenConnector?.updateMetadata(hashMapOf(
+            "assetid" to "C112233",
+            "program" to "BigBuckBunny with Google IMA ads"
+        ))
     }
 
     fun playPause(view: View) {
