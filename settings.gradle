@@ -11,6 +11,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url 'https://raw.githubusercontent.com/NielsenDigitalSDK/nielsenappsdk-android/master/'}
         maven { url 'https://jitpack.io' }
     }
 }
@@ -18,4 +19,5 @@ dependencyResolutionManagement {
 rootProject.name = "THEOplayer Connector"
 include ':app'
 include ':connectors:analytics:conviva'
+include ':connectors:analytics:nielsen'
 include ':connectors:mediasession'
