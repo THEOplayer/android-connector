@@ -46,6 +46,7 @@ class ConvivaHandler(
     private var convivaAdAnalytics: ConvivaAdAnalytics
 
     private var adReporter: CsaiAdReporter? = null
+    private var verizonMediaHandler: VerizonMediaHandler? = null
 
     private var currentSource: SourceDescription? = null
     private var playbackRequested: Boolean = false
@@ -84,6 +85,10 @@ class ConvivaHandler(
             convivaAdAnalytics,
             this@ConvivaHandler::maybeReportPlaybackRequested
         )
+
+        player.verizonMedia?.let { verizonMedia ->
+            this.verizonMediaHandler = VerizonMediaHandler(player, verizonMedia, convivaVideoAnalytics, convivaAdAnalytics)
+        }
 
         onPlay = EventListener<PlayEvent> {
             if (BuildConfig.DEBUG) {
@@ -395,6 +400,7 @@ class ConvivaHandler(
         }
         if (playbackRequested) {
             adReporter?.reset()
+            verizonMediaHandler?.reset()
             convivaVideoAnalytics.reportPlaybackEnded()
             playbackRequested = false
         }
@@ -439,6 +445,7 @@ class ConvivaHandler(
         removeEventListeners()
 
         adReporter?.destroy()
+        verizonMediaHandler?.destroy()
         customMetadata = mapOf()
         convivaAdAnalytics.release()
         convivaVideoAnalytics.release()
