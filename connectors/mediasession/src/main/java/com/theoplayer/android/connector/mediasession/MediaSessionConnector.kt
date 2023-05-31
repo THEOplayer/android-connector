@@ -45,6 +45,7 @@ class MediaSessionConnector(val mediaSession: MediaSessionCompat) {
     private val mediaSessionCallback: MediaSessionCallback = MediaSessionCallback(this)
     private val metadataProvider: MediaMetadataProvider = MediaMetadataProvider(this)
     private val playbackStateProvider: PlaybackStateProvider = PlaybackStateProvider(this)
+    private var destroyed = false
 
     val listeners: MutableList<MediaSessionListener> = mutableListOf()
 
@@ -96,6 +97,9 @@ class MediaSessionConnector(val mediaSession: MediaSessionCompat) {
 
     init {
         mediaSession.setCallback(mediaSessionCallback)
+        if (debug) {
+            Log.d(TAG, "Connector initialized")
+        }
     }
 
     /**
@@ -151,6 +155,10 @@ class MediaSessionConnector(val mediaSession: MediaSessionCompat) {
      * Release mediaSession.
      */
     fun destroy() {
+        if (destroyed) {
+            return
+        }
+        destroyed = true
         mediaSession.release()
         listeners.clear()
         if (debug) {
