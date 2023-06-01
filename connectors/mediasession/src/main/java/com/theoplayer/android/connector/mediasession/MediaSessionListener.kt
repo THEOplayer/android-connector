@@ -4,6 +4,10 @@ import android.os.Bundle
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.RatingCompat
 
+/**
+ * MediaSessionListener provides the possibility to additionally listen to actions passed to the
+ * player by MediaSessionCompat.Callback.
+ */
 abstract class MediaSessionListener {
 
     open fun onPlay() {}
