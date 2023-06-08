@@ -190,6 +190,10 @@ class ConvivaHandler(
     }
 
     fun stopAndStartNewSession(metadata: ConvivaMetadata) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "stopAndStartNewSession")
+        }
+
         // End current session if one had already started
         maybeReportPlaybackEnded()
 
