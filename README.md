@@ -6,18 +6,17 @@ The THEOplayer Unified Android SDK enables you to quickly deliver content playba
 
 Using the available connectors allows you to augment the features delivered through the Unified Android SDK. 
 
-
 ## Prerequisites
 
 The THEOplayer Android SDK Connectors requires the application to import the THEOplayer Unified Android SDK since the connector relies on its public APIs.
 For more details about importing THEOplayer Unified Android SDK check the [documentation](https://docs.theoplayer.com/getting-started/01-sdks/02-android-unified/00-getting-started.md).
-
 
 ## Available Connectors
 
 | Connector    | Dependency       | Release |                      Documentation                      |
 |:-------------|:-----------------|:-------:|:-------------------------------------------------------:|
 | Conviva      | `conviva:+`      |  4.1.0  | [documentation](connectors/analytics/conviva/README.md) |
+| Nielsen      | `nielsen:+`      |  5.5.0  | [documentation](connectors/analytics/nielsen/README.md) |
 | MediaSession | `mediasession:+` |  4.8.0  |   [documentation](connectors/mediasession/README.md)    |
 
 Notes:
@@ -25,7 +24,6 @@ Notes:
 * Android Studio will recommend replacing the `+` with the exact version of THEOplayer Android SDK Connector.
 * The THEOplayer Unified Android SDK and the THEOplayer Android SDK Connectors are stable when using the same version.
 It's not recommended to use different versions for Unified Android SDK and the Connectors.
-
 
 ## Installation
 
@@ -50,7 +48,6 @@ In your **module** level `build.gradle` file add one or more of THEOplayer Andro
 ```
 implementation 'com.theoplayer.android-connector:conviva:+'
 ```
-
 
 ## License
 
