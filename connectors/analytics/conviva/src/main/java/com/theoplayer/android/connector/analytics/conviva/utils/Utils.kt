@@ -8,15 +8,18 @@ import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConfiguration
 import com.theoplayer.android.connector.analytics.conviva.ConvivaMetadata
 
-fun calculateCurrentAdBreakInfo(adBreak: AdBreak, adBreakIndex: Int): Map<String, Any> {
+fun calculateCurrentAdBreakPosition(adBreak: AdBreak): ConvivaSdkConstants.AdPosition {
     val timeOffset = adBreak.timeOffset
-    val adPosition: ConvivaSdkConstants.AdPosition = when {
+    return when {
         timeOffset == 0 -> ConvivaSdkConstants.AdPosition.PREROLL
         timeOffset > 0 -> ConvivaSdkConstants.AdPosition.MIDROLL
         else -> ConvivaSdkConstants.AdPosition.POSTROLL
     }
+}
+
+fun calculateCurrentAdBreakInfo(adBreak: AdBreak, adBreakIndex: Int): Map<String, Any> {
     return mapOf(
-        ConvivaSdkConstants.POD_POSITION to adPosition,
+        ConvivaSdkConstants.POD_POSITION to calculateCurrentAdBreakPosition(adBreak),
         ConvivaSdkConstants.POD_DURATION to adBreak.maxDuration,
         ConvivaSdkConstants.POD_INDEX to adBreakIndex
     )
