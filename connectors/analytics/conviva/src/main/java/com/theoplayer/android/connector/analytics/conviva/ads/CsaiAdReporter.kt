@@ -13,6 +13,7 @@ import com.theoplayer.android.api.event.EventListener
 import com.theoplayer.android.api.event.player.*
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.connector.analytics.conviva.BuildConfig
+import com.theoplayer.android.connector.analytics.conviva.IConvivaHandler
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateCurrentAdBreakInfo
 import com.theoplayer.android.connector.analytics.conviva.utils.collectAdMetadata
 import com.theoplayer.android.connector.analytics.conviva.utils.collectPlayerInfo
@@ -23,12 +24,12 @@ fun isAdLinear(ad: GoogleImaAd?): Boolean {
 
 const val TAG = "CsaiAdReporter"
 
-@Suppress("UNUSED_PARAMETER", "SpellCheckingInspection")
+@Suppress("SpellCheckingInspection")
 class CsaiAdReporter(
     private val player: Player,
     private val convivaVideoAnalytics: ConvivaVideoAnalytics,
     private val convivaAdAnalytics: ConvivaAdAnalytics,
-    private val maybeReportPlaybackRequested: () -> Unit
+    private val convivaHandler: IConvivaHandler
 ) : ConvivaExperienceAnalytics.ICallback {
     private var currentAdBreak: AdBreak? = null
     private var currentAd: GoogleImaAd? = null
@@ -170,12 +171,15 @@ class CsaiAdReporter(
         player.ads.removeEventListener(GoogleImaAdEventType.SKIPPED, onAdSkip)
         player.ads.removeEventListener(GoogleImaAdEventType.AD_BUFFERING, onAdBuffering)
         player.ads.removeEventListener(GoogleImaAdEventType.AD_ERROR, onAdError)
-        player.ads.removeEventListener(GoogleImaAdEventType.CONTENT_RESUME_REQUESTED, onContentResume)
+        player.ads.removeEventListener(
+            GoogleImaAdEventType.CONTENT_RESUME_REQUESTED,
+            onContentResume
+        )
     }
 
     private fun handleAdBreakBegin(adBreak: AdBreak?, isLinearAdBreak: Boolean) {
         // Make sure the session is started
-        maybeReportPlaybackRequested()
+        convivaHandler.maybeReportPlaybackRequested()
 
         if (this.currentAdBreak != null) {
             // AdBreak was already set, nothing needs to happen
@@ -205,8 +209,14 @@ class CsaiAdReporter(
         }
         if (ad != null && isAdLinear(ad)) {
             currentAd = ad
-            val adMetadata = collectAdMetadata(ad) +
-                    mapOf("c3.csid" to convivaVideoAnalytics.sessionId.toString())
+            // Every session ad or content has its session ID. In order to “attach” an ad to its respective content session,
+            // there are two tags that are critical:
+            // - `c3.csid`: the content’s sessionID;
+            // - `contentAssetName`: the content's assetName.
+            val adMetadata = collectAdMetadata(ad) + mapOf(
+                "c3.csid" to convivaVideoAnalytics.sessionId.toString(),
+                "contentAssetName" to convivaHandler.contentAssetName,
+            )
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "reportAdStarted - $adMetadata")
             }

@@ -26,18 +26,24 @@ import java.lang.Double.isFinite
 
 private const val TAG = "ConvivaHandler"
 
+interface IConvivaHandler {
+    val contentAssetName: String
+
+    fun maybeReportPlaybackRequested()
+}
+
 /**
  * ConvivaHandler
  *
  * https://pulse.conviva.com/learning-center/content/sensor_developer_center/sensor_integration/android/android_stream_sensor.htm
  */
-@Suppress("UNUSED_PARAMETER", "SpellCheckingInspection")
+@Suppress("SpellCheckingInspection")
 class ConvivaHandler(
     appContext: Context,
     private val player: Player,
     private val convivaMetadata: ConvivaMetadata,
     convivaConfig: ConvivaConfiguration
-) : ConvivaExperienceAnalytics.ICallback {
+) : ConvivaExperienceAnalytics.ICallback, IConvivaHandler {
     private lateinit var lifecycleObserver: LifecycleObserver
     private val mainHandler = Handler(Looper.getMainLooper())
     private var customMetadata: ConvivaMetadata = mapOf()
@@ -83,7 +89,7 @@ class ConvivaHandler(
             player,
             convivaVideoAnalytics,
             convivaAdAnalytics,
-            this@ConvivaHandler::maybeReportPlaybackRequested
+            this
         )
 
         player.verizonMedia?.let { verizonMedia ->
@@ -374,7 +380,7 @@ class ConvivaHandler(
      * - User replays video again
      * - A new video starts in playlist
      */
-    private fun maybeReportPlaybackRequested() {
+    override fun maybeReportPlaybackRequested() {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "maybeReportPlaybackRequested: $playbackRequested")
         }
@@ -410,6 +416,18 @@ class ConvivaHandler(
         }
     }
 
+    override val contentAssetName: String
+        get() {
+            val metadataInfo = convivaVideoAnalytics.metadataInfo
+            return if (metadataInfo.containsKey(ConvivaSdkConstants.ASSET_NAME)) {
+                metadataInfo[ConvivaSdkConstants.ASSET_NAME] as String
+            } else if (player.source?.metadata?.containsKey("title") == true) {
+                player.source?.metadata?.get("title") as String
+            } else {
+                "NA"
+            }
+        }
+
     private fun reportMetadata() {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "reportMetadata")
@@ -420,19 +438,12 @@ class ConvivaHandler(
         } else {
             ConvivaSdkConstants.StreamType.LIVE
         }
-        val assetName = if (customMetadata.containsKey(ConvivaSdkConstants.ASSET_NAME)) {
-            customMetadata[ConvivaSdkConstants.ASSET_NAME] as String
-        } else if (currentSource?.metadata?.containsKey("title") == true) {
-            currentSource?.metadata?.get("title") as String
-        } else {
-            "NA"
-        }
         val playerName = customMetadata[ConvivaSdkConstants.PLAYER_NAME] ?: "THEOplayer"
         setContentInfo(
             mapOf(
                 ConvivaSdkConstants.STREAM_URL to src,
                 ConvivaSdkConstants.IS_LIVE to streamType,
-                ConvivaSdkConstants.ASSET_NAME to assetName,
+                ConvivaSdkConstants.ASSET_NAME to contentAssetName,
                 ConvivaSdkConstants.PLAYER_NAME to playerName
             )
         )
