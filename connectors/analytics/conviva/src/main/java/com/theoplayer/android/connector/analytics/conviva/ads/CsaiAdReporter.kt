@@ -205,7 +205,8 @@ class CsaiAdReporter(
         }
         if (ad != null && isAdLinear(ad)) {
             currentAd = ad
-            val adMetadata = collectAdMetadata(ad) + mapOf("c3.csid" to convivaVideoAnalytics.sessionId)
+            val adMetadata = collectAdMetadata(ad) +
+                    mapOf("c3.csid" to convivaVideoAnalytics.sessionId.toString())
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "reportAdStarted - $adMetadata")
             }
