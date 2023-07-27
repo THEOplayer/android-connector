@@ -26,7 +26,7 @@ import java.lang.Double.isFinite
 
 private const val TAG = "ConvivaHandler"
 
-interface IConvivaHandler {
+interface ConvivaHandlerBase {
     val contentAssetName: String
 
     fun maybeReportPlaybackRequested()
@@ -43,7 +43,7 @@ class ConvivaHandler(
     private val player: Player,
     private val convivaMetadata: ConvivaMetadata,
     convivaConfig: ConvivaConfiguration
-) : ConvivaExperienceAnalytics.ICallback, IConvivaHandler {
+) : ConvivaExperienceAnalytics.ICallback, ConvivaHandlerBase {
     private lateinit var lifecycleObserver: LifecycleObserver
     private val mainHandler = Handler(Looper.getMainLooper())
     private var customMetadata: ConvivaMetadata = mapOf()
@@ -418,9 +418,8 @@ class ConvivaHandler(
 
     override val contentAssetName: String
         get() {
-            val metadataInfo = convivaVideoAnalytics.metadataInfo
-            return if (metadataInfo.containsKey(ConvivaSdkConstants.ASSET_NAME)) {
-                metadataInfo[ConvivaSdkConstants.ASSET_NAME] as String
+            return if (customMetadata.containsKey(ConvivaSdkConstants.ASSET_NAME)) {
+                customMetadata[ConvivaSdkConstants.ASSET_NAME] as String
             } else if (player.source?.metadata?.containsKey("title") == true) {
                 player.source?.metadata?.get("title") as String
             } else {

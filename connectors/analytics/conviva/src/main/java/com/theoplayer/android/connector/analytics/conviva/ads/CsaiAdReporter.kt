@@ -13,7 +13,7 @@ import com.theoplayer.android.api.event.EventListener
 import com.theoplayer.android.api.event.player.*
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.connector.analytics.conviva.BuildConfig
-import com.theoplayer.android.connector.analytics.conviva.IConvivaHandler
+import com.theoplayer.android.connector.analytics.conviva.ConvivaHandlerBase
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateCurrentAdBreakInfo
 import com.theoplayer.android.connector.analytics.conviva.utils.collectAdMetadata
 import com.theoplayer.android.connector.analytics.conviva.utils.collectPlayerInfo
@@ -29,7 +29,7 @@ class CsaiAdReporter(
     private val player: Player,
     private val convivaVideoAnalytics: ConvivaVideoAnalytics,
     private val convivaAdAnalytics: ConvivaAdAnalytics,
-    private val convivaHandler: IConvivaHandler
+    private val convivaHandler: ConvivaHandlerBase
 ) : ConvivaExperienceAnalytics.ICallback {
     private var currentAdBreak: AdBreak? = null
     private var currentAd: GoogleImaAd? = null
@@ -213,9 +213,10 @@ class CsaiAdReporter(
             // there are two tags that are critical:
             // - `c3.csid`: the content’s sessionID;
             // - `contentAssetName`: the content's assetName.
+            val contentAssetName = convivaHandler.contentAssetName
             val adMetadata = collectAdMetadata(ad) + mapOf(
                 "c3.csid" to convivaVideoAnalytics.sessionId.toString(),
-                "contentAssetName" to convivaHandler.contentAssetName,
+                "contentAssetName" to contentAssetName,
             )
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "reportAdStarted - $adMetadata")
