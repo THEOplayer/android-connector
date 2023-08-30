@@ -83,7 +83,7 @@ class ConvivaHandler(
         }
 
         // This object will be used throughout the entire application lifecycle to report ad related events.
-        convivaAdAnalytics = ConvivaAnalytics.buildAdAnalytics(appContext)
+        convivaAdAnalytics = ConvivaAnalytics.buildAdAnalytics(appContext, convivaVideoAnalytics)
 
         adReporter = CsaiAdReporter(
             player,
