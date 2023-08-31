@@ -13,7 +13,7 @@ After setting up the THEOplayer Android SDK, in your **module** level `build.gra
 
 ```
 implementation 'com.theoplayer.android-connector:conviva:+'
-implementation 'com.conviva.sdk:conviva-core-sdk:4.0.30'
+implementation 'com.conviva.sdk:conviva-core-sdk:4.0.33'
 ```
 
 ## Usage

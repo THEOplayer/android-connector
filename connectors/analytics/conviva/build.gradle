@@ -34,8 +34,7 @@ android {
 dependencies {
     compileOnly "com.theoplayer.theoplayer-sdk-android:core:$sdkVersion"
     compileOnly "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:$sdkVersion"
-    compileOnly "com.conviva.sdk:conviva-core-sdk:4.0.30"
+    compileOnly "com.conviva.sdk:conviva-core-sdk:$convivaVersion"
 
-    // NOTE: upgrading beyond 2.5.1 requires targetSdk 33
-    implementation 'androidx.lifecycle:lifecycle-process:2.5.1'
+    implementation "androidx.lifecycle:lifecycle-process:$lifecycleVersion"
 }

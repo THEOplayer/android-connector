@@ -39,10 +39,9 @@ dependencies {
 
     implementation "com.theoplayer.theoplayer-sdk-android:core:$sdkVersion"
     implementation "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:$sdkVersion"
-    implementation "com.conviva.sdk:conviva-core-sdk:4.0.30"
 
     implementation project(":connectors:analytics:conviva")
     implementation project(":connectors:analytics:nielsen")
-    implementation "com.conviva.sdk:conviva-core-sdk:4.0.23"
+    implementation "com.conviva.sdk:conviva-core-sdk:$convivaVersion"
     implementation "com.nielsenappsdk.global:ad:9.1.0.0"
 }
