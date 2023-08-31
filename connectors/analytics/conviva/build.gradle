@@ -5,11 +5,11 @@ plugins {
 apply from: "$rootDir/connectors/publish.gradle"
 
 android {
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         minSdk 21
-        targetSdk 32
+        targetSdk 33
 
         consumerProguardFiles "consumer-rules.pro"
     }
@@ -34,5 +34,7 @@ android {
 dependencies {
     compileOnly "com.theoplayer.theoplayer-sdk-android:core:$sdkVersion"
     compileOnly "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:$sdkVersion"
-    compileOnly 'com.conviva.sdk:conviva-core-sdk:4.0.23'
+    compileOnly "com.conviva.sdk:conviva-core-sdk:$convivaVersion"
+
+    implementation "androidx.lifecycle:lifecycle-process:$lifecycleVersion"
 }

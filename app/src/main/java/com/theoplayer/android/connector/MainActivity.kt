@@ -6,14 +6,14 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
-import com.conviva.api.SystemSettings
-import com.conviva.sdk.ConvivaSdkConstants
 import com.theoplayer.android.api.THEOplayerConfig
 import com.theoplayer.android.api.THEOplayerView
 import com.theoplayer.android.api.ads.ima.GoogleImaIntegrationFactory
 import com.theoplayer.android.api.source.SourceDescription
 import com.theoplayer.android.api.source.TypedSource
 import com.theoplayer.android.api.source.addescription.GoogleImaAdDescription
+import com.theoplayer.android.api.source.metadata.MetadataDescription
+import com.theoplayer.android.connector.analytics.conviva.ConvivaConfiguration
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConnector
 import com.theoplayer.android.connector.analytics.nielsen.NielsenConnector
 
@@ -51,12 +51,17 @@ class MainActivity : AppCompatActivity() {
         val customerKey = "your_conviva_customer_key"
         val gatewayUrl = "your_conviva_debug_gateway_url"
 
-        val settings = HashMap<String, Any>()
-        settings[ConvivaSdkConstants.GATEWAY_URL] = gatewayUrl
-        settings[ConvivaSdkConstants.LOG_LEVEL] = SystemSettings.LogLevel.DEBUG
+        val metadata = hashMapOf(
+            "Conviva.applicationName" to "THEOplayer",
+            "Conviva.viewerId" to "viewerId"
+        )
 
-        convivaConnector = ConvivaConnector(applicationContext, theoplayerView.player, customerKey, settings)
-        convivaConnector?.setViewerId("viewer ID")
+        val config = ConvivaConfiguration(
+            customerKey,
+            true,
+            gatewayUrl,
+        )
+        convivaConnector = ConvivaConnector(applicationContext, theoplayerView.player, metadata, config)
     }
 
     private fun setupNielsen() {
@@ -73,9 +78,8 @@ class MainActivity : AppCompatActivity() {
             GoogleImaAdDescription.Builder("https://cdn.theoplayer.com/demos/ads/vast/dfp-linear-inline-no-skip.xml")
                 .timeOffset("5")
                 .build()
-        )
+        ).metadata(MetadataDescription(mapOf("title" to "BigBuckBunny with Google IMA ads")))
         .build()
-        convivaConnector?.setAssetName("BigBuckBunny with Google IMA ads")
         nielsenConnector?.updateMetadata(hashMapOf(
             "assetid" to "C112233",
             "program" to "BigBuckBunny with Google IMA ads"
@@ -98,4 +102,18 @@ class MainActivity : AppCompatActivity() {
         theoplayerView.player.currentTime = theoplayerView.player.currentTime + 10
     }
 
+    override fun onPause() {
+        super.onPause()
+        theoplayerView.onPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        theoplayerView.onResume()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        theoplayerView.onDestroy()
+    }
 }
