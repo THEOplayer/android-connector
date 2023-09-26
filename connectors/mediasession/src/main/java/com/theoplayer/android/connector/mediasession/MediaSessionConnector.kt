@@ -65,9 +65,11 @@ class MediaSessionConnector(val mediaSession: MediaSessionCompat) {
             } else {
                 metadataProvider.setMediaSessionMetadata(player?.source)
                 playbackStateProvider.updatePlaybackState(
-                    if (player?.isPaused == false) STATE_PLAYING
-                    else if (player?.isPaused == true) STATE_PAUSED
-                    else STATE_NONE
+                    when (player?.isPaused) {
+                        false -> STATE_PLAYING
+                        true -> STATE_PAUSED
+                        else -> STATE_NONE
+                    }
                 )
             }
         }
