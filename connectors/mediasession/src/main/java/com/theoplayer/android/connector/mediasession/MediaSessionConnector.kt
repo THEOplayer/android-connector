@@ -141,16 +141,28 @@ class MediaSessionConnector(val mediaSession: MediaSessionCompat) {
         if (mediaSession.isActive == active) {
             return
         }
+
         mediaSession.isActive = active
+
+        // If mediaSession.isActive is `false`, mediaSession will still receive MediaSessionCallback
+        // events, so drop the callback when inactive.
+        mediaSession.setCallback(if (active) mediaSessionCallback else null)
+
         if (debug) {
             Log.d(TAG, "MediaSession setActive: $active")
         }
     }
 
+    /**
+     * Add a listener for media session callback actions.
+     */
     fun addListener(listener: MediaSessionListener) {
         listeners.add(listener)
     }
 
+    /**
+     * Remove a listener for media session callback actions.
+     */
     fun removeListener(listener: MediaSessionListener) {
         listeners.remove(listener)
     }
