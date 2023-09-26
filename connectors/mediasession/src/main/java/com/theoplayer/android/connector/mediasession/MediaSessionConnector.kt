@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.theoplayer.android.connector.mediasession
 
 import android.media.session.PlaybackState.*
