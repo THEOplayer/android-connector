@@ -100,7 +100,6 @@ class MediaSessionConnector(val mediaSession: MediaSessionCompat) {
     var customActionProviders: Array<CustomActionProvider> = arrayOf()
 
     init {
-        mediaSession.setCallback(mediaSessionCallback)
         if (debug) {
             Log.d(TAG, "Connector initialized")
         }
