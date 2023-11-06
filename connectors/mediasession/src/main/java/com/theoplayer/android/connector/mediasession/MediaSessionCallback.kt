@@ -56,11 +56,16 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         if (connector.debug) {
             Log.d(TAG, "MediaSessionCallback::onPlay")
         }
-        if (shouldHandlePlaybackAction(ACTION_PLAY)) {
-            connector.player?.play()
+        connector.player?.let { player ->
+            if (shouldHandlePlaybackAction(ACTION_PLAY)) {
+                player.play()
 
-            // Make sure the session is currently active and ready to receive commands.
-            connector.setActive(true)
+                // Make sure the session is currently active and ready to receive commands.
+                connector.setActive(true)
+            }
+            connector.listeners.forEach { listener ->
+                listener.onPlay()
+            }
         }
     }
 
@@ -68,8 +73,13 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         if (connector.debug) {
             Log.d(TAG, "MediaSessionCallback::onPause")
         }
-        if (shouldHandlePlaybackAction(ACTION_PAUSE)) {
-            connector.player?.pause()
+        connector.player?.let { player ->
+            if (shouldHandlePlaybackAction(ACTION_PAUSE)) {
+                player.pause()
+            }
+            connector.listeners.forEach { listener ->
+                listener.onPause()
+            }
         }
     }
 
@@ -104,9 +114,14 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         if (connector.debug) {
             Log.d(TAG, "MediaSessionCallback::onStop")
         }
-        if (shouldHandlePlaybackAction(ACTION_STOP)) {
-            connector.player?.stop()
-            connector.setActive(false)
+        connector.player?.let { player ->
+            if (shouldHandlePlaybackAction(ACTION_STOP)) {
+                player.stop()
+                connector.setActive(false)
+            }
+            connector.listeners.forEach { listener ->
+                listener.onStop()
+            }
         }
     }
 
@@ -117,6 +132,9 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         if (shouldHandlePlaybackAction(ACTION_FAST_FORWARD)) {
             skip(DEFAULT_SKIP_TIME)
         }
+        connector.listeners.forEach { listener ->
+            listener.onFastForward()
+        }
     }
 
     override fun onRewind() {
@@ -125,6 +143,9 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         }
         if (shouldHandlePlaybackAction(ACTION_REWIND)) {
             skip(-DEFAULT_SKIP_TIME)
+        }
+        connector.listeners.forEach { listener ->
+            listener.onRewind()
         }
     }
 
@@ -146,8 +167,13 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         if (connector.debug) {
             Log.d(TAG, "MediaSessionCallback::onSetPlaybackSpeed $speed")
         }
-        if (shouldHandlePlaybackAction(ACTION_SET_PLAYBACK_SPEED)) {
-            connector.player?.playbackRate = speed.toDouble()
+        connector.player?.let { player ->
+            if (shouldHandlePlaybackAction(ACTION_SET_PLAYBACK_SPEED)) {
+                player.playbackRate = speed.toDouble()
+            }
+            connector.listeners.forEach { listener ->
+                listener.onSetPlaybackSpeed(speed)
+            }
         }
     }
 
@@ -155,8 +181,13 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         if (connector.debug) {
             Log.d(TAG, "MediaSessionCallback::onSkipToNext")
         }
-        if (shouldHandleQueueNavigatorAction(ACTION_SKIP_TO_NEXT)) {
-            connector.queueNavigator?.onSkipToNext(connector.player!!)
+        connector.player?.let { player ->
+            if (shouldHandleQueueNavigatorAction(ACTION_SKIP_TO_NEXT)) {
+                connector.queueNavigator?.onSkipToNext(player)
+            }
+            connector.listeners.forEach { listener ->
+                listener.onSkipToNext()
+            }
         }
     }
 
@@ -164,8 +195,13 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         if (connector.debug) {
             Log.d(TAG, "MediaSessionCallback::onSkipToPrevious")
         }
-        if (shouldHandleQueueNavigatorAction(ACTION_SKIP_TO_PREVIOUS)) {
-            connector.queueNavigator?.onSkipToPrevious(connector.player!!)
+        connector.player?.let { player ->
+            if (shouldHandleQueueNavigatorAction(ACTION_SKIP_TO_PREVIOUS)) {
+                connector.queueNavigator?.onSkipToPrevious(player)
+            }
+            connector.listeners.forEach { listener ->
+                listener.onSkipToPrevious()
+            }
         }
     }
 
@@ -173,8 +209,13 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         if (connector.debug) {
             Log.d(TAG, "MediaSessionCallback::onSkipToQueueItem")
         }
-        if (shouldHandleQueueNavigatorAction(ACTION_SKIP_TO_QUEUE_ITEM)) {
-            connector.queueNavigator?.onSkipToQueueItem(connector.player!!, id)
+        connector.player?.let { player ->
+            if (shouldHandleQueueNavigatorAction(ACTION_SKIP_TO_QUEUE_ITEM)) {
+                connector.queueNavigator?.onSkipToQueueItem(player, id)
+            }
+            connector.listeners.forEach { listener ->
+                listener.onSkipToQueueItem(id)
+            }
         }
     }
 
@@ -182,8 +223,13 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         if (connector.debug) {
             Log.d(TAG, "MediaSessionCallback::onAddQueueItem")
         }
-        if (shouldHandleQueueEditAction()) {
-            connector.queueEditor?.onAddQueueItem(connector.player!!, description)
+        connector.player?.let { player ->
+            if (shouldHandleQueueEditAction()) {
+                connector.queueEditor?.onAddQueueItem(player, description)
+            }
+            connector.listeners.forEach { listener ->
+                listener.onAddQueueItem(description)
+            }
         }
     }
 
@@ -191,8 +237,13 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         if (connector.debug) {
             Log.d(TAG, "MediaSessionCallback::onAddQueueItem")
         }
-        if (shouldHandleQueueEditAction()) {
-            connector.queueEditor?.onAddQueueItem(connector.player!!, description, index)
+        connector.player?.let { player ->
+            if (shouldHandleQueueEditAction()) {
+                connector.queueEditor?.onAddQueueItem(player, description, index)
+            }
+            connector.listeners.forEach { listener ->
+                listener.onAddQueueItem(description)
+            }
         }
     }
 
@@ -200,8 +251,13 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         if (connector.debug) {
             Log.d(TAG, "MediaSessionCallback::onRemoveQueueItem")
         }
-        if (shouldHandleQueueEditAction()) {
-            connector.queueEditor?.onRemoveQueueItem(connector.player!!, description)
+        connector.player?.let { player ->
+            if (shouldHandleQueueEditAction()) {
+                connector.queueEditor?.onRemoveQueueItem(player, description)
+            }
+            connector.listeners.forEach { listener ->
+                listener.onRemoveQueueItem(description)
+            }
         }
     }
 
@@ -209,12 +265,14 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         if (connector.debug) {
             Log.d(TAG, "MediaSessionCallback::onCustomAction $action")
         }
-        if (connector.player != null) {
-            val player = connector.player!!
+        connector.player?.let { player ->
             for (customActionProvider in connector.customActionProviders) {
                 if (customActionProvider.getCustomAction(player)?.action == action) {
                     customActionProvider.onCustomAction(player, action, extras)
                 }
+            }
+            connector.listeners.forEach { listener ->
+                listener.onCustomAction(action, extras)
             }
         }
     }
@@ -223,8 +281,13 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         if (connector.debug) {
             Log.d(TAG, "MediaSessionCallback::onSeekTo $positionMs")
         }
-        if (shouldHandlePlaybackAction(ACTION_SEEK_TO)) {
-            connector.player?.currentTime = 1e-03 * positionMs
+        connector.player?.let { player ->
+            if (shouldHandlePlaybackAction(ACTION_SEEK_TO)) {
+                player.currentTime = 1e-03 * positionMs
+            }
+            connector.listeners.forEach { listener ->
+                listener.onSeekTo(positionMs)
+            }
         }
     }
 
@@ -232,8 +295,13 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         if (connector.debug) {
             Log.d(TAG, "MediaSessionCallback::onSetRating $rating")
         }
-        if (shouldHandleRatingAction()) {
-            connector.ratingCallback?.onSetRating(connector.player!!, rating)
+        connector.player?.let { player ->
+            if (shouldHandleRatingAction()) {
+                connector.ratingCallback?.onSetRating(player, rating)
+            }
+            connector.listeners.forEach { listener ->
+                listener.onSetRating(rating, null)
+            }
         }
     }
 
@@ -241,8 +309,13 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         if (connector.debug) {
             Log.d(TAG, "MediaSessionCallback::onSetRating $rating")
         }
-        if (shouldHandleRatingAction()) {
-            connector.ratingCallback?.onSetRating(connector.player!!, rating, extras)
+        connector.player?.let { player ->
+            if (shouldHandleRatingAction()) {
+                connector.ratingCallback?.onSetRating(player, rating, extras)
+            }
+            connector.listeners.forEach { listener ->
+                listener.onSetRating(rating, extras)
+            }
         }
     }
 

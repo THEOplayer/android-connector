@@ -86,6 +86,9 @@ class MediaMetadataProvider(private val connector: MediaSessionConnector) {
             connector.mediaSession.setMetadata(METADATA_EMPTY)
             return
         }
+        if (sourceDescription.poster != null) {
+            builder.putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, sourceDescription.poster)
+        }
         val metadata = sourceDescription.metadata
         if (metadata != null) {
             buildString(metadata, builder, MediaMetadataCompat.METADATA_KEY_ALBUM)

@@ -1,6 +1,8 @@
+@file:Suppress("unused")
+
 package com.theoplayer.android.connector.mediasession
 
-import android.media.session.PlaybackState.STATE_NONE
+import android.media.session.PlaybackState.*
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
@@ -45,6 +47,9 @@ class MediaSessionConnector(val mediaSession: MediaSessionCompat) {
     private val mediaSessionCallback: MediaSessionCallback = MediaSessionCallback(this)
     private val metadataProvider: MediaMetadataProvider = MediaMetadataProvider(this)
     private val playbackStateProvider: PlaybackStateProvider = PlaybackStateProvider(this)
+    private var destroyed = false
+
+    val listeners: MutableList<MediaSessionListener> = mutableListOf()
 
     var player: Player? = null
         set(value) {
@@ -54,8 +59,19 @@ class MediaSessionConnector(val mediaSession: MediaSessionCompat) {
             field = value
             playbackStateProvider.setPlayer(field)
 
-            metadataProvider.clearMediaSessionMetadataDescription()
-            playbackStateProvider.updatePlaybackState(STATE_NONE)
+            if (player?.source == null) {
+                metadataProvider.clearMediaSessionMetadataDescription()
+                playbackStateProvider.updatePlaybackState(STATE_NONE)
+            } else {
+                metadataProvider.setMediaSessionMetadata(player?.source)
+                playbackStateProvider.updatePlaybackState(
+                    when (player?.isPaused) {
+                        false -> STATE_PLAYING
+                        true -> STATE_PAUSED
+                        else -> STATE_NONE
+                    }
+                )
+            }
         }
 
     var queueNavigator: QueueNavigator? = null
@@ -73,12 +89,20 @@ class MediaSessionConnector(val mediaSession: MediaSessionCompat) {
         }
 
     var shouldDispatchUnsupportedActions: Boolean = false
+
+    /**
+     * Whether each time update event should trigger an update in playback state.
+     */
+    var shouldDispatchTimeUpdateEvents: Boolean = false
+
     var debug: Boolean = BuildConfig.DEBUG
     var enabledPlaybackActions: Long = PlaybackStateProvider.DEFAULT_PLAYBACK_ACTIONS
     var customActionProviders: Array<CustomActionProvider> = arrayOf()
 
     init {
-        mediaSession.setCallback(mediaSessionCallback)
+        if (debug) {
+            Log.d(TAG, "Connector initialized")
+        }
     }
 
     /**
@@ -116,17 +140,42 @@ class MediaSessionConnector(val mediaSession: MediaSessionCompat) {
         if (mediaSession.isActive == active) {
             return
         }
+
         mediaSession.isActive = active
+
+        // If mediaSession.isActive is `false`, mediaSession will still receive MediaSessionCallback
+        // events, so drop the callback when inactive.
+        mediaSession.setCallback(if (active) mediaSessionCallback else null)
+
         if (debug) {
             Log.d(TAG, "MediaSession setActive: $active")
         }
     }
 
     /**
+     * Add a listener for media session callback actions.
+     */
+    fun addListener(listener: MediaSessionListener) {
+        listeners.add(listener)
+    }
+
+    /**
+     * Remove a listener for media session callback actions.
+     */
+    fun removeListener(listener: MediaSessionListener) {
+        listeners.remove(listener)
+    }
+
+    /**
      * Release mediaSession.
      */
     fun destroy() {
+        if (destroyed) {
+            return
+        }
+        destroyed = true
         mediaSession.release()
+        listeners.clear()
         if (debug) {
             Log.d(TAG, "MediaSession released")
         }
