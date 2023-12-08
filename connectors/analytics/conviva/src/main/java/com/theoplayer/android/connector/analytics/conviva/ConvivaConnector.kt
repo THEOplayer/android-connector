@@ -1,6 +1,8 @@
 package com.theoplayer.android.connector.analytics.conviva
 
 import android.content.Context
+import com.theoplayer.android.api.event.EventDispatcher
+import com.theoplayer.android.api.event.ads.AdEvent
 import com.theoplayer.android.api.player.Player
 
 typealias ConvivaMetadata = Map<String, Any>
@@ -9,13 +11,14 @@ class ConvivaConnector(
     appContext: Context,
     player: Player,
     convivaMetadata: ConvivaMetadata,
-    convivaConfig: ConvivaConfiguration
+    convivaConfig: ConvivaConfiguration,
+    adEventsExtension: EventDispatcher<AdEvent<*>>?
 ) {
 
     private val convivaHandler: ConvivaHandler
 
     init {
-        convivaHandler = ConvivaHandler(appContext, player, convivaMetadata, convivaConfig)
+        convivaHandler = ConvivaHandler(appContext, player, convivaMetadata, convivaConfig, adEventsExtension)
     }
 
     /**

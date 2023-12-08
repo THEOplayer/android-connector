@@ -9,7 +9,9 @@ import com.theoplayer.android.api.ads.AdBreak
 import com.theoplayer.android.api.ads.GoogleImaAd
 import com.theoplayer.android.api.ads.ima.GoogleImaAdEvent
 import com.theoplayer.android.api.ads.ima.GoogleImaAdEventType
+import com.theoplayer.android.api.event.EventDispatcher
 import com.theoplayer.android.api.event.EventListener
+import com.theoplayer.android.api.event.ads.AdEvent
 import com.theoplayer.android.api.event.player.*
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.connector.analytics.conviva.BuildConfig
@@ -29,7 +31,8 @@ class AdReporter(
     private val player: Player,
     private val convivaVideoAnalytics: ConvivaVideoAnalytics,
     private val convivaAdAnalytics: ConvivaAdAnalytics,
-    private val convivaHandler: ConvivaHandlerBase
+    private val convivaHandler: ConvivaHandlerBase,
+    private val adEventsExtension: EventDispatcher<AdEvent<*>>?
 ) : ConvivaExperienceAnalytics.ICallback {
     private var currentAdBreak: AdBreak? = null
     private var currentAd: GoogleImaAd? = null
