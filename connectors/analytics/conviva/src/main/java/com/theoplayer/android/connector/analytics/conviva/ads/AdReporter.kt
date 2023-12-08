@@ -156,12 +156,17 @@ class AdReporter(
         player.addEventListener(PlayerEventTypes.PLAYING, onPlaying)
         player.addEventListener(PlayerEventTypes.PAUSE, onPause)
 
-        player.ads.addEventListener(GoogleImaAdEventType.STARTED, onAdStarted)
-        player.ads.addEventListener(GoogleImaAdEventType.COMPLETED, onAdCompleted)
-        player.ads.addEventListener(GoogleImaAdEventType.SKIPPED, onAdSkip)
-        player.ads.addEventListener(GoogleImaAdEventType.AD_BUFFERING, onAdBuffering)
-        player.ads.addEventListener(GoogleImaAdEventType.AD_ERROR, onAdError)
-        player.ads.addEventListener(GoogleImaAdEventType.CONTENT_RESUME_REQUESTED, onContentResume)
+        (listOf(player.ads, adEventsExtension)).forEach { ads ->
+            ads?.addEventListener(GoogleImaAdEventType.STARTED, onAdStarted)
+            ads?.addEventListener(GoogleImaAdEventType.COMPLETED, onAdCompleted)
+            ads?.addEventListener(GoogleImaAdEventType.SKIPPED, onAdSkip)
+            ads?.addEventListener(GoogleImaAdEventType.AD_BUFFERING, onAdBuffering)
+            ads?.addEventListener(GoogleImaAdEventType.AD_ERROR, onAdError)
+            ads?.addEventListener(
+                GoogleImaAdEventType.CONTENT_RESUME_REQUESTED,
+                onContentResume
+            )
+        }
     }
 
     private fun removeEventListeners() {
@@ -169,15 +174,17 @@ class AdReporter(
         player.removeEventListener(PlayerEventTypes.PLAYING, onPlaying)
         player.removeEventListener(PlayerEventTypes.PAUSE, onPause)
 
-        player.ads.removeEventListener(GoogleImaAdEventType.STARTED, onAdStarted)
-        player.ads.removeEventListener(GoogleImaAdEventType.COMPLETED, onAdCompleted)
-        player.ads.removeEventListener(GoogleImaAdEventType.SKIPPED, onAdSkip)
-        player.ads.removeEventListener(GoogleImaAdEventType.AD_BUFFERING, onAdBuffering)
-        player.ads.removeEventListener(GoogleImaAdEventType.AD_ERROR, onAdError)
-        player.ads.removeEventListener(
-            GoogleImaAdEventType.CONTENT_RESUME_REQUESTED,
-            onContentResume
-        )
+        (listOf(player.ads, adEventsExtension)).forEach { ads ->
+            ads?.removeEventListener(GoogleImaAdEventType.STARTED, onAdStarted)
+            ads?.removeEventListener(GoogleImaAdEventType.COMPLETED, onAdCompleted)
+            ads?.removeEventListener(GoogleImaAdEventType.SKIPPED, onAdSkip)
+            ads?.removeEventListener(GoogleImaAdEventType.AD_BUFFERING, onAdBuffering)
+            ads?.removeEventListener(GoogleImaAdEventType.AD_ERROR, onAdError)
+            ads?.removeEventListener(
+                GoogleImaAdEventType.CONTENT_RESUME_REQUESTED,
+                onContentResume
+            )
+        }
     }
 
     private fun handleAdBreakBegin(adBreak: AdBreak?, isLinearAdBreak: Boolean) {

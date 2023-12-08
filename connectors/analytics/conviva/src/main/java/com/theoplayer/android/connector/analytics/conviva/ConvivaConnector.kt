@@ -12,7 +12,7 @@ class ConvivaConnector(
     player: Player,
     convivaMetadata: ConvivaMetadata,
     convivaConfig: ConvivaConfiguration,
-    adEventsExtension: EventDispatcher<AdEvent<*>>?
+    adEventsExtension: EventDispatcher<AdEvent<*>>? = null
 ) {
 
     private val convivaHandler: ConvivaHandler
