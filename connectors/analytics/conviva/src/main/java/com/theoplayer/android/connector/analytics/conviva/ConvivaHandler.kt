@@ -51,7 +51,7 @@ class ConvivaHandler(
     private var convivaVideoAnalytics: ConvivaVideoAnalytics
     private var convivaAdAnalytics: ConvivaAdAnalytics
 
-    private var adReporter: CsaiAdReporter? = null
+    private var adReporter: AdReporter? = null
 
     private var currentSource: SourceDescription? = null
     private var playbackRequested: Boolean = false
@@ -84,7 +84,7 @@ class ConvivaHandler(
         // This object will be used throughout the entire application lifecycle to report ad related events.
         convivaAdAnalytics = ConvivaAnalytics.buildAdAnalytics(appContext, convivaVideoAnalytics)
 
-        adReporter = CsaiAdReporter(
+        adReporter = AdReporter(
             player,
             convivaVideoAnalytics,
             convivaAdAnalytics,

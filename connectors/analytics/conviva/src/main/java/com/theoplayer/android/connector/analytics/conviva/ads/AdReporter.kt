@@ -22,10 +22,10 @@ fun isAdLinear(ad: GoogleImaAd?): Boolean {
     return ad?.type == "linear"
 }
 
-const val TAG = "CsaiAdReporter"
+private const val TAG = "AdReporter"
 
 @Suppress("SpellCheckingInspection")
-class CsaiAdReporter(
+class AdReporter(
     private val player: Player,
     private val convivaVideoAnalytics: ConvivaVideoAnalytics,
     private val convivaAdAnalytics: ConvivaAdAnalytics,
