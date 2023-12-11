@@ -16,6 +16,8 @@ import com.theoplayer.android.api.event.player.*
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.connector.analytics.conviva.BuildConfig
 import com.theoplayer.android.connector.analytics.conviva.ConvivaHandlerBase
+import com.theoplayer.android.connector.analytics.conviva.utils.calculateAdType
+import com.theoplayer.android.connector.analytics.conviva.utils.calculateAdTypeAsString
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateCurrentAdBreakInfo
 import com.theoplayer.android.connector.analytics.conviva.utils.collectAdMetadata
 import com.theoplayer.android.connector.analytics.conviva.utils.collectPlayerInfo
@@ -203,7 +205,7 @@ class AdReporter(
             adBreakCounter++
             convivaVideoAnalytics.reportAdBreakStarted(
                 ConvivaSdkConstants.AdPlayer.CONTENT,
-                ConvivaSdkConstants.AdType.CLIENT_SIDE,
+                calculateAdType(player),
                 calculateCurrentAdBreakInfo(adBreak, adBreakCounter)
             )
         } else {
@@ -227,6 +229,7 @@ class AdReporter(
             val adMetadata = collectAdMetadata(ad) + mapOf(
                 "c3.csid" to convivaVideoAnalytics.sessionId.toString(),
                 "contentAssetName" to contentAssetName,
+                "c3.ad.technology" to calculateAdTypeAsString(player),
             )
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "reportAdStarted - $adMetadata")
@@ -244,6 +247,15 @@ class AdReporter(
                 player.videoWidth,
                 ad.imaAd.vastMediaBitrate
             )
+
+            // Report playing state in case of SSAI, as the player will not send an additional
+            // `playing` event.
+            if (calculateAdType(player) == ConvivaSdkConstants.AdType.SERVER_SIDE) {
+                convivaAdAnalytics.reportAdMetric(
+                    ConvivaSdkConstants.PLAYBACK.PLAYER_STATE,
+                    ConvivaSdkConstants.PlayerState.PLAYING
+                )
+            }
         } else {
             if (BuildConfig.DEBUG) {
                 Log.w(TAG, "handleAdEnd - No valid ad")

@@ -8,6 +8,20 @@ import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConfiguration
 import com.theoplayer.android.connector.analytics.conviva.ConvivaMetadata
 
+fun calculateAdType(player: Player): ConvivaSdkConstants.AdType {
+    return if (player.source?.ads.isNullOrEmpty())
+        ConvivaSdkConstants.AdType.SERVER_SIDE
+    else
+        ConvivaSdkConstants.AdType.CLIENT_SIDE
+}
+
+fun calculateAdTypeAsString(player: Player): String {
+    return when (calculateAdType(player)) {
+        ConvivaSdkConstants.AdType.SERVER_SIDE -> "Server Side"
+        ConvivaSdkConstants.AdType.CLIENT_SIDE -> "Client Side"
+    }
+}
+
 fun calculateCurrentAdBreakPosition(adBreak: AdBreak): String {
     val timeOffset = adBreak.timeOffset
     return when {
@@ -79,9 +93,6 @@ fun collectAdMetadata(ad: GoogleImaAd): ConvivaMetadata {
         // [Required] The creative id of the ad. This creative id is from the Ad Server that actually has the ad creative.
         // For wrapper ads, this is the last creative id at the end of the wrapper chain. Set to "NA" if not available.
         "c3.ad.creativeId" to validStringOrNA(ad.creativeId),
-
-        // [Required] The ad technology as "Server Side" or "Client Side"
-        "c3.ad.technology" to "Client Side",
 
         // [Preferred] A string that identifies the Ad System (i.e. the Ad Server). This Ad System represents
         // the Ad Server that actually has the ad creative. For wrapper ads, this is the last Ad System at the end of
