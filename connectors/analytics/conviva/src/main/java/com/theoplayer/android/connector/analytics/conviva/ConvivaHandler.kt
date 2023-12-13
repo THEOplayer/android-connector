@@ -265,6 +265,10 @@ class ConvivaHandler(
         }
     }
 
+    fun reportPlaybackEvent(eventType: String, eventDetail: Map<String, Any>?) {
+        this.convivaVideoAnalytics.reportPlaybackEvent(eventType, eventDetail)
+    }
+
     private fun addEventListeners() {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "addEventListeners")

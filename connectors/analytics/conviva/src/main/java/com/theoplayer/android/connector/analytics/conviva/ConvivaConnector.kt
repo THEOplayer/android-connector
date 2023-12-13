@@ -59,6 +59,15 @@ class ConvivaConnector(
     }
 
     /**
+     * Reports a custom event to the current Conviva session.
+     * @param eventType the type of the custom event.
+     * @param eventDetail an optional map containing event details.
+     */
+    fun reportPlaybackEvent(eventType: String, eventDetail: Map<String, Any>?) {
+        this.convivaHandler.reportPlaybackEvent(eventType, eventDetail)
+    }
+
+    /**
      * Stops video and ad analytics and closes all sessions.
      */
     fun destroy() {
