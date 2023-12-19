@@ -13,11 +13,13 @@ import com.conviva.sdk.ConvivaAnalytics
 import com.conviva.sdk.ConvivaExperienceAnalytics
 import com.conviva.sdk.ConvivaSdkConstants
 import com.conviva.sdk.ConvivaVideoAnalytics
+import com.theoplayer.android.api.event.EventDispatcher
 import com.theoplayer.android.api.event.EventListener
+import com.theoplayer.android.api.event.ads.AdEvent
 import com.theoplayer.android.api.event.player.*
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.api.source.SourceDescription
-import com.theoplayer.android.connector.analytics.conviva.ads.CsaiAdReporter
+import com.theoplayer.android.connector.analytics.conviva.ads.AdReporter
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateBufferLength
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateConvivaOptions
 import com.theoplayer.android.connector.analytics.conviva.utils.collectContentMetadata
@@ -42,7 +44,8 @@ class ConvivaHandler(
     appContext: Context,
     private val player: Player,
     private val convivaMetadata: ConvivaMetadata,
-    convivaConfig: ConvivaConfiguration
+    convivaConfig: ConvivaConfiguration,
+    adEventsExtension: EventDispatcher<AdEvent<*>>?
 ) : ConvivaExperienceAnalytics.ICallback, ConvivaHandlerBase {
     private lateinit var lifecycleObserver: LifecycleObserver
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -51,7 +54,7 @@ class ConvivaHandler(
     private var convivaVideoAnalytics: ConvivaVideoAnalytics
     private var convivaAdAnalytics: ConvivaAdAnalytics
 
-    private var adReporter: CsaiAdReporter? = null
+    private var adReporter: AdReporter? = null
 
     private var currentSource: SourceDescription? = null
     private var playbackRequested: Boolean = false
@@ -84,12 +87,13 @@ class ConvivaHandler(
         // This object will be used throughout the entire application lifecycle to report ad related events.
         convivaAdAnalytics = ConvivaAnalytics.buildAdAnalytics(appContext, convivaVideoAnalytics)
 
-        adReporter = CsaiAdReporter(
+        adReporter = AdReporter(
             player,
             convivaVideoAnalytics,
             convivaAdAnalytics,
-            this
-        )
+            this,
+            adEventsExtension,
+            )
 
         onPlay = EventListener<PlayEvent> {
             if (BuildConfig.DEBUG) {
@@ -259,6 +263,10 @@ class ConvivaHandler(
         } else {
             convivaVideoAnalytics.reportPlaybackFailed(errorMessage)
         }
+    }
+
+    fun reportPlaybackEvent(eventType: String, eventDetail: Map<String, Any>?) {
+        this.convivaVideoAnalytics.reportPlaybackEvent(eventType, eventDetail)
     }
 
     private fun addEventListeners() {

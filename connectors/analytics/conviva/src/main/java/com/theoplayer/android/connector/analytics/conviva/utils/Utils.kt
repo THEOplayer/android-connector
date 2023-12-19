@@ -8,6 +8,20 @@ import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConfiguration
 import com.theoplayer.android.connector.analytics.conviva.ConvivaMetadata
 
+fun calculateAdType(player: Player): ConvivaSdkConstants.AdType {
+    return if (player.source?.ads.isNullOrEmpty())
+        ConvivaSdkConstants.AdType.SERVER_SIDE
+    else
+        ConvivaSdkConstants.AdType.CLIENT_SIDE
+}
+
+fun calculateAdTypeAsString(player: Player): String {
+    return when (calculateAdType(player)) {
+        ConvivaSdkConstants.AdType.SERVER_SIDE -> "Server Side"
+        ConvivaSdkConstants.AdType.CLIENT_SIDE -> "Client Side"
+    }
+}
+
 fun calculateCurrentAdBreakPosition(adBreak: AdBreak): String {
     val timeOffset = adBreak.timeOffset
     return when {
@@ -62,11 +76,21 @@ private fun validStringOrNA(str: String?): String {
     return if (str.isNullOrEmpty()) "NA" else str
 }
 
+private fun validStringOrFallbackOrNA(str: String?, fbStr: String?): String {
+    return if (!str.isNullOrEmpty())
+        str
+    else if (!fbStr.isNullOrEmpty())
+        fbStr
+    else
+        "NA"
+}
+
 fun collectAdMetadata(ad: GoogleImaAd): ConvivaMetadata {
+    // AssetName should not never be an empty string
+    val assetName = validStringOrFallbackOrNA(ad.imaAd.title, ad.id)
     return mutableMapOf(
         ConvivaSdkConstants.DURATION to ad.imaAd.duration.toInt(),
-        ConvivaSdkConstants.STREAM_URL to ad.imaAd.adId,
-        ConvivaSdkConstants.ASSET_NAME to (ad.imaAd.title ?: ad.id),
+        ConvivaSdkConstants.ASSET_NAME to assetName,
 
         // [Required] This Ad ID is from the Ad Server that actually has the ad creative.
         // For wrapper ads, this is the last Ad ID at the end of the wrapper chain.
@@ -74,14 +98,11 @@ fun collectAdMetadata(ad: GoogleImaAd): ConvivaMetadata {
 
         // [Required] The creative name (may be the same as the ad name) as a string.
         // Creative name is available from the ad server. Set to "NA" if not available.
-        "adMetadata" to (ad.imaAd.title ?: ad.id),
+        "adMetadata" to assetName,
 
         // [Required] The creative id of the ad. This creative id is from the Ad Server that actually has the ad creative.
         // For wrapper ads, this is the last creative id at the end of the wrapper chain. Set to "NA" if not available.
         "c3.ad.creativeId" to validStringOrNA(ad.creativeId),
-
-        // [Required] The ad technology as "Server Side" or "Client Side"
-        "c3.ad.technology" to "Client Side",
 
         // [Preferred] A string that identifies the Ad System (i.e. the Ad Server). This Ad System represents
         // the Ad Server that actually has the ad creative. For wrapper ads, this is the last Ad System at the end of
@@ -102,7 +123,9 @@ fun collectAdMetadata(ad: GoogleImaAd): ConvivaMetadata {
         // This tag must capture the "first" Creative Id in the wrapper chain when a Linear creative is available or
         // there is an error at the end of the wrapper chain. Set to "NA" if not available. If there is no wrapper
         // VAST response then the Ad Creative Id and First Ad Creative Id should be the same.
-        "c3.ad.firstCreativeId" to validStringOrNA(ad.wrapperCreativeIds.firstOrNull() ?: ad.creativeId),
+        "c3.ad.firstCreativeId" to validStringOrNA(
+            ad.wrapperCreativeIds.firstOrNull() ?: ad.creativeId
+        ),
 
         // [Preferred] Only valid for wrapper VAST responses. This tag must capture the "first" Ad System in the wrapper
         // chain when a Linear creative is available or there is an error at the end of the wrapper chain. Set to "NA" if

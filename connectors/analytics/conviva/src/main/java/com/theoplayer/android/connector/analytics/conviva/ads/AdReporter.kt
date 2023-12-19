@@ -9,11 +9,15 @@ import com.theoplayer.android.api.ads.AdBreak
 import com.theoplayer.android.api.ads.GoogleImaAd
 import com.theoplayer.android.api.ads.ima.GoogleImaAdEvent
 import com.theoplayer.android.api.ads.ima.GoogleImaAdEventType
+import com.theoplayer.android.api.event.EventDispatcher
 import com.theoplayer.android.api.event.EventListener
+import com.theoplayer.android.api.event.ads.AdEvent
 import com.theoplayer.android.api.event.player.*
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.connector.analytics.conviva.BuildConfig
 import com.theoplayer.android.connector.analytics.conviva.ConvivaHandlerBase
+import com.theoplayer.android.connector.analytics.conviva.utils.calculateAdType
+import com.theoplayer.android.connector.analytics.conviva.utils.calculateAdTypeAsString
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateCurrentAdBreakInfo
 import com.theoplayer.android.connector.analytics.conviva.utils.collectAdMetadata
 import com.theoplayer.android.connector.analytics.conviva.utils.collectPlayerInfo
@@ -22,14 +26,15 @@ fun isAdLinear(ad: GoogleImaAd?): Boolean {
     return ad?.type == "linear"
 }
 
-const val TAG = "CsaiAdReporter"
+private const val TAG = "AdReporter"
 
 @Suppress("SpellCheckingInspection")
-class CsaiAdReporter(
+class AdReporter(
     private val player: Player,
     private val convivaVideoAnalytics: ConvivaVideoAnalytics,
     private val convivaAdAnalytics: ConvivaAdAnalytics,
-    private val convivaHandler: ConvivaHandlerBase
+    private val convivaHandler: ConvivaHandlerBase,
+    private val adEventsExtension: EventDispatcher<AdEvent<*>>?
 ) : ConvivaExperienceAnalytics.ICallback {
     private var currentAdBreak: AdBreak? = null
     private var currentAd: GoogleImaAd? = null
@@ -153,12 +158,17 @@ class CsaiAdReporter(
         player.addEventListener(PlayerEventTypes.PLAYING, onPlaying)
         player.addEventListener(PlayerEventTypes.PAUSE, onPause)
 
-        player.ads.addEventListener(GoogleImaAdEventType.STARTED, onAdStarted)
-        player.ads.addEventListener(GoogleImaAdEventType.COMPLETED, onAdCompleted)
-        player.ads.addEventListener(GoogleImaAdEventType.SKIPPED, onAdSkip)
-        player.ads.addEventListener(GoogleImaAdEventType.AD_BUFFERING, onAdBuffering)
-        player.ads.addEventListener(GoogleImaAdEventType.AD_ERROR, onAdError)
-        player.ads.addEventListener(GoogleImaAdEventType.CONTENT_RESUME_REQUESTED, onContentResume)
+        (listOf(player.ads, adEventsExtension)).forEach { ads ->
+            ads?.addEventListener(GoogleImaAdEventType.STARTED, onAdStarted)
+            ads?.addEventListener(GoogleImaAdEventType.COMPLETED, onAdCompleted)
+            ads?.addEventListener(GoogleImaAdEventType.SKIPPED, onAdSkip)
+            ads?.addEventListener(GoogleImaAdEventType.AD_BUFFERING, onAdBuffering)
+            ads?.addEventListener(GoogleImaAdEventType.AD_ERROR, onAdError)
+            ads?.addEventListener(
+                GoogleImaAdEventType.CONTENT_RESUME_REQUESTED,
+                onContentResume
+            )
+        }
     }
 
     private fun removeEventListeners() {
@@ -166,15 +176,17 @@ class CsaiAdReporter(
         player.removeEventListener(PlayerEventTypes.PLAYING, onPlaying)
         player.removeEventListener(PlayerEventTypes.PAUSE, onPause)
 
-        player.ads.removeEventListener(GoogleImaAdEventType.STARTED, onAdStarted)
-        player.ads.removeEventListener(GoogleImaAdEventType.COMPLETED, onAdCompleted)
-        player.ads.removeEventListener(GoogleImaAdEventType.SKIPPED, onAdSkip)
-        player.ads.removeEventListener(GoogleImaAdEventType.AD_BUFFERING, onAdBuffering)
-        player.ads.removeEventListener(GoogleImaAdEventType.AD_ERROR, onAdError)
-        player.ads.removeEventListener(
-            GoogleImaAdEventType.CONTENT_RESUME_REQUESTED,
-            onContentResume
-        )
+        (listOf(player.ads, adEventsExtension)).forEach { ads ->
+            ads?.removeEventListener(GoogleImaAdEventType.STARTED, onAdStarted)
+            ads?.removeEventListener(GoogleImaAdEventType.COMPLETED, onAdCompleted)
+            ads?.removeEventListener(GoogleImaAdEventType.SKIPPED, onAdSkip)
+            ads?.removeEventListener(GoogleImaAdEventType.AD_BUFFERING, onAdBuffering)
+            ads?.removeEventListener(GoogleImaAdEventType.AD_ERROR, onAdError)
+            ads?.removeEventListener(
+                GoogleImaAdEventType.CONTENT_RESUME_REQUESTED,
+                onContentResume
+            )
+        }
     }
 
     private fun handleAdBreakBegin(adBreak: AdBreak?, isLinearAdBreak: Boolean) {
@@ -193,7 +205,7 @@ class CsaiAdReporter(
             adBreakCounter++
             convivaVideoAnalytics.reportAdBreakStarted(
                 ConvivaSdkConstants.AdPlayer.CONTENT,
-                ConvivaSdkConstants.AdType.CLIENT_SIDE,
+                calculateAdType(player),
                 calculateCurrentAdBreakInfo(adBreak, adBreakCounter)
             )
         } else {
@@ -217,6 +229,7 @@ class CsaiAdReporter(
             val adMetadata = collectAdMetadata(ad) + mapOf(
                 "c3.csid" to convivaVideoAnalytics.sessionId.toString(),
                 "contentAssetName" to contentAssetName,
+                "c3.ad.technology" to calculateAdTypeAsString(player),
             )
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "reportAdStarted - $adMetadata")
@@ -234,6 +247,15 @@ class CsaiAdReporter(
                 player.videoWidth,
                 ad.imaAd.vastMediaBitrate
             )
+
+            // Report playing state in case of SSAI, as the player will not send an additional
+            // `playing` event.
+            if (calculateAdType(player) == ConvivaSdkConstants.AdType.SERVER_SIDE) {
+                convivaAdAnalytics.reportAdMetric(
+                    ConvivaSdkConstants.PLAYBACK.PLAYER_STATE,
+                    ConvivaSdkConstants.PlayerState.PLAYING
+                )
+            }
         } else {
             if (BuildConfig.DEBUG) {
                 Log.w(TAG, "handleAdEnd - No valid ad")

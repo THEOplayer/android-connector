@@ -1,6 +1,8 @@
 package com.theoplayer.android.connector.analytics.conviva
 
 import android.content.Context
+import com.theoplayer.android.api.event.EventDispatcher
+import com.theoplayer.android.api.event.ads.AdEvent
 import com.theoplayer.android.api.player.Player
 
 typealias ConvivaMetadata = Map<String, Any>
@@ -9,13 +11,14 @@ class ConvivaConnector(
     appContext: Context,
     player: Player,
     convivaMetadata: ConvivaMetadata,
-    convivaConfig: ConvivaConfiguration
+    convivaConfig: ConvivaConfiguration,
+    adEventsExtension: EventDispatcher<AdEvent<*>>? = null
 ) {
 
     private val convivaHandler: ConvivaHandler
 
     init {
-        convivaHandler = ConvivaHandler(appContext, player, convivaMetadata, convivaConfig)
+        convivaHandler = ConvivaHandler(appContext, player, convivaMetadata, convivaConfig, adEventsExtension)
     }
 
     /**
@@ -53,6 +56,15 @@ class ConvivaConnector(
      */
     fun reportPlaybackFailed(errorMessage: String) {
         this.convivaHandler.reportPlaybackFailed(errorMessage)
+    }
+
+    /**
+     * Reports a custom event to the current Conviva session.
+     * @param eventType the type of the custom event.
+     * @param eventDetail an optional map containing event details.
+     */
+    fun reportPlaybackEvent(eventType: String, eventDetail: Map<String, Any>?) {
+        this.convivaHandler.reportPlaybackEvent(eventType, eventDetail)
     }
 
     /**
