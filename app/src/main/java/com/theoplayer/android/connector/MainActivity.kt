@@ -16,12 +16,17 @@ import com.theoplayer.android.api.source.metadata.MetadataDescription
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConfiguration
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConnector
 import com.theoplayer.android.connector.analytics.nielsen.NielsenConnector
+import com.theoplayercomscore.integration.ComscoreConfiguration
+import com.theoplayercomscore.integration.ComscoreConnector
+import com.theoplayercomscore.integration.ComscoreMediaType
+import com.theoplayercomscore.integration.ComscoreMetaData
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var theoplayerView: THEOplayerView
     private var convivaConnector: ConvivaConnector? = null
     private var nielsenConnector: NielsenConnector? = null
+    private lateinit var comscoreConnector: ComscoreConnector
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,7 +35,63 @@ class MainActivity : AppCompatActivity() {
         setupTHEOplayer()
         setupGoogleImaIntegration()
         setupConviva()
+        setupComscore()
         setupNielsen()
+    }
+
+    private fun setupComscore() {
+        val comscoreConfiguration = ComscoreConfiguration(
+            publisherId = "<your publisher ID here>", // Can be a test or production key.
+            applicationName = "THEOplayer Demo",
+            userConsent = "1",
+            childDirected = false,
+            secureTransmission = true,
+            usagePropertiesAutoUpdateMode = 1,
+            debug = true
+        )
+        val metadata = ComscoreMetaData(
+            mediaType = ComscoreMediaType.LONG_FORM_ON_DEMAND,
+            uniqueId = "testuniqueId",
+            length = 634,
+            stationTitle = "THEOTV",
+            programTitle = "Big Buck Bunny",
+            episodeTitle = "Intro",
+            genreName = "Animation",
+            classifyAsAudioStream = false,
+            c3 = "c3value",
+            c4 = "c4value",
+            c6 = "c6value",
+            stationCode = null,
+            networkAffiliate = null,
+            publisherName = null,
+            programId = null,
+            episodeId = null,
+            episodeSeasonNumber = null,
+            episodeNumber = null,
+            genreId = null,
+            carryTvAdvertisementLoad = null,
+            classifyAsCompleteEpisode = null,
+            dateOfProduction = null,
+            timeOfProduction = null,
+            dateOfTvAiring = null,
+            timeOfTvAiring = null,
+            dateOfDigitalAiring = null,
+            timeOfDigitalAiring = null,
+            feedType = null,
+            deliveryMode = null,
+            deliverySubscriptionType = null,
+            deliveryComposition = null,
+            deliveryAdvertisementCapability = null,
+            mediaFormat = null,
+            distributionModel = null,
+            playlistTitle = null,
+            totalSegments = null,
+            clipUrl = null,
+            videoDimension = null,
+            customLabels = emptyMap(),
+        )
+        comscoreConnector =
+            ComscoreConnector(this, theoplayerView.player, comscoreConfiguration, metadata)
     }
 
     private fun setupTHEOplayer() {

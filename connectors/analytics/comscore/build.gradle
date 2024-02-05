@@ -36,13 +36,5 @@ dependencies {
     compileOnly "com.theoplayer.theoplayer-sdk-android:core:$sdkVersion"
     compileOnly "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:$sdkVersion"
 
-    implementation "androidx.lifecycle:lifecycle-process:$lifecycleVersion"
-
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.8.10"
-
     implementation "com.comscore:android-analytics:6.+"
-
-    // Align the Kotlin SDK libraries with the same version.
-    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.10"))
-
 }
