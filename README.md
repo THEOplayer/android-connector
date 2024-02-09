@@ -13,11 +13,12 @@ For more details about importing THEOplayer Unified Android SDK check the [docum
 
 ## Available Connectors
 
-| Connector    | Dependency       | Release |                      Documentation                      |
-|:-------------|:-----------------|:-------:|:-------------------------------------------------------:|
-| Conviva      | `conviva:+`      |  4.1.0  | [documentation](connectors/analytics/conviva/README.md) |
-| Nielsen      | `nielsen:+`      |  5.5.0  | [documentation](connectors/analytics/nielsen/README.md) |
-| MediaSession | `mediasession:+` |  4.8.0  |   [documentation](connectors/mediasession/README.md)    |
+| Connector    | Dependency       | Release |                      Documentation                       |
+|:-------------|:-----------------|:-------:|:--------------------------------------------------------:|
+| Comscore     | `comscore:+`     | 6.10.0  | [documentation](connectors/analytics/comscore/README.md) |
+| Conviva      | `conviva:+`      |  4.1.0  | [documentation](connectors/analytics/conviva/README.md)  |
+| Nielsen      | `nielsen:+`      |  5.5.0  | [documentation](connectors/analytics/nielsen/README.md)  |
+| MediaSession | `mediasession:+` |  4.8.0  |    [documentation](connectors/mediasession/README.md)    |
 
 Notes:
 * The `+` will fetch the latest released version of THEOplayer Android SDK Connector.
