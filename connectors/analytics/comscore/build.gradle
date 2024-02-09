@@ -34,5 +34,5 @@ dependencies {
     compileOnly "com.theoplayer.theoplayer-sdk-android:core:$sdkVersion"
     compileOnly "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:$sdkVersion"
 
-    compileOnly "com.comscore:android-analytics:6.+"
+    compileOnly "com.comscore:android-analytics:$comscoreVersion"
 }

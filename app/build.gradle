@@ -46,4 +46,5 @@ dependencies {
     implementation "com.conviva.sdk:conviva-core-sdk:$convivaVersion"
     implementation "com.nielsenappsdk.global:ad:9.1.0.0"
     implementation project(':connectors:analytics:comscore')
+    implementation "com.comscore:android-analytics:$comscoreVersion"
 }
