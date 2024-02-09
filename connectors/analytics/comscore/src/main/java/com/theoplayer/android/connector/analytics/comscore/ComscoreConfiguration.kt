@@ -1,4 +1,4 @@
-package com.theoplayercomscore.integration
+package com.theoplayer.android.connector.analytics.comscore
 
 data class ComscoreConfiguration(
   val publisherId: String,

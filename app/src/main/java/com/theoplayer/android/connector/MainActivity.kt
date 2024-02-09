@@ -16,10 +16,10 @@ import com.theoplayer.android.api.source.metadata.MetadataDescription
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConfiguration
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConnector
 import com.theoplayer.android.connector.analytics.nielsen.NielsenConnector
-import com.theoplayercomscore.integration.ComscoreConfiguration
-import com.theoplayercomscore.integration.ComscoreConnector
-import com.theoplayercomscore.integration.ComscoreMediaType
-import com.theoplayercomscore.integration.ComscoreMetaData
+import com.theoplayer.android.connector.analytics.comscore.ComscoreConfiguration
+import com.theoplayer.android.connector.analytics.comscore.ComscoreConnector
+import com.theoplayer.android.connector.analytics.comscore.ComscoreMediaType
+import com.theoplayer.android.connector.analytics.comscore.ComscoreMetaData
 
 class MainActivity : AppCompatActivity() {
 

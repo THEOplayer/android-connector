@@ -1,11 +1,10 @@
-package com.theoplayercomscore.integration
+package com.theoplayer.android.connector.analytics.comscore
 
 import android.content.Context
 import android.util.Log
 import com.comscore.Analytics
 import com.comscore.PublisherConfiguration
 import com.theoplayer.android.api.player.Player
-import com.theoplayer.android.connector.analytics.comscore.BuildConfig
 
 private const val TAG = "ComscoreConnector"
 
