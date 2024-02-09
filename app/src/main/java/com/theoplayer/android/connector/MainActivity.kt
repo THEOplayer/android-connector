@@ -91,7 +91,7 @@ class MainActivity : AppCompatActivity() {
             customLabels = emptyMap(),
         )
         comscoreConnector =
-            ComscoreConnector(this, theoplayerView.player, comscoreConfiguration, metadata)
+            ComscoreConnector(applicationContext, theoplayerView.player, comscoreConfiguration, metadata)
     }
 
     private fun setupTHEOplayer() {
