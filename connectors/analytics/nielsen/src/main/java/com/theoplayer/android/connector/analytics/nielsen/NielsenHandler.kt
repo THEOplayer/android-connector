@@ -3,6 +3,7 @@ package com.theoplayer.android.connector.analytics.nielsen
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import android.util.Base64
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleObserver
@@ -55,7 +56,8 @@ class NielsenHandler(
   private val onAddTrack: EventListener<AddTrackEvent>
   private val onAdBegin: EventListener<GoogleImaAdEvent>
   private val onAdEnd: EventListener<GoogleImaAdEvent>
-  private val onCueEnter: EventListener<EnterCueEvent>
+  private val onCueEnterId3: EventListener<EnterCueEvent>
+  private val onCueEnterEmsg: EventListener<EnterCueEvent>
 
   private var lastPosition: Long = -1
   private var appSdk: AppSdk? = null
@@ -93,21 +95,28 @@ class NielsenHandler(
       // contentMetadataObject contains the JSON metadata for the content being played
       appSdk?.loadMetadata(buildMetadata())
     }
-    onCueEnter = EventListener<EnterCueEvent> { event ->
+    onCueEnterId3 = EventListener<EnterCueEvent> { event ->
       event.cue.content?.optJSONObject("content")?.let { cueContent ->
-        cueContent.optString("ownerIdentifier").let {
-          if (it.contains("www.nielsen.com")) {
-            appSdk?.sendID3(it)
-          }
+        handleNielsenId3Payload(cueContent) {
+          appSdk?.sendID3(it)
+        }
+      }
+    }
+    onCueEnterEmsg = EventListener<EnterCueEvent> { event ->
+      event.cue.content?.optJSONObject("content")?.let { cueContent ->
+        handleNielsenEmsgPayload(cueContent) {
+          appSdk?.sendID3(it)
         }
       }
     }
     onAddTrack = EventListener<AddTrackEvent> { event ->
-      if (event.track.type == TextTrackType.ID3) {
+      if (event.track.type == TextTrackType.ID3 || event.track.type == TextTrackType.EMSG) {
+        // Make sure we listen for cues
         if (event.track.mode == TextTrackMode.DISABLED) {
           event.track.mode = TextTrackMode.HIDDEN
         }
-        event.track.addEventListener(TextTrackEventTypes.ENTERCUE, onCueEnter)
+        event.track.addEventListener(TextTrackEventTypes.ENTERCUE,
+          if (event.track.type == TextTrackType.ID3) onCueEnterId3 else onCueEnterEmsg)
       }
     }
     onAdBegin = EventListener<GoogleImaAdEvent> { event ->
@@ -217,4 +226,30 @@ class NielsenHandler(
       put(PROP_ADMODEL, "1")
     }
   }
+}
+
+fun handleNielsenId3Payload(cueContent: JSONObject, handle: (result: String) -> Unit) {
+  cueContent.optString("ownerIdentifier").let {
+    if (it.contains("www.nielsen.com")) {
+      handle(it)
+    }
+  }
+}
+
+fun handleNielsenEmsgPayload(cueContent: JSONArray, handle: (result: String) -> Unit) {
+    // Convert to String
+    val cueContentText =
+        cueContent.let { json -> ByteArray(json.length()) { json.getInt(it).toByte() } }
+            .toString(Charsets.UTF_8)
+
+    // Retain only nielsen tags
+    if (cueContentText.startsWith("type=nielsen_tag")) {
+        // Decode payload
+        val base64 =
+            cueContentText.substring(cueContentText.indexOf("payload=") + "payload=".length)
+        val decoded = Base64.decode(base64, Base64.DEFAULT).toString(Charsets.UTF_8)
+        // Sanitise content
+        val cleaned = decoded.filter { it.code in 32..126 }
+        handle(cleaned)
+    }
 }
