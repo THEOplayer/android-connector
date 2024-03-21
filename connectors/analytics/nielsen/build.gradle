@@ -36,5 +36,5 @@ dependencies {
 
     compileOnly "com.theoplayer.theoplayer-sdk-android:core:$sdkVersion"
     compileOnly "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:$sdkVersion"
-    compileOnly "com.nielsenappsdk.global:ad:9.1.0.0"
+    compileOnly "com.nielsenappsdk.global:ad:9.2.0.0"
 }
