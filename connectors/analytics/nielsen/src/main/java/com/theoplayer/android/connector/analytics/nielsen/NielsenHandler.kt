@@ -233,7 +233,7 @@ class NielsenHandler(
     }
 }
 
-fun handleNielsenId3Payload(cueContent: JSONObject, handle: (result: String) -> Unit) {
+private fun handleNielsenId3Payload(cueContent: JSONObject, handle: (result: String) -> Unit) {
     cueContent.optString("ownerIdentifier").let {
         if (it.contains("www.nielsen.com")) {
             handle(it)
@@ -241,7 +241,7 @@ fun handleNielsenId3Payload(cueContent: JSONObject, handle: (result: String) -> 
     }
 }
 
-fun handleNielsenEmsgPayload(cueContent: JSONArray, handle: (result: String) -> Unit) {
+private fun handleNielsenEmsgPayload(cueContent: JSONArray, handle: (result: String) -> Unit) {
     // Convert to String
     val cueContentText =
         cueContent.let { json -> ByteArray(json.length()) { json.getInt(it).toByte() } }
