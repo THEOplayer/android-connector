@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.util.Base64
+import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleObserver
@@ -24,6 +25,7 @@ import com.theoplayer.android.api.player.track.texttrack.TextTrackType
 import org.json.JSONArray
 import org.json.JSONObject
 
+private const val TAG = "NielsenConnector"
 private const val PROP_APP_ID = "appid"
 private const val PROP_DEBUG = "nol_devDebug"
 private const val PROP_CHANNEL_NAME = "channelname"
@@ -249,12 +251,27 @@ private fun handleNielsenEmsgPayload(cueContent: JSONArray, handle: (result: Str
 
     // Retain only nielsen tags
     if (cueContentText.startsWith("type=nielsen_tag")) {
-        // Decode payload
-        val base64 =
-            cueContentText.substring(cueContentText.indexOf("payload=") + "payload=".length)
-        val decoded = Base64.decode(base64, Base64.DEFAULT).toString(Charsets.UTF_8)
-        // Sanitise content
-        val cleaned = decoded.filter { it.code in 32..126 }
-        handle(cleaned)
+        try {
+            val base64Payload =
+                cueContentText.substring(cueContentText.indexOf("payload=") + "payload=".length)
+
+            // decode payload
+            val payload = Base64.decode(base64Payload, Base64.DEFAULT).toString(Charsets.UTF_8)
+
+            // sanitise payload before submitting:
+            // - only allow printable characters within ASCII 32 to 126 range.
+            // - no character beyong the last digit.
+            // - drop everything before ID3 PRIV{
+            var sanitizedPayload = payload.filter { it.code in 32..126 }
+            sanitizedPayload = sanitizedPayload.replace(Regex("\\D+\$"), "")
+            val privIndex = sanitizedPayload.indexOf("PRIV{")
+            sanitizedPayload =
+                if (privIndex != -1) sanitizedPayload.substring(privIndex + "PRIV{".length) else sanitizedPayload
+
+            // send payload
+            handle(sanitizedPayload)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to parse Nielsen payload ${e.message}")
+        }
     }
 }
