@@ -12,10 +12,6 @@ import com.theoplayer.android.api.timerange.TimeRanges
 class MediaSessionCallback(private val connector: MediaSessionConnector) :
     MediaSessionCompat.Callback() {
 
-    companion object {
-        private const val DEFAULT_SKIP_TIME = 5.0 // 5s
-    }
-
     override fun onPrepare() {
         if (connector.debug) {
             Log.d(TAG, "MediaSessionCallback::onPrepare")
@@ -130,7 +126,7 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
             Log.d(TAG, "MediaSessionCallback::onFastForward")
         }
         if (shouldHandlePlaybackAction(ACTION_FAST_FORWARD)) {
-            skip(DEFAULT_SKIP_TIME)
+            skip(connector.skipForwardInterval)
         }
         connector.listeners.forEach { listener ->
             listener.onFastForward()
@@ -142,7 +138,7 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
             Log.d(TAG, "MediaSessionCallback::onRewind")
         }
         if (shouldHandlePlaybackAction(ACTION_REWIND)) {
-            skip(-DEFAULT_SKIP_TIME)
+            skip(-connector.skipBackwardsInterval)
         }
         connector.listeners.forEach { listener ->
             listener.onRewind()

@@ -15,6 +15,9 @@ const val DEFAULT_MEDIA_SESSION_FLAGS = (MediaSessionCompat.FLAG_HANDLES_MEDIA_B
 const val EDITOR_MEDIA_SESSION_FLAGS =
     DEFAULT_MEDIA_SESSION_FLAGS or MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS
 
+const val DEFAULT_SKIP_FORWARD_INTERVAL = 5.0
+const val DEFAULT_SKIP_BACKWARDS_INTERVAL = 5.0
+
 /**
  * MediaSessionConnector connects an Android media session to a THEOplayer instance.
  *
@@ -98,6 +101,16 @@ class MediaSessionConnector(val mediaSession: MediaSessionCompat) {
     var debug: Boolean = BuildConfig.DEBUG
     var enabledPlaybackActions: Long = PlaybackStateProvider.DEFAULT_PLAYBACK_ACTIONS
     var customActionProviders: Array<CustomActionProvider> = arrayOf()
+
+    /**
+     * The interval the player should skip forward when fast-forwarding, in seconds.
+     */
+    var skipForwardInterval = DEFAULT_SKIP_FORWARD_INTERVAL
+
+    /**
+     * The interval the player should skip backward when rewinding, in seconds.
+     */
+    var skipBackwardsInterval = DEFAULT_SKIP_BACKWARDS_INTERVAL
 
     init {
         if (debug) {
