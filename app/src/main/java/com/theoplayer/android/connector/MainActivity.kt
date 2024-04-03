@@ -156,11 +156,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun seekBackward(view: View) {
-        theoplayerView.player.currentTime = theoplayerView.player.currentTime - 10
+        theoplayerView.player.currentTime -= 10
     }
 
     fun seekForward(view: View) {
-        theoplayerView.player.currentTime = theoplayerView.player.currentTime + 10
+        theoplayerView.player.currentTime += 10
     }
 
     override fun onPause() {
