@@ -196,4 +196,4 @@ Record for full_user=0
 [Building an audio app]: https://developer.android.com/guide/topics/media-apps/audio-app/building-an-audio-app
 [MediaController]: https://developer.android.com/reference/kotlin/android/support/v4/media/session/MediaControllerCompat
 [onMetadataChanged]: https://developer.android.com/reference/kotlin/android/support/v4/media/session/MediaControllerCompat.Callback#onMetadataChanged(android.support.v4.media.MediaMetadataCompat)
-[MediaMetadataProvider]: ./src/main/java/com/theoplayer/android/mediasession/MediaMetadataProvider.kt
+[MediaMetadataProvider]: ./src/main/java/com/theoplayer/android/connector/mediasession/MediaMetadataProvider.kt
