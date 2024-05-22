@@ -33,4 +33,10 @@ android {
 dependencies {
     implementation 'androidx.core:core-ktx:1.13.1'
     compileOnly "com.theoplayer.theoplayer-sdk-android:core:$sdkVersion"
+    compileOnly("com.yospace:admanagement-sdk") {
+        version {
+            strictly("[3.6, 4.0)")
+            prefer("3.6.7")
+        }
+    }
 }
