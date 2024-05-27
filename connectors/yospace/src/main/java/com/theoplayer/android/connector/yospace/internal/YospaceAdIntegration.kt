@@ -35,12 +35,11 @@ class YospaceAdIntegration(
 
             YospaceStreamType.VOD -> createSessionVOD(src, ssaiDescription.sessionProperties)
         }
-        this.session = session
 
-        // Load the source
         when (session.sessionState) {
             Session.SessionState.INITIALISED,
             Session.SessionState.NO_ANALYTICS -> {
+                this.session = session
                 // Notify listener
                 listener.onSessionAvailable()
                 // Replace source with playback URL
