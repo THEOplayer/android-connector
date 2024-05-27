@@ -15,7 +15,6 @@ import java.util.UUID
 /**
  * The configuration for server-side ad insertion using the Yospace connector.
  */
-@Serializable(with = YospaceSsaiDescriptionKSerializer::class)
 class YospaceSsaiDescription(
     /**
      * The type of the requested stream.
@@ -59,12 +58,12 @@ enum class YospaceStreamType {
 }
 
 internal class YospaceSsaiDescriptionSerializer : CustomSsaiDescriptionSerializer {
-    override fun fromJson(json: String): CustomSsaiDescription {
-        return Json.decodeFromString(YospaceSsaiDescription.serializer(), json)
+    override fun fromJson(json: String): YospaceSsaiDescription {
+        return Json.decodeFromString(YospaceSsaiDescriptionKSerializer(), json)
     }
 
     override fun toJson(value: CustomSsaiDescription): String {
-        return Json.encodeToString(YospaceSsaiDescription.serializer(), value as YospaceSsaiDescription)
+        return Json.encodeToString(YospaceSsaiDescriptionKSerializer(), value as YospaceSsaiDescription)
     }
 }
 
