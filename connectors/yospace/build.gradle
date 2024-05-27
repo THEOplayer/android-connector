@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'org.jetbrains.kotlin.plugin.serialization'
 }
 apply from: "$rootDir/connectors/publish.gradle"
 
@@ -39,4 +40,5 @@ dependencies {
             prefer("3.6.7")
         }
     }
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3'
 }

@@ -2,6 +2,7 @@ package com.theoplayer.android.connector.yospace
 
 import com.theoplayer.android.api.ads.ServerSideAdIntegrationController
 import com.theoplayer.android.api.player.Player
+import com.theoplayer.android.api.source.ssai.CustomSsaiDescriptionRegistry
 import com.theoplayer.android.connector.yospace.internal.YospaceAdIntegration
 import com.yospace.admanagement.AdBreak
 import com.yospace.admanagement.Advert
@@ -92,6 +93,12 @@ class YospaceConnector(
     private inner class ForwardingListener : YospaceListener {
         override fun onSessionAvailable() {
             listeners.forEach { it.onSessionAvailable() }
+        }
+    }
+
+    companion object {
+        init {
+            CustomSsaiDescriptionRegistry.register(INTEGRATION_ID, YospaceSsaiDescriptionSerializer())
         }
     }
 }
