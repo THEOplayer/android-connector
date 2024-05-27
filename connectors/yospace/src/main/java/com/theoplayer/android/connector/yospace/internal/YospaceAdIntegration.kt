@@ -8,6 +8,7 @@ import com.theoplayer.android.connector.yospace.TAG
 import com.theoplayer.android.connector.yospace.YospaceListener
 import com.theoplayer.android.connector.yospace.YospaceSsaiDescription
 import com.theoplayer.android.connector.yospace.YospaceStreamType
+import com.yospace.admanagement.AnalyticEventObserver
 import com.yospace.admanagement.Session
 import com.yospace.admanagement.SessionDVRLive
 import com.yospace.admanagement.SessionLive
@@ -17,6 +18,7 @@ import kotlin.coroutines.suspendCoroutine
 
 class YospaceAdIntegration(
     private val controller: ServerSideAdIntegrationController,
+    private val analyticEventObserver: AnalyticEventObserver,
     private val listener: YospaceListener
 ) : ServerSideAdIntegrationHandler {
     private var session: Session? = null
@@ -39,7 +41,8 @@ class YospaceAdIntegration(
         when (session.sessionState) {
             Session.SessionState.INITIALISED,
             Session.SessionState.NO_ANALYTICS -> {
-                this.session = session
+                // Set up
+                setupSession(session)
                 // Notify listener
                 listener.onSessionAvailable()
                 // Replace source with playback URL
@@ -68,8 +71,18 @@ class YospaceAdIntegration(
         return source
     }
 
+    private fun setupSession(session: Session) {
+        this.session = session
+        session.apply {
+            addAnalyticObserver(analyticEventObserver)
+        }
+    }
+
     override suspend fun resetSource() {
-        session?.shutdown()
+        session?.apply {
+            removeAnalyticObserver(analyticEventObserver)
+            shutdown()
+        }
         session = null
     }
 }
