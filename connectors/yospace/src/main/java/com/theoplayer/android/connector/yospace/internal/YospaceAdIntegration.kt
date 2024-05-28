@@ -34,6 +34,7 @@ class YospaceAdIntegration(
     private val listener: YospaceListener
 ) : ServerSideAdIntegrationHandler {
     private var session: Session? = null
+    private var timedMetadataHandler: TimedMetadataHandler? = null
     private var didFirstPlay: Boolean = false
     private var isMuted: Boolean = false
     private var isStalling: Boolean = false
@@ -95,15 +96,20 @@ class YospaceAdIntegration(
             addAnalyticObserver(analyticEventObserver)
         }
         addPlayerListeners()
+        timedMetadataHandler = TimedMetadataHandler(player, session)
     }
 
     private fun destroySession() {
         removePlayerListeners()
+        timedMetadataHandler?.apply {
+            destroy()
+            timedMetadataHandler = null
+        }
         session?.apply {
             removeAnalyticObserver(analyticEventObserver)
             shutdown()
+            session = null
         }
-        session = null
     }
 
     private fun addPlayerListeners() {
