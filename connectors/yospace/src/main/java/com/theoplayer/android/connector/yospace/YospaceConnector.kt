@@ -15,7 +15,7 @@ const val INTEGRATION_ID = "yospace"
 const val TAG = "YospaceConnector"
 
 class YospaceConnector(
-    player: Player
+    val player: Player
 ) {
     private val analyticEventObservers = CopyOnWriteArrayList<AnalyticEventObserver>()
     private val listeners = CopyOnWriteArrayList<YospaceListener>()
@@ -28,6 +28,7 @@ class YospaceConnector(
 
     private fun setupIntegration(controller: ServerSideAdIntegrationController): YospaceAdIntegration {
         val integration = YospaceAdIntegration(
+            player,
             controller,
             ForwardingAnalyticEventObserver(),
             ForwardingListener()
