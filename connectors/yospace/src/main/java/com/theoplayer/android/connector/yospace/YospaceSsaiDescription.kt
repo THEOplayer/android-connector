@@ -59,7 +59,6 @@ class YospaceSsaiDescription(
 /**
  * The type of the Yospace stream.
  */
-@Serializable
 enum class YospaceStreamType {
     /**
      * The stream is a live stream.
