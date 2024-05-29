@@ -45,17 +45,7 @@ class YospaceAdIntegration(
     private var isStalling: Boolean = false
 
     private val currentPlayhead: Long
-        get() {
-            var playhead = (player.currentTime * 1000.0).toLong()
-
-            // For Yospace DVRLive sessions we need to offset the playback position from the stream start time
-            val session = this.session
-            if (session is SessionDVRLive) {
-                playhead += session.windowStart - max(session.streamStart, 0)
-            }
-
-            return playhead
-        }
+        get() = toPlayhead(player.currentTime)
 
     override suspend fun setSource(source: SourceDescription): SourceDescription {
         val yospaceSource = source.sources.find { it.ssai is YospaceSsaiDescription } ?: return source
@@ -205,8 +195,20 @@ class YospaceAdIntegration(
     }
 
     private val onTimedMetadata = TimedMetadataCallback { metadata, startTime ->
-        val playhead = (startTime * 1000.0).toLong()
+        val playhead = toPlayhead(startTime)
         session?.onTimedMetadata(TimedMetadata.createFromMetadata(metadata.ymid, metadata.yseq, metadata.ytyp, metadata.ydur, playhead))
+    }
+
+    private fun toPlayhead(playerTime: Double): Long {
+        var playhead = (playerTime * 1000.0).toLong()
+
+        // For Yospace DVRLive sessions we need to offset the playback position from the stream start time
+        val session = this.session
+        if (session is SessionDVRLive) {
+            playhead += session.windowStart - max(session.streamStart, 0)
+        }
+
+        return playhead
     }
 
     private fun updatePlayhead() {
