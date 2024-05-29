@@ -10,7 +10,6 @@ import com.yospace.admanagement.Resource
 import com.yospace.admanagement.Session
 import com.yospace.admanagement.TrackingErrors
 import java.util.WeakHashMap
-import kotlin.math.max
 import com.yospace.admanagement.AdBreak as YospaceAdBreak
 import com.yospace.admanagement.Advert as YospaceAdvert
 
@@ -115,7 +114,7 @@ internal class AdHandler(private val controller: ServerSideAdIntegrationControll
         val advert = this.currentYospaceAdvert ?: return
         val duration = advert.duration
         val remainingTime = advert.getRemainingTime(playhead)
-        val progress = max(0.0, (duration - remainingTime).toDouble() / duration.toDouble())
+        val progress = ((duration - remainingTime).toDouble() / duration.toDouble()).coerceIn(0.0, 1.0)
         controller.updateAdProgress(ad, progress)
     }
 

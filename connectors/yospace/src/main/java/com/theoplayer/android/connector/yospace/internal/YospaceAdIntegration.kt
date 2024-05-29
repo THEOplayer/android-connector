@@ -29,7 +29,6 @@ import com.yospace.admanagement.SessionVOD
 import com.yospace.admanagement.TimedMetadata
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
-import kotlin.math.max
 
 internal class YospaceAdIntegration(
     private val player: Player,
@@ -205,7 +204,7 @@ internal class YospaceAdIntegration(
         // For Yospace DVRLive sessions we need to offset the playback position from the stream start time
         val session = this.session
         if (session is SessionDVRLive) {
-            playhead += session.windowStart - max(session.streamStart, 0)
+            playhead += session.windowStart - session.streamStart.coerceAtLeast(0)
         }
 
         return playhead
