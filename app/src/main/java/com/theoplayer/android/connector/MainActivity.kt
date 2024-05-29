@@ -13,13 +13,13 @@ import com.theoplayer.android.api.source.SourceDescription
 import com.theoplayer.android.api.source.TypedSource
 import com.theoplayer.android.api.source.addescription.GoogleImaAdDescription
 import com.theoplayer.android.api.source.metadata.MetadataDescription
-import com.theoplayer.android.connector.analytics.conviva.ConvivaConfiguration
-import com.theoplayer.android.connector.analytics.conviva.ConvivaConnector
-import com.theoplayer.android.connector.analytics.nielsen.NielsenConnector
 import com.theoplayer.android.connector.analytics.comscore.ComscoreConfiguration
 import com.theoplayer.android.connector.analytics.comscore.ComscoreConnector
 import com.theoplayer.android.connector.analytics.comscore.ComscoreMediaType
 import com.theoplayer.android.connector.analytics.comscore.ComscoreMetaData
+import com.theoplayer.android.connector.analytics.conviva.ConvivaConfiguration
+import com.theoplayer.android.connector.analytics.conviva.ConvivaConnector
+import com.theoplayer.android.connector.analytics.nielsen.NielsenConnector
 
 class MainActivity : AppCompatActivity() {
 
@@ -131,20 +131,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun setSource(view: View) {
-        theoplayerView.player.source = SourceDescription.Builder(
-            TypedSource.Builder("https://cdn.theoplayer.com/video/big_buck_bunny/big_buck_bunny.m3u8")
-                .build()
+        theoplayerView.player.source = SourceDescription
+            .Builder(
+                TypedSource.Builder("https://cdn.theoplayer.com/video/big_buck_bunny/big_buck_bunny.m3u8")
+                    .build()
+            )
+            .ads(
+                GoogleImaAdDescription.Builder("https://cdn.theoplayer.com/demos/ads/vast/dfp-linear-inline-no-skip.xml")
+                    .timeOffset("5")
+                    .build()
+            )
+            .metadata(MetadataDescription(mapOf("title" to "BigBuckBunny with Google IMA ads")))
+            .build()
+        nielsenConnector.updateMetadata(
+            hashMapOf(
+                "assetid" to "C112233",
+                "program" to "BigBuckBunny with Google IMA ads"
+            )
         )
-        .ads(
-            GoogleImaAdDescription.Builder("https://cdn.theoplayer.com/demos/ads/vast/dfp-linear-inline-no-skip.xml")
-                .timeOffset("5")
-                .build()
-        ).metadata(MetadataDescription(mapOf("title" to "BigBuckBunny with Google IMA ads")))
-        .build()
-        nielsenConnector.updateMetadata(hashMapOf(
-            "assetid" to "C112233",
-            "program" to "BigBuckBunny with Google IMA ads"
-        ))
     }
 
     fun playPause(view: View) {
