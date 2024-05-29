@@ -38,6 +38,7 @@ class YospaceAdIntegration(
 ) : ServerSideAdIntegrationHandler {
     private var session: Session? = null
     private var timedMetadataHandler: TimedMetadataHandler? = null
+    private var adHandler: AdHandler? = null
     private var didFirstPlay: Boolean = false
     private var isMuted: Boolean = false
     private var isStalling: Boolean = false
@@ -108,12 +109,13 @@ class YospaceAdIntegration(
 
     private fun setupSession(session: Session) {
         this.session = session
-        session.apply {
-            addAnalyticObserver(analyticEventObserver)
-        }
         addPlayerListeners()
         updatePlayhead()
         timedMetadataHandler = TimedMetadataHandler(player, session)
+        adHandler = AdHandler(controller).also {
+            session.addAnalyticObserver(it)
+        }
+        session.addAnalyticObserver(analyticEventObserver)
     }
 
     private fun destroySession() {
@@ -121,6 +123,11 @@ class YospaceAdIntegration(
         timedMetadataHandler?.apply {
             destroy()
             timedMetadataHandler = null
+        }
+        adHandler?.apply {
+            session?.removeAnalyticObserver(this)
+            destroy()
+            adHandler = null
         }
         session?.apply {
             removeAnalyticObserver(analyticEventObserver)
@@ -197,7 +204,9 @@ class YospaceAdIntegration(
     }
 
     private fun updatePlayhead() {
-        session?.onPlayheadUpdate(currentPlayhead)
+        val playhead = currentPlayhead
+        session?.onPlayheadUpdate(playhead)
+        adHandler?.onTimeUpdate(playhead)
     }
 
     override suspend fun resetSource() {
