@@ -1,7 +1,10 @@
+import org.jetbrains.dokka.gradle.AbstractDokkaLeafTask
+
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
     id 'org.jetbrains.kotlin.plugin.serialization'
+    id 'org.jetbrains.dokka'
 }
 apply from: "$rootDir/connectors/publish.gradle"
 
@@ -51,4 +54,8 @@ dependencies {
     testImplementation "androidx.test.ext:junit:1.1.5"
     testImplementation "com.theoplayer.theoplayer-sdk-android:core:$sdkVersion"
     testImplementation "com.yospace:admanagement-sdk:$yospaceVersion"
+}
+
+tasks.withType(AbstractDokkaLeafTask.class).configureEach {
+    moduleName = "Yospace Connector"
 }
