@@ -109,13 +109,13 @@ class YospaceAdIntegration(
 
     private fun setupSession(session: Session) {
         this.session = session
-        addPlayerListeners()
-        updatePlayhead()
         timedMetadataHandler = TimedMetadataHandler(player, session)
         adHandler = AdHandler(controller).also {
             session.addAnalyticObserver(it)
         }
         session.addAnalyticObserver(analyticEventObserver)
+        addPlayerListeners()
+        updatePlayhead()
     }
 
     private fun destroySession() {
