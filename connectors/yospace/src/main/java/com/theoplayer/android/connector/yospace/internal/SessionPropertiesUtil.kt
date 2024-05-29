@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 import java.util.UUID
 
 @Serializable
-data class SerializedSessionProperties(
+internal data class SerializedSessionProperties(
     val requestTimeout: Int,
     val resourceTimeout: Int,
     val userAgent: String,
@@ -20,7 +20,7 @@ data class SerializedSessionProperties(
     val customHttpHeaders: Map<String, String>,
 )
 
-fun Session.SessionProperties.serialize() = SerializedSessionProperties(
+internal fun Session.SessionProperties.serialize() = SerializedSessionProperties(
     requestTimeout = requestTimeout,
     resourceTimeout = resourceTimeout,
     userAgent = userAgent,
@@ -35,7 +35,7 @@ fun Session.SessionProperties.serialize() = SerializedSessionProperties(
     customHttpHeaders = customHttpHeaders,
 )
 
-fun SerializedSessionProperties.deserialize(): Session.SessionProperties {
+internal fun SerializedSessionProperties.deserialize(): Session.SessionProperties {
     val serialized = this
     return Session.SessionProperties().apply {
         requestTimeout = serialized.requestTimeout
