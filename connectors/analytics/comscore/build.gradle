@@ -1,6 +1,9 @@
+import org.jetbrains.dokka.gradle.AbstractDokkaLeafTask
+
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'org.jetbrains.dokka'
 }
 apply from: "$rootDir/connectors/publish.gradle"
 
@@ -35,4 +38,8 @@ dependencies {
     compileOnly "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:$sdkVersion"
 
     compileOnly "com.comscore:android-analytics:$comscoreVersion"
+}
+
+tasks.withType(AbstractDokkaLeafTask.class).configureEach {
+    moduleName = "Comscore Connector"
 }
