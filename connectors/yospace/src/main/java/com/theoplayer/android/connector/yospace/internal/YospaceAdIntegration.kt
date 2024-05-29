@@ -134,6 +134,7 @@ internal class YospaceAdIntegration(
     }
 
     private fun addPlayerListeners(isLive: Boolean) {
+        addStreamStartListeners()
         player.addEventListener(PlayerEventTypes.VOLUMECHANGE, onVolumeChange)
         player.addEventListener(PlayerEventTypes.PLAY, onPlay)
         player.addEventListener(PlayerEventTypes.ENDED, onEnded)
@@ -141,8 +142,6 @@ internal class YospaceAdIntegration(
         player.addEventListener(PlayerEventTypes.SEEKED, onSeeked)
         player.addEventListener(PlayerEventTypes.WAITING, onWaiting)
         player.addEventListener(PlayerEventTypes.PLAYING, onPlaying)
-        player.addEventListener(PlayerEventTypes.LOADEDMETADATA, onSeekableChange)
-        player.addEventListener(PlayerEventTypes.DURATIONCHANGE, onSeekableChange)
         if (!isLive) {
             // Playhead position is only used for DVR live and VOD playback
             // https://developer.yospace.com/sdk-documentation/android/userguide/latest/en/provide-necessary-information-to-the-sdk.html#video-playback-position
@@ -151,6 +150,7 @@ internal class YospaceAdIntegration(
     }
 
     private fun removePlayerListeners() {
+        removeStreamStartListeners()
         player.removeEventListener(PlayerEventTypes.VOLUMECHANGE, onVolumeChange)
         player.removeEventListener(PlayerEventTypes.PLAY, onPlay)
         player.removeEventListener(PlayerEventTypes.ENDED, onEnded)
@@ -158,9 +158,19 @@ internal class YospaceAdIntegration(
         player.removeEventListener(PlayerEventTypes.SEEKED, onSeeked)
         player.removeEventListener(PlayerEventTypes.WAITING, onWaiting)
         player.removeEventListener(PlayerEventTypes.PLAYING, onPlaying)
-        player.removeEventListener(PlayerEventTypes.LOADEDMETADATA, onSeekableChange)
-        player.removeEventListener(PlayerEventTypes.DURATIONCHANGE, onSeekableChange)
         player.removeEventListener(PlayerEventTypes.TIMEUPDATE, onTimeUpdate)
+    }
+
+    private fun addStreamStartListeners() {
+        player.addEventListener(PlayerEventTypes.LOADEDMETADATA, onSeekableChange)
+        player.addEventListener(PlayerEventTypes.DURATIONCHANGE, onSeekableChange)
+        player.addEventListener(PlayerEventTypes.TIMEUPDATE, onSeekableChange)
+    }
+
+    private fun removeStreamStartListeners() {
+        player.addEventListener(PlayerEventTypes.LOADEDMETADATA, onSeekableChange)
+        player.addEventListener(PlayerEventTypes.DURATIONCHANGE, onSeekableChange)
+        player.addEventListener(PlayerEventTypes.TIMEUPDATE, onSeekableChange)
     }
 
     private val onVolumeChange = EventListener<VolumeChangeEvent> {
@@ -209,7 +219,6 @@ internal class YospaceAdIntegration(
     }
 
     private val onTimeUpdate = EventListener<TimeUpdateEvent> {
-        updateStreamStart()
         updatePlayhead()
     }
 
@@ -237,6 +246,7 @@ internal class YospaceAdIntegration(
             val seekableEnd = seekable.getEnd(0)
             if (seekableStart < seekableEnd || seekableEnd > 0.0) {
                 streamStart = seekableStart
+                removeStreamStartListeners()
             }
         }
     }
