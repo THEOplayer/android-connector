@@ -241,13 +241,12 @@ internal class YospaceAdIntegration(
     private fun updateStreamStart() {
         if (streamStart != null) return
         val seekable = player.seekable
-        if (seekable.length() > 0) {
-            val seekableStart = seekable.getStart(0)
-            val seekableEnd = seekable.getEnd(0)
-            if (seekableStart < seekableEnd || seekableEnd > 0.0) {
-                streamStart = seekableStart
-                removeStreamStartListeners()
-            }
+        if (seekable.length() <= 0) return
+        val seekableStart = seekable.getStart(0)
+        val seekableEnd = seekable.getEnd(0)
+        if (seekableStart < seekableEnd || seekableEnd > 0.0) {
+            streamStart = seekableStart
+            removeStreamStartListeners()
         }
     }
 
