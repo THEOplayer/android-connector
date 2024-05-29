@@ -17,6 +17,7 @@ import com.theoplayer.android.connector.analytics.comscore.ComscoreMetaData
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConfiguration
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConnector
 import com.theoplayer.android.connector.analytics.nielsen.NielsenConnector
+import com.theoplayer.android.connector.yospace.YospaceConnector
 
 class MainActivity : AppCompatActivity() {
 
@@ -24,6 +25,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var convivaConnector: ConvivaConnector
     private lateinit var nielsenConnector: NielsenConnector
     private lateinit var comscoreConnector: ComscoreConnector
+    private lateinit var yospaceConnector: YospaceConnector
     private var selectedSource: Source = sources.first()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,6 +37,7 @@ class MainActivity : AppCompatActivity() {
         setupConviva()
         setupComscore()
         setupNielsen()
+        setupYospace()
     }
 
     private fun setupComscore() {
@@ -126,6 +129,10 @@ class MainActivity : AppCompatActivity() {
     private fun setupNielsen() {
         val appId = "your_nielsen_app_id"
         nielsenConnector = NielsenConnector(applicationContext, theoplayerView.player, appId, true)
+    }
+
+    private fun setupYospace() {
+        yospaceConnector = YospaceConnector(theoplayerView.player)
     }
 
     fun selectSource(view: View) {
