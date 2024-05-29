@@ -1,6 +1,8 @@
 import org.jetbrains.dokka.gradle.AbstractDokkaLeafTask
 import org.jetbrains.dokka.gradle.DokkaMultiModuleTask
 
+import java.time.Year
+
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     repositories {
@@ -30,6 +32,17 @@ task clean(type: Delete) {
 
 tasks.withType(DokkaMultiModuleTask.class).configureEach {
     moduleName = "THEOplayer Connectors for Android"
+
+    String dokkaBaseConfiguration = """
+    {
+      "customAssets": ["${file("assets/logo-icon.svg").path.replace('\\', "\\\\")}"],
+      "footerMessage": "&copy; ${Year.now().value} THEO Technologies"
+    }
+    """
+    pluginsMapConfiguration.set(
+            // fully qualified plugin name to json configuration
+            ["org.jetbrains.dokka.base.DokkaBase": dokkaBaseConfiguration]
+    )
 }
 
 subprojects {
