@@ -10,15 +10,13 @@ import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.api.player.track.texttrack.TextTrack
 import com.theoplayer.android.api.player.track.texttrack.TextTrackType
 import com.theoplayer.android.api.player.track.texttrack.cue.TextTrackCue
-import com.yospace.admanagement.PlaybackEventHandler
-import com.yospace.admanagement.TimedMetadata
 import org.json.JSONArray
 
 private const val YOSPACE_EMSG_SCHEME_ID_URI = "urn:yospace:a:id3:2016";
 
-class TimedMetadataHandler(
+internal class TimedMetadataHandler(
     private val player: Player,
-    private val handler: PlaybackEventHandler
+    private val callback: TimedMetadataCallback
 ) {
     private fun handleTrackAdded(track: TextTrack) {
         if (track.kind != "metadata") {
@@ -47,11 +45,11 @@ class TimedMetadataHandler(
     private fun handleId3CueChange(track: TextTrack) {
         val activeCues = (track.activeCues ?: return).filter(::isYospaceId3Cue)
         var startTime = (activeCues.firstOrNull() ?: return).startTime
-        var report = YospaceReport()
+        var report = PendingTimedMetadata()
         for (cue in activeCues) {
             if (cue.startTime != startTime) {
                 finishReport(report, startTime)
-                report = YospaceReport()
+                report = PendingTimedMetadata()
             }
             // cue.content.content is an ID3 frame encoded as a JSON object.
             // See `ID3Yospace` in THEOplayer Web SDK for the full type definition.
@@ -65,7 +63,7 @@ class TimedMetadataHandler(
     private fun handleEmsgCueChange(track: TextTrack) {
         val activeCues = (track.activeCues ?: return).filter(::isYospaceEmsgCue)
         for (cue in activeCues) {
-            val report = YospaceReport()
+            val report = PendingTimedMetadata()
             // cue.content.content is a byte array of a UTF-8 encoded string
             // holding comma-separated `key=value` pairs.
             val text = jsonArrayToByteArray(cue.content!!.getJSONArray("content")).toString(Charsets.UTF_8)
@@ -77,8 +75,8 @@ class TimedMetadataHandler(
         }
     }
 
-    private fun finishReport(report: YospaceReport, startTime: Double) {
-        report.finish((startTime * 1000).toLong())?.let { handler.onTimedMetadata(it) }
+    private fun finishReport(report: PendingTimedMetadata, startTime: Double) {
+        report.finish()?.let { metadata -> callback.onTimedMetadata(metadata, startTime) }
     }
 
     private val onAddTrack = EventListener<AddTrackEvent> { handleTrackAdded(it.track) }
@@ -99,7 +97,7 @@ class TimedMetadataHandler(
     }
 }
 
-private data class YospaceReport(
+private data class PendingTimedMetadata(
     var ymid: String? = null,
     var ytyp: String? = null,
     var yseq: String? = null,
@@ -114,15 +112,26 @@ private data class YospaceReport(
         }
     }
 
-    fun finish(playhead: Long): TimedMetadata? {
+    fun finish(): TimedMetadata? {
         val (ymid, ytyp, yseq, ydur) = this
         // Only create complete reports
         return if (ymid != null && ydur != null && yseq != null && ytyp != null) {
-            TimedMetadata.createFromMetadata(ymid, yseq, ytyp, ydur, playhead)
+            TimedMetadata(ymid = ymid, yseq = yseq, ytyp = ytyp, ydur = ydur)
         } else {
             null
         }
     }
+}
+
+internal data class TimedMetadata(
+    val ymid: String,
+    val ytyp: String,
+    val yseq: String,
+    val ydur: String,
+)
+
+internal fun interface TimedMetadataCallback {
+    fun onTimedMetadata(yospaceMetadata: TimedMetadata, startTime: Double)
 }
 
 private fun isYospaceId3Cue(cue: TextTrackCue): Boolean {

@@ -26,6 +26,7 @@ import com.yospace.admanagement.Session
 import com.yospace.admanagement.SessionDVRLive
 import com.yospace.admanagement.SessionLive
 import com.yospace.admanagement.SessionVOD
+import com.yospace.admanagement.TimedMetadata
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlin.math.max
@@ -109,7 +110,7 @@ class YospaceAdIntegration(
 
     private fun setupSession(session: Session) {
         this.session = session
-        timedMetadataHandler = TimedMetadataHandler(player, session)
+        timedMetadataHandler = TimedMetadataHandler(player, onTimedMetadata)
         adHandler = AdHandler(controller).also {
             session.addAnalyticObserver(it)
         }
@@ -201,6 +202,11 @@ class YospaceAdIntegration(
 
     private val onTimeUpdate = EventListener<TimeUpdateEvent> {
         updatePlayhead()
+    }
+
+    private val onTimedMetadata = TimedMetadataCallback { metadata, startTime ->
+        val playhead = (startTime * 1000.0).toLong()
+        session?.onTimedMetadata(TimedMetadata.createFromMetadata(metadata.ymid, metadata.yseq, metadata.ytyp, metadata.ydur, playhead))
     }
 
     private fun updatePlayhead() {
