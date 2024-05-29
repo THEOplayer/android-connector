@@ -3,6 +3,7 @@ package com.theoplayer.android.connector.yospace.internal
 import android.util.Log
 import com.theoplayer.android.api.ads.ServerSideAdIntegrationController
 import com.theoplayer.android.api.ads.ServerSideAdIntegrationHandler
+import com.theoplayer.android.api.event.Event
 import com.theoplayer.android.api.event.EventListener
 import com.theoplayer.android.api.event.player.EndedEvent
 import com.theoplayer.android.api.event.player.PauseEvent
@@ -40,6 +41,7 @@ internal class YospaceAdIntegration(
     private var timedMetadataHandler: TimedMetadataHandler? = null
     private var adHandler: AdHandler? = null
     private var didFirstPlay: Boolean = false
+    private var streamStart: Double? = null
     private var isMuted: Boolean = false
     private var isStalling: Boolean = false
 
@@ -135,6 +137,8 @@ internal class YospaceAdIntegration(
         player.addEventListener(PlayerEventTypes.WAITING, onWaiting)
         player.addEventListener(PlayerEventTypes.PLAYING, onPlaying)
         player.addEventListener(PlayerEventTypes.TIMEUPDATE, onTimeUpdate)
+        player.addEventListener(PlayerEventTypes.LOADEDMETADATA, onSeekableChange)
+        player.addEventListener(PlayerEventTypes.DURATIONCHANGE, onSeekableChange)
     }
 
     private fun removePlayerListeners() {
@@ -146,6 +150,8 @@ internal class YospaceAdIntegration(
         player.removeEventListener(PlayerEventTypes.WAITING, onWaiting)
         player.removeEventListener(PlayerEventTypes.PLAYING, onPlaying)
         player.removeEventListener(PlayerEventTypes.TIMEUPDATE, onTimeUpdate)
+        player.removeEventListener(PlayerEventTypes.LOADEDMETADATA, onSeekableChange)
+        player.removeEventListener(PlayerEventTypes.DURATIONCHANGE, onSeekableChange)
     }
 
     private val onVolumeChange = EventListener<VolumeChangeEvent> {
@@ -189,7 +195,12 @@ internal class YospaceAdIntegration(
         }
     }
 
+    private val onSeekableChange = EventListener<Event<*>> {
+        updateStreamStart()
+    }
+
     private val onTimeUpdate = EventListener<TimeUpdateEvent> {
+        updateStreamStart()
         updatePlayhead()
     }
 
@@ -199,15 +210,8 @@ internal class YospaceAdIntegration(
     }
 
     private fun toPlayhead(playerTime: Double): Long {
-        var playhead = (playerTime * 1000.0).toLong()
-
-        // For Yospace DVRLive sessions we need to offset the playback position from the stream start time
-        val session = this.session
-        if (session is SessionDVRLive) {
-            playhead += session.windowStart - session.streamStart.coerceAtLeast(0)
-        }
-
-        return playhead
+        val relativeTime = playerTime - (streamStart ?: 0.0)
+        return (relativeTime * 1000.0).toLong()
     }
 
     private fun updatePlayhead() {
@@ -216,9 +220,22 @@ internal class YospaceAdIntegration(
         adHandler?.onTimeUpdate(playhead)
     }
 
+    private fun updateStreamStart() {
+        if (streamStart != null) return
+        val seekable = player.seekable
+        if (seekable.length() > 0) {
+            val seekableStart = seekable.getStart(0)
+            val seekableEnd = seekable.getEnd(0)
+            if (seekableStart < seekableEnd || seekableEnd > 0.0) {
+                streamStart = seekableStart
+            }
+        }
+    }
+
     override suspend fun resetSource() {
         destroySession()
         didFirstPlay = false
+        streamStart = null
         isStalling = false
     }
 
