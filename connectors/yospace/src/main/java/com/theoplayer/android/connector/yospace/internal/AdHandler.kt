@@ -5,6 +5,7 @@ import com.theoplayer.android.api.ads.AdBreak
 import com.theoplayer.android.api.ads.AdBreakInit
 import com.theoplayer.android.api.ads.AdInit
 import com.theoplayer.android.api.ads.ServerSideAdIntegrationController
+import com.theoplayer.android.api.player.Player
 import com.yospace.admanagement.AnalyticEventObserver
 import com.yospace.admanagement.Resource
 import com.yospace.admanagement.Session
@@ -13,7 +14,10 @@ import java.util.WeakHashMap
 import com.yospace.admanagement.AdBreak as YospaceAdBreak
 import com.yospace.admanagement.Advert as YospaceAdvert
 
-internal class AdHandler(private val controller: ServerSideAdIntegrationController) : AnalyticEventObserver {
+internal class AdHandler(
+    private val player: Player,
+    private val controller: ServerSideAdIntegrationController
+) : AnalyticEventObserver {
     private val ads: WeakHashMap<YospaceAdvert, Ad> = WeakHashMap()
     private val adBreaks: WeakHashMap<YospaceAdBreak, AdBreak> = WeakHashMap()
     private var currentAd: Ad? = null
@@ -56,7 +60,12 @@ internal class AdHandler(private val controller: ServerSideAdIntegrationControll
     }
 
     override fun onAdvertBreakStart(adBreak: YospaceAdBreak?, session: Session) {
-        currentAdBreak = getOrCreateAdBreak(adBreak ?: return)
+        currentAdBreak = if (adBreak == null) {
+            // During live playback, an ad break may be started without any information
+            controller.createAdBreak(AdBreakInit(timeOffset = player.currentTime.toInt()))
+        } else {
+            getOrCreateAdBreak(adBreak)
+        }
     }
 
     override fun onAdvertBreakEnd(session: Session) {

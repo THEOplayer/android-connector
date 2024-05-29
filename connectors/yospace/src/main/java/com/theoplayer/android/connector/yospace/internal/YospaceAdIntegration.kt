@@ -107,7 +107,7 @@ internal class YospaceAdIntegration(
             // https://developer.yospace.com/sdk-documentation/android/userguide/latest/en/provide-necessary-information-to-the-sdk.html#video-playback-position
             timedMetadataHandler = TimedMetadataHandler(player, onTimedMetadata)
         }
-        adHandler = AdHandler(controller).also {
+        adHandler = AdHandler(player, controller).also {
             session.addAnalyticObserver(it)
         }
         session.addAnalyticObserver(analyticEventObserver)
