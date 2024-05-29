@@ -24,8 +24,8 @@ import com.theoplayer.android.connector.analytics.comscore.ComscoreMetaData
 class MainActivity : AppCompatActivity() {
 
     private lateinit var theoplayerView: THEOplayerView
-    private var convivaConnector: ConvivaConnector? = null
-    private var nielsenConnector: NielsenConnector? = null
+    private lateinit var convivaConnector: ConvivaConnector
+    private lateinit var nielsenConnector: NielsenConnector
     private lateinit var comscoreConnector: ComscoreConnector
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -141,7 +141,7 @@ class MainActivity : AppCompatActivity() {
                 .build()
         ).metadata(MetadataDescription(mapOf("title" to "BigBuckBunny with Google IMA ads")))
         .build()
-        nielsenConnector?.updateMetadata(hashMapOf(
+        nielsenConnector.updateMetadata(hashMapOf(
             "assetid" to "C112233",
             "program" to "BigBuckBunny with Google IMA ads"
         ))
