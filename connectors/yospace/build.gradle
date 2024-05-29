@@ -8,8 +8,6 @@ plugins {
 }
 apply from: "$rootDir/connectors/publish.gradle"
 
-version = sdkVersion
-
 android {
     namespace 'com.theoplayer.android.connector.yospace'
     compileSdk 34
