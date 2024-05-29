@@ -14,7 +14,7 @@ import kotlin.math.max
 import com.yospace.admanagement.AdBreak as YospaceAdBreak
 import com.yospace.admanagement.Advert as YospaceAdvert
 
-class AdHandler(private val controller: ServerSideAdIntegrationController) : AnalyticEventObserver {
+internal class AdHandler(private val controller: ServerSideAdIntegrationController) : AnalyticEventObserver {
     private val ads: WeakHashMap<YospaceAdvert, Ad> = WeakHashMap()
     private val adBreaks: WeakHashMap<YospaceAdBreak, AdBreak> = WeakHashMap()
     private var currentAd: Ad? = null

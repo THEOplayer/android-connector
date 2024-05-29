@@ -31,7 +31,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlin.math.max
 
-class YospaceAdIntegration(
+internal class YospaceAdIntegration(
     private val player: Player,
     private val controller: ServerSideAdIntegrationController,
     private val analyticEventObserver: AnalyticEventObserver,
