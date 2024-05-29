@@ -31,6 +31,29 @@ class YospaceSsaiDescription(
 ) : CustomSsaiDescription() {
     override val customIntegration: String
         get() = INTEGRATION_ID
+
+    /**
+     * A builder for a [YospaceSsaiDescription].
+     */
+    class Builder() {
+        private var streamType: YospaceStreamType = YospaceStreamType.LIVE
+        private var sessionProperties: Session.SessionProperties = Session.SessionProperties()
+
+        /**
+         * Sets the type of the requested stream.
+         */
+        fun streamType(streamType: YospaceStreamType) = apply { this.streamType = streamType }
+
+        /**
+         * Sets the custom properties to set when initializing the Yospace session.
+         */
+        fun sessionProperties(sessionProperties: Session.SessionProperties) = apply { this.sessionProperties = sessionProperties }
+
+        /**
+         * Builds the [YospaceSsaiDescription].
+         */
+        fun build() = YospaceSsaiDescription(streamType = streamType, sessionProperties = sessionProperties)
+    }
 }
 
 /**
