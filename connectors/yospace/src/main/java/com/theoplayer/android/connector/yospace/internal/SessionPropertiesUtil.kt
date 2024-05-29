@@ -4,6 +4,34 @@ import com.yospace.admanagement.Session
 import kotlinx.serialization.Serializable
 import java.util.UUID
 
+internal fun Session.SessionProperties.copy(
+    requestTimeout: Int = this.requestTimeout,
+    resourceTimeout: Int = this.resourceTimeout,
+    userAgent: String = this.userAgent,
+    proxyUserAgent: String = this.proxyUserAgent,
+    keepProxyAlive: Boolean = this.keepProxyAlive,
+    prefetchResources: Boolean = this.prefetchResources,
+    fireHistoricalBeacons: Boolean = this.fireHistoricalBeacons,
+    applyEncryptedTracking: Boolean = this.applyEncryptedTracking,
+    excludedCategories: Int = this.excludedCategories,
+    consecutiveBreakTolerance: Int = this.consecutiveBreakTolerance,
+    token: UUID = this.token,
+    customHttpHeaders: Map<String, String> = this.customHttpHeaders,
+) = Session.SessionProperties().apply {
+    this.requestTimeout = requestTimeout
+    this.resourceTimeout = resourceTimeout
+    this.userAgent = userAgent
+    this.proxyUserAgent = proxyUserAgent
+    this.keepProxyAlive = keepProxyAlive
+    this.prefetchResources = prefetchResources
+    this.fireHistoricalBeacons = fireHistoricalBeacons
+    this.applyEncryptedTracking = applyEncryptedTracking
+    this.excludeFromSuppression(excludedCategories)
+    this.consecutiveBreakTolerance = consecutiveBreakTolerance
+    this.token = token
+    this.customHttpHeaders = customHttpHeaders
+}
+
 @Serializable
 internal data class SerializedSessionProperties(
     val requestTimeout: Int,
