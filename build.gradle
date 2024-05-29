@@ -33,6 +33,8 @@ tasks.withType(DokkaMultiModuleTask.class).configureEach {
 }
 
 subprojects {
+    version = sdkVersion
+
     tasks.withType(AbstractDokkaLeafTask.class).configureEach {
         suppressObviousFunctions.set(true)
         suppressInheritedMembers.set(true)
