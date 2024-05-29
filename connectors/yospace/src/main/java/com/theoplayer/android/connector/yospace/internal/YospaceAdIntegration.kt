@@ -100,13 +100,18 @@ internal class YospaceAdIntegration(
     }
 
     private fun setupSession(session: Session) {
+        val isLive = session.playbackMode == Session.PlaybackMode.LIVE
         this.session = session
-        timedMetadataHandler = TimedMetadataHandler(player, onTimedMetadata)
+        if (isLive) {
+            // Timed metadata is only used for live playback
+            // https://developer.yospace.com/sdk-documentation/android/userguide/latest/en/provide-necessary-information-to-the-sdk.html#video-playback-position
+            timedMetadataHandler = TimedMetadataHandler(player, onTimedMetadata)
+        }
         adHandler = AdHandler(controller).also {
             session.addAnalyticObserver(it)
         }
         session.addAnalyticObserver(analyticEventObserver)
-        addPlayerListeners()
+        addPlayerListeners(isLive)
         updatePlayhead()
     }
 
@@ -128,7 +133,7 @@ internal class YospaceAdIntegration(
         }
     }
 
-    private fun addPlayerListeners() {
+    private fun addPlayerListeners(isLive: Boolean) {
         player.addEventListener(PlayerEventTypes.VOLUMECHANGE, onVolumeChange)
         player.addEventListener(PlayerEventTypes.PLAY, onPlay)
         player.addEventListener(PlayerEventTypes.ENDED, onEnded)
@@ -136,9 +141,13 @@ internal class YospaceAdIntegration(
         player.addEventListener(PlayerEventTypes.SEEKED, onSeeked)
         player.addEventListener(PlayerEventTypes.WAITING, onWaiting)
         player.addEventListener(PlayerEventTypes.PLAYING, onPlaying)
-        player.addEventListener(PlayerEventTypes.TIMEUPDATE, onTimeUpdate)
         player.addEventListener(PlayerEventTypes.LOADEDMETADATA, onSeekableChange)
         player.addEventListener(PlayerEventTypes.DURATIONCHANGE, onSeekableChange)
+        if (!isLive) {
+            // Playhead position is only used for DVR live and VOD playback
+            // https://developer.yospace.com/sdk-documentation/android/userguide/latest/en/provide-necessary-information-to-the-sdk.html#video-playback-position
+            player.addEventListener(PlayerEventTypes.TIMEUPDATE, onTimeUpdate)
+        }
     }
 
     private fun removePlayerListeners() {
@@ -149,9 +158,9 @@ internal class YospaceAdIntegration(
         player.removeEventListener(PlayerEventTypes.SEEKED, onSeeked)
         player.removeEventListener(PlayerEventTypes.WAITING, onWaiting)
         player.removeEventListener(PlayerEventTypes.PLAYING, onPlaying)
-        player.removeEventListener(PlayerEventTypes.TIMEUPDATE, onTimeUpdate)
         player.removeEventListener(PlayerEventTypes.LOADEDMETADATA, onSeekableChange)
         player.removeEventListener(PlayerEventTypes.DURATIONCHANGE, onSeekableChange)
+        player.removeEventListener(PlayerEventTypes.TIMEUPDATE, onTimeUpdate)
     }
 
     private val onVolumeChange = EventListener<VolumeChangeEvent> {
