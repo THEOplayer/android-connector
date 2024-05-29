@@ -1,6 +1,7 @@
 package com.theoplayer.android.connector
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -9,7 +10,11 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.theoplayer.android.api.THEOplayerConfig
 import com.theoplayer.android.api.THEOplayerView
+import com.theoplayer.android.api.ads.LinearAd
 import com.theoplayer.android.api.ads.ima.GoogleImaIntegrationFactory
+import com.theoplayer.android.api.event.ads.AdBreakEvent
+import com.theoplayer.android.api.event.ads.AdsEventTypes
+import com.theoplayer.android.api.event.ads.SingleAdEvent
 import com.theoplayer.android.connector.analytics.comscore.ComscoreConfiguration
 import com.theoplayer.android.connector.analytics.comscore.ComscoreConnector
 import com.theoplayer.android.connector.analytics.comscore.ComscoreMediaType
@@ -18,6 +23,8 @@ import com.theoplayer.android.connector.analytics.conviva.ConvivaConfiguration
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConnector
 import com.theoplayer.android.connector.analytics.nielsen.NielsenConnector
 import com.theoplayer.android.connector.yospace.YospaceConnector
+
+const val TAG = "MainActivity"
 
 class MainActivity : AppCompatActivity() {
 
@@ -38,6 +45,7 @@ class MainActivity : AppCompatActivity() {
         setupComscore()
         setupNielsen()
         setupYospace()
+        setupListeners()
     }
 
     private fun setupComscore() {
@@ -133,6 +141,44 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupYospace() {
         yospaceConnector = YospaceConnector(theoplayerView.player)
+    }
+
+    private fun setupListeners() {
+        val ads = theoplayerView.player.ads
+        ads.addEventListener(AdsEventTypes.ADD_AD, ::onAdEvent)
+        ads.addEventListener(AdsEventTypes.AD_BEGIN, ::onAdEvent)
+        ads.addEventListener(AdsEventTypes.AD_END, ::onAdEvent)
+        ads.addEventListener(AdsEventTypes.AD_SKIP, ::onAdEvent)
+        ads.addEventListener(AdsEventTypes.AD_FIRST_QUARTILE, ::onAdEvent)
+        ads.addEventListener(AdsEventTypes.AD_MIDPOINT, ::onAdEvent)
+        ads.addEventListener(AdsEventTypes.AD_THIRD_QUARTILE, ::onAdEvent)
+        ads.addEventListener(AdsEventTypes.ADD_AD_BREAK, ::onAdBreakEvent)
+        ads.addEventListener(AdsEventTypes.AD_BREAK_BEGIN, ::onAdBreakEvent)
+        ads.addEventListener(AdsEventTypes.AD_BREAK_END, ::onAdBreakEvent)
+        ads.addEventListener(AdsEventTypes.AD_BREAK_CHANGE, ::onAdBreakEvent)
+        ads.addEventListener(AdsEventTypes.REMOVE_AD_BREAK, ::onAdBreakEvent)
+    }
+
+    fun onAdBreakEvent(event: AdBreakEvent<*>) {
+        val adBreak = event.adBreak ?: return
+        Log.d(
+            TAG,
+            "${event.type} - " +
+                    "timeOffset=${adBreak.timeOffset}, ads=${adBreak.ads.size}," +
+                    " maxDuration=${adBreak.maxDuration}," +
+                    " currentTime=${theoplayerView.player.currentTime}"
+        )
+    }
+
+    fun onAdEvent(event: SingleAdEvent<*>) {
+        val ad = event.ad ?: return
+        Log.d(
+            TAG,
+            "${event.type} - " +
+                    "id=${ad.id}, type=${ad.type}, adBreak.timeOffset=${ad.adBreak?.timeOffset}," +
+                    (if (ad is LinearAd) " duration=${ad.duration}," else "") +
+                    " currentTime=${theoplayerView.player.currentTime}"
+        )
     }
 
     fun selectSource(view: View) {
