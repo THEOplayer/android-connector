@@ -49,15 +49,15 @@ class TimedMetadataHandler(
         var startTime = (activeCues.firstOrNull() ?: return).startTime
         var report = YospaceReport()
         for (cue in activeCues) {
+            if (cue.startTime != startTime) {
+                finishReport(report, startTime)
+                report = YospaceReport()
+            }
             // cue.content.content is an ID3 frame encoded as a JSON object.
             // See `ID3Yospace` in THEOplayer Web SDK for the full type definition.
             val id3 = cue.content!!.getJSONObject("content")
             report.update(id3.getString("id"), id3.optString("text"))
-            if (cue.startTime != startTime) {
-                finishReport(report, cue.startTime)
-                report = YospaceReport()
-                startTime = cue.startTime
-            }
+            startTime = cue.startTime
         }
         finishReport(report, startTime)
     }
