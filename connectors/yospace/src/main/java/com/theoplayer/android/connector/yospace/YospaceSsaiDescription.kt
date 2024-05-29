@@ -2,6 +2,9 @@ package com.theoplayer.android.connector.yospace
 
 import com.theoplayer.android.api.source.ssai.CustomSsaiDescription
 import com.theoplayer.android.api.source.ssai.CustomSsaiDescriptionSerializer
+import com.theoplayer.android.connector.yospace.internal.SerializedSessionProperties
+import com.theoplayer.android.connector.yospace.internal.deserialize
+import com.theoplayer.android.connector.yospace.internal.serialize
 import com.yospace.admanagement.Session
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
@@ -10,7 +13,6 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
-import java.util.UUID
 
 /**
  * The configuration for server-side ad insertion using the Yospace connector.
@@ -84,55 +86,6 @@ private fun SerializedYospaceSsaiDescription.deserialize() = YospaceSsaiDescript
     streamType = streamType,
     sessionProperties = sessionProperties.deserialize()
 )
-
-@Serializable
-private data class SerializedSessionProperties(
-    val requestTimeout: Int,
-    val resourceTimeout: Int,
-    val userAgent: String,
-    val proxyUserAgent: String,
-    val keepProxyAlive: Boolean,
-    val prefetchResources: Boolean,
-    val fireHistoricalBeacons: Boolean,
-    val applyEncryptedTracking: Boolean,
-    val excludedCategories: Int,
-    val consecutiveBreakTolerance: Int,
-    val token: String,
-    val customHttpHeaders: Map<String, String>,
-)
-
-private fun Session.SessionProperties.serialize() = SerializedSessionProperties(
-    requestTimeout = requestTimeout,
-    resourceTimeout = resourceTimeout,
-    userAgent = userAgent,
-    proxyUserAgent = proxyUserAgent,
-    keepProxyAlive = keepProxyAlive,
-    prefetchResources = prefetchResources,
-    fireHistoricalBeacons = fireHistoricalBeacons,
-    applyEncryptedTracking = applyEncryptedTracking,
-    excludedCategories = excludedCategories,
-    consecutiveBreakTolerance = consecutiveBreakTolerance,
-    token = token.toString(),
-    customHttpHeaders = customHttpHeaders,
-)
-
-private fun SerializedSessionProperties.deserialize(): Session.SessionProperties {
-    val serialized = this
-    return Session.SessionProperties().apply {
-        requestTimeout = serialized.requestTimeout
-        resourceTimeout = serialized.resourceTimeout
-        userAgent = serialized.userAgent
-        proxyUserAgent = serialized.proxyUserAgent
-        keepProxyAlive = serialized.keepProxyAlive
-        prefetchResources = serialized.prefetchResources
-        fireHistoricalBeacons = serialized.fireHistoricalBeacons
-        applyEncryptedTracking = serialized.applyEncryptedTracking
-        excludeFromSuppression(serialized.excludedCategories)
-        consecutiveBreakTolerance = serialized.consecutiveBreakTolerance
-        token = UUID.fromString(serialized.token)
-        customHttpHeaders = serialized.customHttpHeaders
-    }
-}
 
 private class YospaceSsaiDescriptionKSerializer : KSerializer<YospaceSsaiDescription> {
     private val delegateSerializer = SerializedYospaceSsaiDescription.serializer()
