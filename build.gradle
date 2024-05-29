@@ -21,12 +21,12 @@ plugins {
     id 'org.jetbrains.dokka' version '1.9.20'
 }
 
-task updateVersion() {
+tasks.register('updateVersion') {
     def sdkVersion = project.ext.sdkVersion
     ant.replaceregexp(file: 'gradle.properties', match: 'sdkVersion=.*', replace: "sdkVersion=$sdkVersion", flags: 'g', byline: true)
 }
 
-task clean(type: Delete) {
+tasks.register('clean', Delete) {
     delete rootProject.buildDir
 }
 
@@ -56,12 +56,14 @@ subprojects {
             configureEach {
                 includeNonPublic.set(false)     // Use to include or exclude non public members
                 skipDeprecated.set(false)       // Do not output deprecated members. Applies globally, can be overridden by packageOptions
-                reportUndocumented.set(true)    // Emit warnings about not documented members. Applies globally, also can be overridden by packageOptions
+                // Emit warnings about not documented members. Applies globally, also can be overridden by packageOptions
+                reportUndocumented.set(true)
                 skipEmptyPackages.set(false)    // Do not create index pages for empty packages
                 jdkVersion.set(11)              // Used for linking to JDK documentation
                 noStdlibLink.set(false)         // Use to enable or disable linking to online kotlin-stdlib documentation
                 noJdkLink.set(false)            // Use to enable or disable linking to online JDK documentation
-                noAndroidSdkLink.set(false)     // Use to enable or disable linking to online Android documentation (only applicable for Android projects)
+                // Use to enable or disable linking to online Android documentation (only applicable for Android projects)
+                noAndroidSdkLink.set(false)
 
                 perPackageOption {
                     matchingRegex.set("com[.]theoplayer[.]android[.]connector[.].*[.]internal.*")
