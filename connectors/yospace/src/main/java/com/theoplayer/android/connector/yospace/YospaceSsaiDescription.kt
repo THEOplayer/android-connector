@@ -29,7 +29,7 @@ class YospaceSsaiDescription(
      */
     val sessionProperties: Session.SessionProperties = Session.SessionProperties()
 ) : CustomSsaiDescription() {
-    override val customIntegrationId: String
+    override val customIntegration: String
         get() = INTEGRATION_ID
 }
 
@@ -77,7 +77,7 @@ private data class SerializedYospaceSsaiDescription(
 )
 
 private fun YospaceSsaiDescription.serialize() = SerializedYospaceSsaiDescription(
-    integration = customIntegrationId,
+    integration = customIntegration,
     streamType = streamType,
     sessionProperties = sessionProperties.serialize()
 )
