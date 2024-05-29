@@ -10,6 +10,7 @@ import com.theoplayer.android.api.event.player.PlayEvent
 import com.theoplayer.android.api.event.player.PlayerEventTypes
 import com.theoplayer.android.api.event.player.PlayingEvent
 import com.theoplayer.android.api.event.player.SeekedEvent
+import com.theoplayer.android.api.event.player.TimeUpdateEvent
 import com.theoplayer.android.api.event.player.VolumeChangeEvent
 import com.theoplayer.android.api.event.player.WaitingEvent
 import com.theoplayer.android.api.player.Player
@@ -100,6 +101,7 @@ class YospaceAdIntegration(
             addAnalyticObserver(analyticEventObserver)
         }
         addPlayerListeners()
+        updatePlayhead()
         timedMetadataHandler = TimedMetadataHandler(player, session)
     }
 
@@ -124,6 +126,7 @@ class YospaceAdIntegration(
         player.addEventListener(PlayerEventTypes.SEEKED, onSeeked)
         player.addEventListener(PlayerEventTypes.WAITING, onWaiting)
         player.addEventListener(PlayerEventTypes.PLAYING, onPlaying)
+        player.addEventListener(PlayerEventTypes.TIMEUPDATE, onTimeUpdate)
     }
 
     private fun removePlayerListeners() {
@@ -134,6 +137,7 @@ class YospaceAdIntegration(
         player.removeEventListener(PlayerEventTypes.SEEKED, onSeeked)
         player.removeEventListener(PlayerEventTypes.WAITING, onWaiting)
         player.removeEventListener(PlayerEventTypes.PLAYING, onPlaying)
+        player.removeEventListener(PlayerEventTypes.TIMEUPDATE, onTimeUpdate)
     }
 
     private val onVolumeChange = EventListener<VolumeChangeEvent> {
@@ -175,6 +179,14 @@ class YospaceAdIntegration(
             isStalling = false
             session?.onPlayerEvent(PlaybackEventHandler.PlayerEvent.CONTINUE, currentPlayhead)
         }
+    }
+
+    private val onTimeUpdate = EventListener<TimeUpdateEvent> {
+        updatePlayhead()
+    }
+
+    private fun updatePlayhead() {
+        session?.onPlayheadUpdate(currentPlayhead)
     }
 
     override suspend fun resetSource() {
