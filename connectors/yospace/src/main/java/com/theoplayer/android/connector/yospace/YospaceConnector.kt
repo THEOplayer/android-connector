@@ -12,7 +12,8 @@ import com.yospace.admanagement.TrackingErrors
 import java.util.concurrent.CopyOnWriteArrayList
 
 const val INTEGRATION_ID = "yospace"
-const val TAG = "YospaceConnector"
+internal const val TAG = "YospaceConnector"
+internal const val USER_AGENT = "THEOplayerYospaceConnector/${BuildConfig.LIBRARY_VERSION}"
 
 class YospaceConnector(
     val player: Player

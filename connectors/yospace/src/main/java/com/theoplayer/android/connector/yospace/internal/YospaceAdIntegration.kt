@@ -15,6 +15,7 @@ import com.theoplayer.android.api.event.player.WaitingEvent
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.api.source.SourceDescription
 import com.theoplayer.android.connector.yospace.TAG
+import com.theoplayer.android.connector.yospace.USER_AGENT
 import com.theoplayer.android.connector.yospace.YospaceListener
 import com.theoplayer.android.connector.yospace.YospaceSsaiDescription
 import com.theoplayer.android.connector.yospace.YospaceStreamType
@@ -48,13 +49,16 @@ class YospaceAdIntegration(
 
         // Create the Yospace session
         val src = yospaceSource.src
+        val sessionProperties = ssaiDescription.sessionProperties.copy(
+            userAgent = ssaiDescription.sessionProperties.userAgent.ifEmpty { USER_AGENT }
+        )
         val session = when (ssaiDescription.streamType) {
-            YospaceStreamType.LIVE -> createSessionLive(src, ssaiDescription.sessionProperties)
+            YospaceStreamType.LIVE -> createSessionLive(src, sessionProperties)
 
             YospaceStreamType.NONLINEAR,
-            YospaceStreamType.LIVEPAUSE -> createSessionDVRLive(src, ssaiDescription.sessionProperties)
+            YospaceStreamType.LIVEPAUSE -> createSessionDVRLive(src, sessionProperties)
 
-            YospaceStreamType.VOD -> createSessionVOD(src, ssaiDescription.sessionProperties)
+            YospaceStreamType.VOD -> createSessionVOD(src, sessionProperties)
         }
 
         when (session.sessionState) {

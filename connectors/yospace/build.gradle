@@ -5,6 +5,8 @@ plugins {
 }
 apply from: "$rootDir/connectors/publish.gradle"
 
+version = sdkVersion
+
 android {
     namespace 'com.theoplayer.android.connector.yospace'
     compileSdk 34
@@ -13,6 +15,7 @@ android {
         minSdk 21
         consumerProguardFiles "consumer-rules.pro"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "LIBRARY_VERSION", "\"${sdkVersion}\"")
     }
 
     buildTypes {
