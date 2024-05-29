@@ -54,12 +54,12 @@ class TimedMetadataHandler(
             val id3 = cue.content!!.getJSONObject("content")
             report.update(id3.getString("id"), id3.optString("text"))
             if (cue.startTime != startTime) {
-                report.finish((cue.startTime * 1000).toLong())?.let { handler.onTimedMetadata(it) }
+                finishReport(report, cue.startTime)
                 report = YospaceReport()
                 startTime = cue.startTime
             }
         }
-        report.finish((startTime * 1000).toLong())?.let { handler.onTimedMetadata(it) }
+        finishReport(report, startTime)
     }
 
     private fun handleEmsgCueChange(track: TextTrack) {
@@ -72,9 +72,13 @@ class TimedMetadataHandler(
             for (pair in text.splitToSequence(',')) {
                 val (key, value) = pair.split('=', limit = 2)
                 report.update(key, value)
-                report.finish((cue.startTime * 1000).toLong())?.let { handler.onTimedMetadata(it) }
+                finishReport(report, cue.startTime)
             }
         }
+    }
+
+    private fun finishReport(report: YospaceReport, startTime: Double) {
+        report.finish((startTime * 1000).toLong())?.let { handler.onTimedMetadata(it) }
     }
 
     private val onAddTrack = EventListener<AddTrackEvent> { handleTrackAdded(it.track) }
