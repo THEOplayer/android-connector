@@ -1,6 +1,7 @@
 package com.theoplayer.android.connector.yospace.internal
 
 import android.util.Log
+import com.theoplayer.android.api.THEOplayerView
 import com.theoplayer.android.api.ads.ServerSideAdIntegrationController
 import com.theoplayer.android.api.ads.ServerSideAdIntegrationHandler
 import com.theoplayer.android.api.event.Event
@@ -32,7 +33,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 internal class YospaceAdIntegration(
-    private val player: Player,
+    private val theoplayerView: THEOplayerView,
     private val controller: ServerSideAdIntegrationController,
     private val analyticEventObserver: AnalyticEventObserver,
     private val listener: YospaceListener
@@ -44,6 +45,9 @@ internal class YospaceAdIntegration(
     private var streamStart: Double? = null
     private var isMuted: Boolean = false
     private var isStalling: Boolean = false
+
+    private val player: Player
+        get() = theoplayerView.player
 
     private val currentPlayhead: Long
         get() = toPlayhead(player.currentTime)

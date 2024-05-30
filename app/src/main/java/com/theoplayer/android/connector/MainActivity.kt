@@ -140,7 +140,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupYospace() {
-        yospaceConnector = YospaceConnector(theoplayerView.player)
+        yospaceConnector = YospaceConnector(theoplayerView)
     }
 
     private fun setupListeners() {

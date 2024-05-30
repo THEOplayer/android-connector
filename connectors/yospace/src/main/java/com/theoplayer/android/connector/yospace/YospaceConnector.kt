@@ -1,7 +1,7 @@
 package com.theoplayer.android.connector.yospace
 
+import com.theoplayer.android.api.THEOplayerView
 import com.theoplayer.android.api.ads.ServerSideAdIntegrationController
-import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.api.source.ssai.CustomSsaiDescriptionRegistry
 import com.theoplayer.android.connector.yospace.internal.YospaceAdIntegration
 import com.yospace.admanagement.AdBreak
@@ -16,7 +16,7 @@ internal const val TAG = "YospaceConnector"
 internal const val USER_AGENT = "THEOplayerYospaceConnector/${BuildConfig.LIBRARY_VERSION}"
 
 class YospaceConnector(
-    val player: Player
+    private val theoplayerView: THEOplayerView
 ) {
     private val analyticEventObservers = CopyOnWriteArrayList<AnalyticEventObserver>()
     private val listeners = CopyOnWriteArrayList<YospaceListener>()
@@ -24,12 +24,12 @@ class YospaceConnector(
     private lateinit var integration: YospaceAdIntegration
 
     init {
-        player.ads.registerServerSideIntegration(INTEGRATION_ID, this::setupIntegration)
+        theoplayerView.player.ads.registerServerSideIntegration(INTEGRATION_ID, this::setupIntegration)
     }
 
     private fun setupIntegration(controller: ServerSideAdIntegrationController): YospaceAdIntegration {
         val integration = YospaceAdIntegration(
-            player,
+            theoplayerView,
             controller,
             ForwardingAnalyticEventObserver(),
             ForwardingListener()
