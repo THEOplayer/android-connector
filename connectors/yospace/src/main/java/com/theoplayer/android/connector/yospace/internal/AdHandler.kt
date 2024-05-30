@@ -16,7 +16,8 @@ import com.yospace.admanagement.Advert as YospaceAdvert
 
 internal class AdHandler(
     private val player: Player,
-    private val controller: ServerSideAdIntegrationController
+    private val controller: ServerSideAdIntegrationController,
+    private val playheadConverter: PlayheadConverter
 ) : AnalyticEventObserver {
     private val ads: WeakHashMap<YospaceAdvert, Ad> = WeakHashMap()
     private val adBreaks: WeakHashMap<YospaceAdBreak, AdBreak> = WeakHashMap()
@@ -31,7 +32,10 @@ internal class AdHandler(
     }
 
     private fun getAdBreakInit(yospaceAdBreak: YospaceAdBreak): AdBreakInit {
-        return AdBreakInit(timeOffset = (yospaceAdBreak.start / 1000).toInt(), maxDuration = (yospaceAdBreak.duration / 1000))
+        return AdBreakInit(
+            timeOffset = playheadConverter.fromPlayhead(yospaceAdBreak.start).toInt(),
+            maxDuration = yospaceAdBreak.duration / 1000
+        )
     }
 
     private fun getOrCreateAd(yospaceAdvert: YospaceAdvert, adBreak: AdBreak): Ad {

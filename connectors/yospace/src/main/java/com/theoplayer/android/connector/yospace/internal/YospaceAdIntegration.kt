@@ -36,7 +36,7 @@ internal class YospaceAdIntegration(
     private val controller: ServerSideAdIntegrationController,
     private val analyticEventObserver: AnalyticEventObserver,
     private val listener: YospaceListener
-) : ServerSideAdIntegrationHandler {
+) : ServerSideAdIntegrationHandler, PlayheadConverter {
     private var session: Session? = null
     private var timedMetadataHandler: TimedMetadataHandler? = null
     private var adHandler: AdHandler? = null
@@ -107,7 +107,7 @@ internal class YospaceAdIntegration(
             // https://developer.yospace.com/sdk-documentation/android/userguide/latest/en/provide-necessary-information-to-the-sdk.html#video-playback-position
             timedMetadataHandler = TimedMetadataHandler(player, onTimedMetadata)
         }
-        adHandler = AdHandler(player, controller).also {
+        adHandler = AdHandler(player, controller, this).also {
             session.addAnalyticObserver(it)
         }
         session.addAnalyticObserver(analyticEventObserver)
@@ -227,7 +227,12 @@ internal class YospaceAdIntegration(
         session?.onTimedMetadata(TimedMetadata.createFromMetadata(metadata.ymid, metadata.yseq, metadata.ytyp, metadata.ydur, playhead))
     }
 
-    private fun toPlayhead(playerTime: Double): Long {
+    override fun fromPlayhead(playhead: Long): Double {
+        val relativeTime = playhead.toDouble() / 1000.0
+        return relativeTime + (streamStart ?: 0.0)
+    }
+
+    override fun toPlayhead(playerTime: Double): Long {
         val relativeTime = playerTime - (streamStart ?: 0.0)
         return (relativeTime * 1000.0).toLong()
     }
