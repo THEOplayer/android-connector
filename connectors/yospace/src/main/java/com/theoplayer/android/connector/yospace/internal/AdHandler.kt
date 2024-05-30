@@ -54,7 +54,7 @@ internal class AdHandler(
         val nonLinearCreative = if (advert.isNonLinear) advert.getNonLinearCreatives(Resource.ResourceType.STATIC).firstOrNull() else null
         return AdInit(
             type = if (advert.isNonLinear) "nonlinear" else "linear",
-            skipOffset = (advert.skipOffset / 1000).toInt(),
+            skipOffset = if (advert.skipOffset < 0) -1 else (advert.skipOffset / 1000).toInt(),
             id = advert.identifier,
             duration = (advert.duration / 1000).toInt(),
             clickThrough = if (advert.isNonLinear) nonLinearCreative?.clickThroughUrl else advert.linearCreative?.clickThroughUrl,
