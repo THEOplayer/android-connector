@@ -1,11 +1,14 @@
 package com.theoplayer.android.connector.yospace.internal
 
+import android.content.Intent
+import android.net.Uri
 import com.theoplayer.android.api.ads.Ad
 import com.theoplayer.android.api.ads.AdBreak
 import com.theoplayer.android.api.ads.AdBreakInit
 import com.theoplayer.android.api.ads.AdInit
 import com.theoplayer.android.api.ads.ServerSideAdIntegrationController
 import com.theoplayer.android.api.player.Player
+import com.theoplayer.android.connector.yospace.YospaceUiHandler
 import com.yospace.admanagement.AnalyticEventObserver
 import com.yospace.admanagement.Resource
 import com.yospace.admanagement.Session
@@ -17,6 +20,7 @@ import com.yospace.admanagement.Advert as YospaceAdvert
 internal class AdHandler(
     private val player: Player,
     private val controller: ServerSideAdIntegrationController,
+    private val uiHandler: YospaceUiHandler,
     private val playheadConverter: PlayheadConverter
 ) : AnalyticEventObserver {
     private val ads: WeakHashMap<YospaceAdvert, Ad> = WeakHashMap()
@@ -84,9 +88,17 @@ internal class AdHandler(
         currentYospaceAdvert = advert
         controller.beginAd(ad)
 
-        advert.linearCreative?.let {
-            // val clickThroughUrl = it.clickThroughUrl
-            // TODO Show linear clickthrough button
+        advert.linearCreative?.let { creative ->
+            uiHandler.showLinearClickThrough(creative) { context ->
+                // Open click-through URL in browser
+                val intent = Intent(Intent.ACTION_VIEW).apply {
+                    setData(Uri.parse(creative.clickThroughUrl))
+                }
+                context.startActivity(intent)
+
+                // Notify SDK
+                creative.onClickThrough()
+            }
         }
 
         advert.getNonLinearCreatives(Resource.ResourceType.STATIC).forEach {
@@ -96,12 +108,16 @@ internal class AdHandler(
     }
 
     override fun onAdvertEnd(session: Session) {
+        currentYospaceAdvert?.let {
+            it.linearCreative?.let {
+                uiHandler.hideLinearClickThrough()
+            }
+            currentYospaceAdvert = null
+        }
         currentAd?.let {
             controller.endAd(it)
             currentAd = null
-            currentYospaceAdvert = null
         }
-        // TODO Remove clickthrough buttons
     }
 
     override fun onEarlyReturn(adBreak: YospaceAdBreak, session: Session) {

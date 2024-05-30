@@ -22,6 +22,7 @@ import com.theoplayer.android.connector.yospace.USER_AGENT
 import com.theoplayer.android.connector.yospace.YospaceListener
 import com.theoplayer.android.connector.yospace.YospaceSsaiDescription
 import com.theoplayer.android.connector.yospace.YospaceStreamType
+import com.theoplayer.android.connector.yospace.YospaceUiHandler
 import com.yospace.admanagement.AnalyticEventObserver
 import com.yospace.admanagement.PlaybackEventHandler
 import com.yospace.admanagement.Session
@@ -34,6 +35,7 @@ import kotlin.coroutines.suspendCoroutine
 
 internal class YospaceAdIntegration(
     private val theoplayerView: THEOplayerView,
+    private val uiHandler: YospaceUiHandler,
     private val controller: ServerSideAdIntegrationController,
     private val analyticEventObserver: AnalyticEventObserver,
     private val listener: YospaceListener
@@ -111,7 +113,7 @@ internal class YospaceAdIntegration(
             // https://developer.yospace.com/sdk-documentation/android/userguide/latest/en/provide-necessary-information-to-the-sdk.html#video-playback-position
             timedMetadataHandler = TimedMetadataHandler(player, onTimedMetadata)
         }
-        adHandler = AdHandler(player, controller, this).also {
+        adHandler = AdHandler(player, controller, uiHandler, this).also {
             session.addAnalyticObserver(it)
         }
         session.addAnalyticObserver(analyticEventObserver)
@@ -268,6 +270,7 @@ internal class YospaceAdIntegration(
 
     override suspend fun destroy() {
         resetSource()
+        uiHandler.destroy()
     }
 }
 

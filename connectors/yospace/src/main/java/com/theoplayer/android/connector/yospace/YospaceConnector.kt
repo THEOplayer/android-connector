@@ -15,8 +15,9 @@ const val INTEGRATION_ID = "yospace"
 internal const val TAG = "YospaceConnector"
 internal const val USER_AGENT = "THEOplayerYospaceConnector/${BuildConfig.LIBRARY_VERSION}"
 
-class YospaceConnector(
-    private val theoplayerView: THEOplayerView
+class YospaceConnector @JvmOverloads constructor(
+    private val theoplayerView: THEOplayerView,
+    private val uiHandler: YospaceUiHandler = DefaultYospaceUiHandler(theoplayerView)
 ) {
     private val analyticEventObservers = CopyOnWriteArrayList<AnalyticEventObserver>()
     private val listeners = CopyOnWriteArrayList<YospaceListener>()
@@ -30,6 +31,7 @@ class YospaceConnector(
     private fun setupIntegration(controller: ServerSideAdIntegrationController): YospaceAdIntegration {
         val integration = YospaceAdIntegration(
             theoplayerView,
+            uiHandler,
             controller,
             ForwardingAnalyticEventObserver(),
             ForwardingListener()
