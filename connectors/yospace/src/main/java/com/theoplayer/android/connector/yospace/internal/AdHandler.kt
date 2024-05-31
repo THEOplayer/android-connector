@@ -123,10 +123,9 @@ internal class AdHandler(
 
     override fun onAdvertEnd(session: Session) {
         currentYospaceAdvert?.let {
-            it.linearCreative?.let {
-                uiScope.launch {
-                    uiHandler.hideLinearClickThrough()
-                }
+            uiScope.launch {
+                it.linearCreative?.let { uiHandler.hideLinearClickThrough() }
+                it.getNonLinearCreatives(Resource.ResourceType.STATIC).forEach { uiHandler.hideNonLinear(it) }
             }
             currentYospaceAdvert = null
         }
