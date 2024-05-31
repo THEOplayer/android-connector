@@ -28,7 +28,7 @@ internal const val USER_AGENT = "THEOplayerYospaceConnector/${BuildConfig.LIBRAR
  * @param theoplayerView
  *   The THEOplayer view, which will be connected to the created connector.
  * @param uiHandler
- *   A handler for updating the UI. By default, this creates a [DefaultYospaceUiHandler].
+ *   A handler for updating the UI. By default, this creates a [YospaceDefaultUiHandler].
  *
  * @sample com.theoplayer.android.connector.yospace.samples.createYospaceConnector
  *
@@ -37,7 +37,7 @@ internal const val USER_AGENT = "THEOplayerYospaceConnector/${BuildConfig.LIBRAR
  */
 class YospaceConnector @JvmOverloads constructor(
     private val theoplayerView: THEOplayerView,
-    private val uiHandler: YospaceUiHandler = DefaultYospaceUiHandler(theoplayerView)
+    private val uiHandler: YospaceUiHandler = YospaceDefaultUiHandler(theoplayerView)
 ) {
     private val analyticEventObservers = CopyOnWriteArrayList<AnalyticEventObserver>()
     private val listeners = CopyOnWriteArrayList<YospaceListener>()

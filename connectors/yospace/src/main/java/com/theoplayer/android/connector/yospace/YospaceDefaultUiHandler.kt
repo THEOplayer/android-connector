@@ -28,7 +28,7 @@ import java.net.URL
  * If you want to customize the UI, you can implement your own [YospaceUiHandler]
  * and pass it to the [YospaceConnector] constructor.
  */
-class DefaultYospaceUiHandler(
+class YospaceDefaultUiHandler(
     theoplayerView: THEOplayerView
 ) : YospaceUiHandler {
     private val parentView: ViewGroup = theoplayerView.findViewById(R.id.theo_ads_container)
