@@ -132,7 +132,7 @@ class YospaceConnector @JvmOverloads constructor(
         }
     }
 
-    companion object {
+    private companion object {
         init {
             CustomSsaiDescriptionRegistry.register(INTEGRATION_ID, YospaceSsaiDescriptionSerializer())
         }

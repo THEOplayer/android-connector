@@ -96,7 +96,7 @@ class YospaceDefaultUiHandler(
     }
 }
 
-class NonLinearUiState(
+private class NonLinearUiState(
     val imageView: ImageView,
     val loadJob: Job
 )
