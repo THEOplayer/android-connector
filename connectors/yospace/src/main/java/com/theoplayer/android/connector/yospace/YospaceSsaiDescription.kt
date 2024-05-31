@@ -15,7 +15,7 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 
 /**
- * The configuration for server-side ad insertion using the Yospace connector.
+ * The configuration for server-side ad insertion using the [YospaceConnector].
  */
 class YospaceSsaiDescription(
     /**

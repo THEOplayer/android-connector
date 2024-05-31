@@ -19,6 +19,15 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.net.URL
 
+/**
+ * A default UI handler for the Yospace connector.
+ *
+ * This handler shows a linear clickthrough button in the top-right corner,
+ * and shows clickable non-linear images in the top-left corner.
+ *
+ * If you want to customize the UI, you can implement your own [YospaceUiHandler]
+ * and pass it to the [YospaceConnector] constructor.
+ */
 class DefaultYospaceUiHandler(
     theoplayerView: THEOplayerView
 ) : YospaceUiHandler {
@@ -35,7 +44,7 @@ class DefaultYospaceUiHandler(
     private val nonLinearLoadJobs: MutableMap<NonLinearCreative, NonLinearUiState> = mutableMapOf()
     private val scope = CoroutineScope(Dispatchers.Main)
 
-    override fun showLinearClickThrough(creative: LinearCreative, callback: YospaceClickThroughCallback) {
+    override fun showLinearClickThrough(linearCreative: LinearCreative, callback: YospaceClickThroughCallback) {
         linearClickThroughButton.run {
             setOnClickListener { callback.onClickThrough(context) }
             visibility = View.VISIBLE

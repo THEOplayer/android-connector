@@ -1,6 +1,7 @@
 package com.theoplayer.android.connector.yospace
 
 import com.theoplayer.android.api.THEOplayerView
+import com.theoplayer.android.api.ads.Ad
 import com.theoplayer.android.api.ads.ServerSideAdIntegrationController
 import com.theoplayer.android.api.source.ssai.CustomSsaiDescriptionRegistry
 import com.theoplayer.android.connector.yospace.internal.YospaceAdIntegration
@@ -11,10 +12,27 @@ import com.yospace.admanagement.Session
 import com.yospace.admanagement.TrackingErrors
 import java.util.concurrent.CopyOnWriteArrayList
 
+/**
+ * The integration identifier for the Yospace connector.
+ *
+ * Ads created by this connector have this value as their [custom integration][Ad.getCustomIntegration].
+ */
 const val INTEGRATION_ID = "yospace"
+
 internal const val TAG = "YospaceConnector"
 internal const val USER_AGENT = "THEOplayerYospaceConnector/${BuildConfig.LIBRARY_VERSION}"
 
+/**
+ * A connector for the Yospace Ad Management SDK.
+ *
+ * @param theoplayerView
+ *   The THEOplayer view, which will be connected to the created connector.
+ * @param uiHandler
+ *   A handler for updating the UI. By default, this creates a [DefaultYospaceUiHandler].
+ *
+ * @see [Yospace Ad Management SDK v3 for Android Developers](https://developer.yospace.com/sdk-documentation/android/userguide/latest/en/index-en.html)
+ *      (requires login)
+ */
 class YospaceConnector @JvmOverloads constructor(
     private val theoplayerView: THEOplayerView,
     private val uiHandler: YospaceUiHandler = DefaultYospaceUiHandler(theoplayerView)
@@ -40,18 +58,30 @@ class YospaceConnector @JvmOverloads constructor(
         return integration
     }
 
+    /**
+     * Registers an [AnalyticEventObserver] on the Yospace [Session].
+     */
     fun registerAnalyticEventObserver(observer: AnalyticEventObserver) {
         analyticEventObservers.add(observer)
     }
 
+    /**
+     * Removes a previously registered [AnalyticEventObserver].
+     */
     fun unregisterAnalyticEventObserver(observer: AnalyticEventObserver) {
         analyticEventObservers.remove(observer)
     }
 
+    /**
+     * Registers a [YospaceListener] to receive events from this connector.
+     */
     fun addListener(listener: YospaceListener) {
         listeners.add(listener)
     }
 
+    /**
+     * Removes a previously registered [YospaceListener].
+     */
     fun removeListener(listener: YospaceListener) {
         listeners.remove(listener)
     }
