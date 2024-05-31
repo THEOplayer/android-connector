@@ -32,9 +32,10 @@ class DefaultYospaceUiHandler(
     theoplayerView: THEOplayerView
 ) : YospaceUiHandler {
     private val parentView: ViewGroup = theoplayerView.findViewById(R.id.theo_ads_container)
-    private val adsContainer: ViewGroup = (LayoutInflater.from(parentView.context).inflate(R.layout.default_ad_overlay, parentView, false) as ViewGroup).also {
-        parentView.addView(it)
-    }
+    private val adsContainer: ViewGroup =
+        (LayoutInflater.from(parentView.context).inflate(R.layout.default_ad_overlay, parentView, false) as ViewGroup).also {
+            parentView.addView(it)
+        }
     private val linearClickThroughButton = adsContainer.findViewById<Button>(R.id.theo_yospace_linear_clickthrough).apply {
         visibility = View.GONE
     }
