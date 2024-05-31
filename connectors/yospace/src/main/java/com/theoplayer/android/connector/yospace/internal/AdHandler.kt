@@ -15,6 +15,10 @@ import com.yospace.admanagement.Creative
 import com.yospace.admanagement.Resource
 import com.yospace.admanagement.Session
 import com.yospace.admanagement.TrackingErrors
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import java.util.WeakHashMap
 import com.yospace.admanagement.AdBreak as YospaceAdBreak
 import com.yospace.admanagement.Advert as YospaceAdvert
@@ -30,6 +34,7 @@ internal class AdHandler(
     private var currentAd: Ad? = null
     private var currentYospaceAdvert: YospaceAdvert? = null
     private var currentAdBreak: AdBreak? = null
+    private val uiScope = CoroutineScope(Dispatchers.Main)
 
     private fun getOrCreateAdBreak(yospaceAdBreak: YospaceAdBreak): AdBreak {
         val adBreak = adBreaks.getOrPut(yospaceAdBreak) { controller.createAdBreak(getAdBreakInit(yospaceAdBreak)) }
@@ -90,33 +95,38 @@ internal class AdHandler(
         currentYospaceAdvert = advert
         controller.beginAd(ad)
 
-        advert.linearCreative?.let { creative ->
-            uiHandler.showLinearClickThrough(creative) { context -> onCreativeClickThrough(context, creative, creative.clickThroughUrl) }
-        }
-
-        advert.getNonLinearCreatives(Resource.ResourceType.STATIC).forEach { creative ->
-            uiHandler.showNonLinear(creative) { context -> onCreativeClickThrough(context, creative, creative.clickThroughUrl) }
+        uiScope.launch {
+            advert.linearCreative?.let { creative ->
+                uiHandler.showLinearClickThrough(creative) { context -> onCreativeClickThrough(context, creative, creative.clickThroughUrl) }
+            }
+            advert.getNonLinearCreatives(Resource.ResourceType.STATIC).forEach { creative ->
+                uiHandler.showNonLinear(creative) { context -> onCreativeClickThrough(context, creative, creative.clickThroughUrl) }
+            }
         }
     }
 
     private fun onCreativeClickThrough(context: Context, creative: Creative, clickThroughUrl: String) {
-        // Pause the player
-        player.pause()
+        uiScope.launch {
+            // Pause the player
+            player.pause()
 
-        // Notify SDK
-        creative.onClickThrough()
+            // Notify SDK
+            creative.onClickThrough()
 
-        // Open click-through URL in browser
-        val intent = Intent(Intent.ACTION_VIEW).apply {
-            setData(Uri.parse(clickThroughUrl))
+            // Open click-through URL in browser
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                setData(Uri.parse(clickThroughUrl))
+            }
+            context.startActivity(intent)
         }
-        context.startActivity(intent)
     }
 
     override fun onAdvertEnd(session: Session) {
         currentYospaceAdvert?.let {
             it.linearCreative?.let {
-                uiHandler.hideLinearClickThrough()
+                uiScope.launch {
+                    uiHandler.hideLinearClickThrough()
+                }
             }
             currentYospaceAdvert = null
         }
@@ -154,5 +164,6 @@ internal class AdHandler(
 
     fun destroy() {
         controller.removeAllAds()
+        uiScope.cancel()
     }
 }
