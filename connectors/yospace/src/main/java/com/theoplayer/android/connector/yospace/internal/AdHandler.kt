@@ -90,14 +90,17 @@ internal class AdHandler(
 
         advert.linearCreative?.let { creative ->
             uiHandler.showLinearClickThrough(creative) { context ->
+                // Pause the player
+                player.pause()
+
+                // Notify SDK
+                creative.onClickThrough()
+
                 // Open click-through URL in browser
                 val intent = Intent(Intent.ACTION_VIEW).apply {
                     setData(Uri.parse(creative.clickThroughUrl))
                 }
                 context.startActivity(intent)
-
-                // Notify SDK
-                creative.onClickThrough()
             }
         }
 
