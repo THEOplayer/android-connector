@@ -52,7 +52,9 @@ class DefaultYospaceUiHandler(
     override fun showNonLinear(nonLinearCreative: NonLinearCreative, callback: YospaceClickThroughCallback) {
         val imageUrl = nonLinearCreative.getResource(Resource.ResourceType.STATIC)?.stringData ?: return
         val imageView = ImageView(parentView.context).apply {
-            layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, resources.getDimensionPixelSize(R.dimen.nonlinear_height))
+            scaleType = ImageView.ScaleType.FIT_START
+            contentDescription = resources.getString(R.string.txt_ad)
             visibility = View.GONE
             setOnClickListener { callback.onClickThrough(context) }
         }
