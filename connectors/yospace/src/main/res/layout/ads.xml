@@ -11,4 +11,14 @@
         android:layout_alignParentTop="true"
         android:text="@string/txt_linear_clickthrough" />
 
+    <LinearLayout
+        android:id="@+id/theo_yospace_nonlinear"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="20sp" />
+
 </RelativeLayout>

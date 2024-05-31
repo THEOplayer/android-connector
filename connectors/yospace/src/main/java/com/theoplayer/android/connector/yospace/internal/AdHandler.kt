@@ -1,5 +1,6 @@
 package com.theoplayer.android.connector.yospace.internal
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import com.theoplayer.android.api.ads.Ad
@@ -10,6 +11,7 @@ import com.theoplayer.android.api.ads.ServerSideAdIntegrationController
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.connector.yospace.YospaceUiHandler
 import com.yospace.admanagement.AnalyticEventObserver
+import com.yospace.admanagement.Creative
 import com.yospace.admanagement.Resource
 import com.yospace.admanagement.Session
 import com.yospace.admanagement.TrackingErrors
@@ -89,25 +91,26 @@ internal class AdHandler(
         controller.beginAd(ad)
 
         advert.linearCreative?.let { creative ->
-            uiHandler.showLinearClickThrough(creative) { context ->
-                // Pause the player
-                player.pause()
-
-                // Notify SDK
-                creative.onClickThrough()
-
-                // Open click-through URL in browser
-                val intent = Intent(Intent.ACTION_VIEW).apply {
-                    setData(Uri.parse(creative.clickThroughUrl))
-                }
-                context.startActivity(intent)
-            }
+            uiHandler.showLinearClickThrough(creative) { context -> onCreativeClickThrough(context, creative, creative.clickThroughUrl) }
         }
 
-        advert.getNonLinearCreatives(Resource.ResourceType.STATIC).forEach {
-            // val clickThroughUrl = it.clickThroughUrl
-            // TODO Show nonlinear clickthrough button
+        advert.getNonLinearCreatives(Resource.ResourceType.STATIC).forEach { creative ->
+            uiHandler.showNonLinear(creative) { context -> onCreativeClickThrough(context, creative, creative.clickThroughUrl) }
         }
+    }
+
+    private fun onCreativeClickThrough(context: Context, creative: Creative, clickThroughUrl: String) {
+        // Pause the player
+        player.pause()
+
+        // Notify SDK
+        creative.onClickThrough()
+
+        // Open click-through URL in browser
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setData(Uri.parse(clickThroughUrl))
+        }
+        context.startActivity(intent)
     }
 
     override fun onAdvertEnd(session: Session) {
