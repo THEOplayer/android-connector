@@ -65,6 +65,12 @@ subprojects {
                 // Use to enable or disable linking to online Android documentation (only applicable for Android projects)
                 noAndroidSdkLink.set(false)
 
+                externalDocumentationLink {
+                    url.set(new URL("https://www.theoplayer.com/docs/theoplayer/v7/api-reference/android/"))
+                    // TODO: Fix link to https://www.theoplayer.com/docs/theoplayer/v7/api-reference/android/package-list
+                    packageListUrl.set(new URL("https://raw.githubusercontent.com/THEOplayer/documentation/main/theoplayer/static/theoplayer/v7/api-reference/android/package-list"))
+                }
+
                 perPackageOption {
                     matchingRegex.set("com[.]theoplayer[.]android[.]connector[.].*[.]internal.*")
                     suppress.set(true)
