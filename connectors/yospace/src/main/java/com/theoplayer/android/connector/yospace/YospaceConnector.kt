@@ -30,6 +30,8 @@ internal const val USER_AGENT = "THEOplayerYospaceConnector/${BuildConfig.LIBRAR
  * @param uiHandler
  *   A handler for updating the UI. By default, this creates a [DefaultYospaceUiHandler].
  *
+ * @sample com.theoplayer.android.connector.yospace.samples.createYospaceConnector
+ *
  * @see [Yospace Ad Management SDK v3 for Android Developers](https://developer.yospace.com/sdk-documentation/android/userguide/latest/en/index-en.html)
  *      (requires login)
  */

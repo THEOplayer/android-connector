@@ -56,4 +56,8 @@ dependencies {
 
 tasks.withType(AbstractDokkaLeafTask.class).configureEach {
     moduleName = "Yospace Connector"
+
+    dokkaSourceSets.named("main") {
+        samples.from(project.fileTree("src/test/java/"))
+    }
 }
