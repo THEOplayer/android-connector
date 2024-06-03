@@ -160,7 +160,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun onAdBreakEvent(event: AdBreakEvent<*>) {
-        val adBreak = event.adBreak ?: return
+        val adBreak = event.adBreak
         Log.d(
             TAG,
             "${event.type} - " +
@@ -181,7 +181,7 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    fun selectSource(view: View) {
+    fun selectSource() {
         val sourceNames = sources.map { it.name }.toTypedArray()
         val selectedIndex = sources.indexOf(selectedSource)
         AlertDialog.Builder(this)
@@ -200,7 +200,7 @@ class MainActivity : AppCompatActivity() {
         nielsenConnector.updateMetadata(source.nielsenMetadata)
     }
 
-    fun playPause(view: View) {
+    fun playPause() {
         if (theoplayerView.player.isPaused) {
             theoplayerView.player.play()
         } else {
@@ -208,11 +208,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun seekBackward(view: View) {
+    fun seekBackward() {
         theoplayerView.player.currentTime -= 10
     }
 
-    fun seekForward(view: View) {
+    fun seekForward() {
         theoplayerView.player.currentTime += 10
     }
 
