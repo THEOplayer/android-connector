@@ -4,9 +4,17 @@ android {
     publishing {
         singleVariant("release") {
             withSourcesJar()
-            withJavadocJar()
+            // We use Dokka for JavaDoc generation, see dokkaJavadocJar below
+            // withJavadocJar()
         }
     }
+}
+
+tasks.register("dokkaJavadocJar", Jar) {
+    group = "documentation"
+    dependsOn(tasks.dokkaJavadoc)
+    from(tasks.dokkaJavadoc)
+    archiveClassifier.set("javadoc")
 }
 
 afterEvaluate {
@@ -16,6 +24,7 @@ afterEvaluate {
                 groupId project.ext.groupId
                 artifactId project.name
                 version project.ext.sdkVersion
+                artifact(tasks.dokkaJavadocJar)
                 from components.release
             }
         }
