@@ -28,18 +28,18 @@ It's not recommended to use different versions for Unified Android SDK and the C
 
 ## Installation
 
-The THEOplayer Android SDK Connectors are available through Jitpack using the `com.theoplayer.android-connector` group which is different than the group of THEOplayer Android SDK.
+The THEOplayer Android SDK Connectors are available through the [THEOplayer Maven repository](https://maven.theoplayer.com/) using the `com.theoplayer.android-connector` group which is different than the group of THEOplayer Android SDK.
 
 To set up the dependency follow these steps:
 
-In your **project** level `build.gradle` file add the Jitpack repository:
+In your **project** level `build.gradle` file add the THEOplayer Maven repository:
 
 ```
 allprojects {
     repositories {
         google()
         mavenCentral()
-        maven { url 'https://jitpack.io' }
+        maven { url 'https://maven.theoplayer.com/releases/' }
     }
 }
 ```

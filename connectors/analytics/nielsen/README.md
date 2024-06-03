@@ -23,7 +23,7 @@ Also in the `build.gradle` file, specify the Nielsen maven repository inside the
 
 ```groovy
 repositories {
-    maven { url 'https://jitpack.io' }
+    maven { url 'https://maven.theoplayer.com/releases/' }
     maven { url 'https://raw.githubusercontent.com/NielsenDigitalSDK/nielsenappsdk-android/master/'}
 }
 ```
