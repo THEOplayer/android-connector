@@ -1,6 +1,9 @@
+import org.jetbrains.dokka.gradle.AbstractDokkaLeafTask
+
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'org.jetbrains.dokka'
 }
 apply from: "$rootDir/connectors/publish.gradle"
 
@@ -36,4 +39,8 @@ dependencies {
     compileOnly "com.conviva.sdk:conviva-core-sdk:$convivaVersion"
 
     implementation "androidx.lifecycle:lifecycle-process:$lifecycleVersion"
+}
+
+tasks.withType(AbstractDokkaLeafTask.class).configureEach {
+    moduleName = "Conviva Connector"
 }

@@ -1,6 +1,9 @@
+import org.jetbrains.dokka.gradle.AbstractDokkaLeafTask
+
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'org.jetbrains.dokka'
 }
 apply from: "$rootDir/connectors/publish.gradle"
 
@@ -37,3 +40,8 @@ dependencies {
     compileOnly "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:$sdkVersion"
     compileOnly "com.nielsenappsdk.global:ad:9.2.0.0"
 }
+
+tasks.withType(AbstractDokkaLeafTask.class).configureEach {
+    moduleName = "Nielsen Connector"
+}
+

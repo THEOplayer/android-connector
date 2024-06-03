@@ -1,6 +1,9 @@
+import org.jetbrains.dokka.gradle.AbstractDokkaLeafTask
+
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'org.jetbrains.dokka'
 }
 apply from: "$rootDir/connectors/publish.gradle"
 
@@ -33,4 +36,8 @@ android {
 dependencies {
     implementation 'androidx.media:media:1.6.0'
     compileOnly "com.theoplayer.theoplayer-sdk-android:core:$sdkVersion"
+}
+
+tasks.withType(AbstractDokkaLeafTask.class).configureEach {
+    moduleName = "Media Session Connector"
 }
