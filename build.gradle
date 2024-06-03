@@ -45,6 +45,10 @@ tasks.withType(DokkaMultiModuleTask.class).configureEach {
     )
 }
 
+tasks.dokkaHtmlMultiModule.configure {
+    outputDirectory = rootProject.file("site/api")
+}
+
 subprojects {
     version = sdkVersion
 
