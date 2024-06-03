@@ -4,7 +4,8 @@ The Conviva connector provides a Conviva integration for THEOplayer Android SDK.
 
 ## Prerequisites
 
-The THEOplayer Android SDK Conviva Connector requires the application to import the THEOplayer Android SDK (either WebView-based or Unified Android SDK) since the connector relies on its public APIs. For more details, check out our [Getting started on Unified Android](https://docs.theoplayer.com/getting-started/01-sdks/02-android-unified/00-getting-started.md) or [Getting started on Android](https://docs.theoplayer.com/getting-started/01-sdks/02-android/00-getting-started.md) guide.
+The THEOplayer Android SDK Conviva Connector requires the application to import the THEOplayer Android SDK since the connector relies on its public APIs.
+For more details, check out our [Getting started on Android](https://www.theoplayer.com/docs/theoplayer/getting-started/sdks/android/getting-started/) guide.
 
 For setting up a valid Conviva session, you must have access to a [Conviva developer account](https://pulse.conviva.com/) with access to a debug or production key.
 
