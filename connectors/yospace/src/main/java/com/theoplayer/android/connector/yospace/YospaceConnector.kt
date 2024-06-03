@@ -12,13 +12,6 @@ import com.yospace.admanagement.Session
 import com.yospace.admanagement.TrackingErrors
 import java.util.concurrent.CopyOnWriteArrayList
 
-/**
- * The integration identifier for the Yospace connector.
- *
- * Ads created by this connector have this value as their [custom integration][Ad.getCustomIntegration].
- */
-const val INTEGRATION_ID = "yospace"
-
 internal const val TAG = "YospaceConnector"
 internal const val USER_AGENT = "THEOplayerYospaceConnector/${BuildConfig.LIBRARY_VERSION}"
 
@@ -132,7 +125,14 @@ class YospaceConnector @JvmOverloads constructor(
         }
     }
 
-    private companion object {
+    companion object {
+        /**
+         * The integration identifier for the Yospace connector.
+         *
+         * Ads created by this connector have this value as their [custom integration][Ad.getCustomIntegration].
+         */
+        const val INTEGRATION_ID = "yospace"
+
         init {
             CustomSsaiDescriptionRegistry.register(INTEGRATION_ID, YospaceSsaiDescriptionSerializer())
         }

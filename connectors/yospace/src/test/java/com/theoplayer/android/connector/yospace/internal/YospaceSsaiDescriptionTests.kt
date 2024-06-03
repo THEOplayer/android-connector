@@ -1,6 +1,6 @@
 package com.theoplayer.android.connector.yospace.internal
 
-import com.theoplayer.android.connector.yospace.INTEGRATION_ID
+import com.theoplayer.android.connector.yospace.YospaceConnector
 import com.theoplayer.android.connector.yospace.YospaceSsaiDescription
 import com.theoplayer.android.connector.yospace.YospaceSsaiDescriptionSerializer
 import com.theoplayer.android.connector.yospace.YospaceStreamType
@@ -26,7 +26,7 @@ class YospaceSsaiDescriptionSerializerTests {
         val ssaiDescription = YospaceSsaiDescription()
         val jsonString = serializer.toJson(ssaiDescription)
         val jsonObject = Json.parseToJsonElement(jsonString).jsonObject
-        assertEquals(jsonObject["integration"], JsonPrimitive(INTEGRATION_ID))
+        assertEquals(jsonObject["integration"], JsonPrimitive(YospaceConnector.INTEGRATION_ID))
         assertEquals(jsonObject["streamType"], JsonPrimitive(YospaceStreamType.LIVE.toString()))
         val jsonSessionProperties = jsonObject["sessionProperties"]?.jsonObject
         assertEquals(

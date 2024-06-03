@@ -30,7 +30,7 @@ class YospaceSsaiDescription(
     val sessionProperties: Session.SessionProperties = Session.SessionProperties()
 ) : CustomSsaiDescription() {
     override val customIntegration: String
-        get() = INTEGRATION_ID
+        get() = YospaceConnector.INTEGRATION_ID
 
     /**
      * A builder for a [YospaceSsaiDescription].
