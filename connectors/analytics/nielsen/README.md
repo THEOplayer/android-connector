@@ -4,11 +4,8 @@ The Nielsen connector provides a Nielsen integration for THEOplayer Android SDK.
 
 ## Prerequisites
 
-The THEOplayer Android SDK Nielsen Connector requires the application to import the 
-THEOplayer Android SDK (either WebView-based or Unified Android SDK) since the connector relies on 
-its public APIs. For more details, check out our 
-[Getting started on Unified Android](https://docs.theoplayer.com/getting-started/01-sdks/02-android-unified/00-getting-started.md) 
-or [Getting started on Android](https://docs.theoplayer.com/getting-started/01-sdks/02-android/00-getting-started.md) guide.
+The THEOplayer Android SDK Nielsen Connector requires the application to import the THEOplayer Android SDK since the connector relies on its public APIs.
+For more details, check out our [Getting started on Android](https://www.theoplayer.com/docs/theoplayer/getting-started/sdks/android/getting-started/) guide.
 
 ## Installation
 After setting up the THEOplayer Android SDK, in your **module** level `build.gradle` file add the THEOplayer 
@@ -23,7 +20,7 @@ Also in the `build.gradle` file, specify the Nielsen maven repository inside the
 
 ```groovy
 repositories {
-    maven { url 'https://jitpack.io' }
+    maven { url 'https://maven.theoplayer.com/releases/' }
     maven { url 'https://raw.githubusercontent.com/NielsenDigitalSDK/nielsenappsdk-android/master/'}
 }
 ```
