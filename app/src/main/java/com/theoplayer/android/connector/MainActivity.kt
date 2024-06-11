@@ -181,7 +181,7 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    fun selectSource() {
+    fun selectSource(view: View) {
         val sourceNames = sources.map { it.name }.toTypedArray()
         val selectedIndex = sources.indexOf(selectedSource)
         AlertDialog.Builder(this)
@@ -200,7 +200,7 @@ class MainActivity : AppCompatActivity() {
         nielsenConnector.updateMetadata(source.nielsenMetadata)
     }
 
-    fun playPause() {
+    fun playPause(view: View) {
         if (theoplayerView.player.isPaused) {
             theoplayerView.player.play()
         } else {
@@ -208,11 +208,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun seekBackward() {
+    fun seekBackward(view: View) {
         theoplayerView.player.currentTime -= 10
     }
 
-    fun seekForward() {
+    fun seekForward(view: View) {
         theoplayerView.player.currentTime += 10
     }
 
