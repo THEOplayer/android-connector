@@ -1,6 +1,9 @@
 package com.theoplayer.android.connector.yospace.internal
 
 import android.util.Log
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import com.theoplayer.android.api.THEOplayerView
 import com.theoplayer.android.api.ads.ServerSideAdIntegrationController
 import com.theoplayer.android.api.ads.ServerSideAdIntegrationHandler
@@ -39,20 +42,27 @@ internal class YospaceAdIntegration(
     private val controller: ServerSideAdIntegrationController,
     private val analyticEventObserver: AnalyticEventObserver,
     private val listener: YospaceListener
-) : ServerSideAdIntegrationHandler, PlayheadConverter {
+) : ServerSideAdIntegrationHandler, PlayheadConverter, DefaultLifecycleObserver {
+
+    private var sourceWithYospace: SourceDescription? = null
     private var session: Session? = null
     private var timedMetadataHandler: TimedMetadataHandler? = null
     private var adHandler: AdHandler? = null
+
     private var didFirstPlay: Boolean = false
     private var streamStart: Double? = null
     private var isMuted: Boolean = false
     private var isStalling: Boolean = false
+    private var wasPlaying: Boolean = false
 
     private val player: Player
         get() = theoplayerView.player
 
     private val currentPlayhead: Long
         get() = toPlayhead(player.currentTime)
+
+    private val lifecycle: Lifecycle?
+        get() = (theoplayerView.context as? LifecycleOwner)?.lifecycle
 
     override suspend fun setSource(source: SourceDescription): SourceDescription {
         val yospaceSource = source.sources.find { it.ssai is YospaceSsaiDescription } ?: return source
@@ -75,6 +85,7 @@ internal class YospaceAdIntegration(
         when (session.sessionState) {
             Session.SessionState.INITIALISED,
             Session.SessionState.NO_ANALYTICS -> {
+                sourceWithYospace = source
                 // Set up
                 setupSession(session)
                 // Notify listener
@@ -266,10 +277,38 @@ internal class YospaceAdIntegration(
         destroySession()
         didFirstPlay = false
         isStalling = false
+        sourceWithYospace = null
+    }
+
+    override fun onPause(owner: LifecycleOwner) {
+        sourceWithYospace?.let {
+            wasPlaying = !player.isPaused
+        }
+    }
+
+    override fun onStop(owner: LifecycleOwner) {
+        // Yospace session should be shutdown while the app is in the background
+        destroySession()
+    }
+
+    override fun onStart(owner: LifecycleOwner) {
+        // Restore source and start new Yospace session when app returns to foreground
+        sourceWithYospace?.let {
+            val player = this.player
+            player.source = it
+            if (wasPlaying) {
+                player.play()
+            }
+        }
+    }
+
+    init {
+        lifecycle?.addObserver(this)
     }
 
     override suspend fun destroy() {
         resetSource()
+        lifecycle?.removeObserver(this)
         uiHandler.destroy()
     }
 }
