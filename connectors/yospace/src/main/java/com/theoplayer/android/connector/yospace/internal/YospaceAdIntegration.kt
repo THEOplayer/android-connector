@@ -137,6 +137,7 @@ internal class YospaceAdIntegration(
             shutdown()
             session = null
         }
+        streamStart = null
     }
 
     private fun addPlayerListeners(isLive: Boolean) {
@@ -264,7 +265,6 @@ internal class YospaceAdIntegration(
     override suspend fun resetSource() {
         destroySession()
         didFirstPlay = false
-        streamStart = null
         isStalling = false
     }
 
