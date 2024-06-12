@@ -17,7 +17,7 @@ import kotlinx.serialization.json.Json
 /**
  * The configuration for server-side ad insertion using the [YospaceConnector].
  */
-class YospaceSsaiDescription(
+class YospaceSsaiDescription @JvmOverloads constructor(
     /**
      * The type of the requested stream.
      *
