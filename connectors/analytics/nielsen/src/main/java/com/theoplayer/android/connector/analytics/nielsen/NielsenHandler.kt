@@ -63,7 +63,7 @@ class NielsenHandler(
     private val onCueEnterEmsg: EventListener<EnterCueEvent>
 
     private var lastPosition: Long = -1
-    private var appSdk: AppSdk? = null
+    private var appSdk: AppSdk
 
     private var sessionInProgress: Boolean = false
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -83,7 +83,7 @@ class NielsenHandler(
             maybeSendPlayEvent()
         }
         onPause = EventListener<PauseEvent> {
-            appSdk?.stop()
+            appSdk.stop()
         }
         onDurationChange = EventListener<DurationChangeEvent> {
             maybeSendPlayEvent()
@@ -96,19 +96,19 @@ class NielsenHandler(
         }
         onLoadedMetadata = EventListener<LoadedMetadataEvent> {
             // contentMetadataObject contains the JSON metadata for the content being played
-            appSdk?.loadMetadata(buildMetadata())
+            appSdk.loadMetadata(buildMetadata())
         }
         onCueEnterId3 = EventListener<EnterCueEvent> { event ->
             event.cue.content?.optJSONObject("content")?.let { cueContent ->
                 handleNielsenId3Payload(cueContent) {
-                    appSdk?.sendID3(it)
+                    appSdk.sendID3(it)
                 }
             }
         }
         onCueEnterEmsg = EventListener<EnterCueEvent> { event ->
             event.cue.content?.optJSONArray("content")?.let { cueContent ->
                 handleNielsenEmsgPayload(cueContent) {
-                    appSdk?.sendID3(it)
+                    appSdk.sendID3(it)
                 }
             }
         }
@@ -128,8 +128,8 @@ class NielsenHandler(
             val ad = event.ad
             if (ad?.type == "linear") {
                 val timeOffset = ad.adBreak?.timeOffset ?: 0
-                appSdk?.stop()
-                appSdk?.loadMetadata(buildMetadata().apply {
+                appSdk.stop()
+                appSdk.loadMetadata(buildMetadata().apply {
                     put(
                         PROP_TYPE, when {
                             timeOffset == 0 -> PROP_PREROLL
@@ -144,7 +144,7 @@ class NielsenHandler(
         onAdEnd = EventListener<GoogleImaAdEvent> { event ->
             val ad = event.ad
             if (ad?.type == "linear") {
-                appSdk?.stop()
+                appSdk.stop()
             }
         }
 
@@ -170,7 +170,7 @@ class NielsenHandler(
     }
 
     fun updateMetadata(metadata: Map<String, Any>) {
-        appSdk?.loadMetadata(buildMetadata(metadata))
+        appSdk.loadMetadata(buildMetadata(metadata))
     }
 
     fun destroy() {
@@ -213,7 +213,7 @@ class NielsenHandler(
             sessionInProgress = true
 
             // stream starts
-            appSdk?.play(JSONObject().apply {
+            appSdk.play(JSONObject().apply {
                 put(PROP_CHANNEL_NAME, player.src)
             })
         }
@@ -223,7 +223,7 @@ class NielsenHandler(
         if (sessionInProgress) {
             lastPosition = -1
             sessionInProgress = false
-            appSdk?.end()
+            appSdk.end()
         }
     }
 

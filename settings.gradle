@@ -12,7 +12,14 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven { url 'https://maven.theoplayer.com/releases/' }
-        maven { url 'https://raw.githubusercontent.com/NielsenDigitalSDK/nielsenappsdk-android/master/'}
+        maven { url 'https://raw.githubusercontent.com/NielsenDigitalSDK/nielsenappsdk-android/master/' }
+        maven {
+            url 'https://yospacerepo.jfrog.io/yospacerepo/android-sdk'
+            credentials {
+                username System.getenv("YOSPACE_USERNAME")
+                password System.getenv("YOSPACE_PASSWORD")
+            }
+        }
     }
 }
 
@@ -22,3 +29,4 @@ include ':connectors:analytics:comscore'
 include ':connectors:analytics:conviva'
 include ':connectors:analytics:nielsen'
 include ':connectors:mediasession'
+include ':connectors:yospace'

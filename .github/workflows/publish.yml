@@ -33,3 +33,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPOSILITE_USERNAME: ${{ secrets.REPOSILITE_USERNAME }}
           REPOSILITE_PASSWORD: ${{ secrets.REPOSILITE_PASSWORD }}
+          YOSPACE_USERNAME: ${{ secrets.YOSPACE_USERNAME }}
+          YOSPACE_PASSWORD: ${{ secrets.YOSPACE_PASSWORD }}

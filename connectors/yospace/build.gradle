@@ -1,0 +1,63 @@
+import org.jetbrains.dokka.gradle.AbstractDokkaLeafTask
+
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+    id 'org.jetbrains.kotlin.plugin.serialization'
+    id 'org.jetbrains.dokka'
+}
+apply from: "$rootDir/connectors/publish.gradle"
+
+android {
+    namespace 'com.theoplayer.android.connector.yospace'
+    compileSdk 34
+
+    defaultConfig {
+        minSdk 21
+        consumerProguardFiles "consumer-rules.pro"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "LIBRARY_VERSION", "\"${sdkVersion}\"")
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
+
+dependencies {
+    implementation 'androidx.core:core-ktx:1.13.1'
+    compileOnly "com.theoplayer.theoplayer-sdk-android:core:$sdkVersion"
+    compileOnly("com.yospace:admanagement-sdk") {
+        version {
+            strictly("[3.6, 4.0)")
+            prefer(yospaceVersion)
+        }
+    }
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3"
+
+    // Tests
+    testImplementation "androidx.test:core:1.5.0"
+    testImplementation "androidx.test.ext:junit:1.1.5"
+    testImplementation "com.theoplayer.theoplayer-sdk-android:core:$sdkVersion"
+    testImplementation "com.yospace:admanagement-sdk:$yospaceVersion"
+}
+
+tasks.withType(AbstractDokkaLeafTask.class).configureEach {
+    moduleName = "Yospace Connector"
+
+    dokkaSourceSets.named("main") {
+        samples.from(project.fileTree("src/test/java/"))
+    }
+}
