@@ -6,6 +6,9 @@ pluginManagement {
     }
 }
 
+// https://jitpack.io/docs/BUILDING/#build-environment
+def isJitPack = System.getenv("JITPACK") == "true"
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -13,20 +16,27 @@ dependencyResolutionManagement {
         mavenCentral()
         maven { url 'https://maven.theoplayer.com/releases/' }
         maven { url 'https://raw.githubusercontent.com/NielsenDigitalSDK/nielsenappsdk-android/master/' }
-        maven {
-            url 'https://yospacerepo.jfrog.io/yospacerepo/android-sdk'
-            credentials {
-                username System.getenv("YOSPACE_USERNAME")
-                password System.getenv("YOSPACE_PASSWORD")
+        if (!isJitPack) {
+            // JitPack doesn't have credentials for the Yospace Maven repository.
+            maven {
+                url 'https://yospacerepo.jfrog.io/yospacerepo/android-sdk'
+                credentials {
+                    username System.getenv("YOSPACE_USERNAME")
+                    password System.getenv("YOSPACE_PASSWORD")
+                }
             }
         }
     }
 }
 
 rootProject.name = "THEOplayer Connector"
-include ':app'
 include ':connectors:analytics:comscore'
 include ':connectors:analytics:conviva'
 include ':connectors:analytics:nielsen'
 include ':connectors:mediasession'
-include ':connectors:yospace'
+
+if (!isJitPack) {
+    // JitPack can't build the Yospace connector.
+    include ':app'
+    include ':connectors:yospace'
+}
