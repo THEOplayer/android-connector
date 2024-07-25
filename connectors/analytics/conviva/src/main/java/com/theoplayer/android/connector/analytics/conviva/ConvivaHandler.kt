@@ -151,7 +151,7 @@ class ConvivaHandler(
             // (e.g., in case of player internal re-try or fallback logic):
             convivaVideoAnalytics.reportPlaybackError(
                 "A Video Playback Failure has occurred: Segment not found",
-                ConvivaSdkConstants.ErrorSeverity.FATAL
+                ConvivaSdkConstants.ErrorSeverity.WARNING
             )
         }
 
