@@ -10,7 +10,6 @@ class UplynkAdIntegration(
     private val theoplayerView: THEOplayerView,
     private val controller: ServerSideAdIntegrationController
 ) : ServerSideAdIntegrationHandler
-//TODO check if this makes sense. Currently it looks like by separation of this we could make easier customization for the customer, but should be checked before PR
 by InternalUplynkAdIntegration(
     theoplayerView,
     controller,

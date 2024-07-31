@@ -13,9 +13,12 @@ internal class InternalUplynkAdIntegration(
     val controller: ServerSideAdIntegrationController,
     val uplynkDescriptionConverter: UplynkSsaiDescriptionConverter
 ) : ServerSideAdIntegrationHandler {
+
     private val player: Player
         get() = theoplayerView.player
+
     private val uplynkApi = UplynkApi()
+
     override suspend fun setSource(source: SourceDescription): SourceDescription {
         val uplynkSource = source.sources.find { it.ssai is UplynkSsaiDescription } ?: return source
         val ssaiDescription = uplynkSource.ssai as? UplynkSsaiDescription ?: return source

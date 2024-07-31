@@ -1,6 +1,5 @@
 package com.theoplayer.android.connector.uplynk.network
 
-import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runInterruptible
 import java.io.BufferedReader
@@ -33,18 +32,12 @@ internal class HttpsConnection {
                         response.append(inputLine)
                     }
                     reader.close()
-                    Log.d("OlegSPY", "r1 ")
                     result = response.toString()
                 } else {
-                    Log.d("OlegSPY", "r2 ")
-
                     result = "Error: $responseCode"
                 }
             } catch (e: Exception) {
                 result = e.message ?: ""
-                Log.d("OlegSPY", "r3 ", e)
-
-                e.printStackTrace()
             } finally {
                 urlConnection?.disconnect()
             }
