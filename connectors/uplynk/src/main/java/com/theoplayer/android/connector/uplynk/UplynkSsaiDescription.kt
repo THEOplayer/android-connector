@@ -7,6 +7,8 @@ import kotlinx.serialization.Serializable
 class UplynkSsaiDescription(
     val prefix: String?,
     val assetIds: List<String>,
+    val externalId: List<String>,
+    val userId: String?,
     val preplayParameters: LinkedHashMap<String, String>
 ): CustomSsaiDescription() {
 
@@ -21,7 +23,14 @@ class UplynkSsaiDescription(
         fun prefix(prefix: String) = apply { this.prefix = prefix }
 
         private var assetIds = emptyList<String>()
-        fun assetIds(assetIds: List<String>) = apply { this.assetIds = assetIds }
+        fun assetIds(ids: List<String>) = apply { this.assetIds = ids }
+
+        private var externalIds: List<String> = emptyList<String>()
+        fun externalIds(ids: List<String>) = apply { this.externalIds = ids }
+
+        private var userId: String? = null
+        fun userId(id: String) = apply { this.userId = id }
+
 
         private var preplayParameters: LinkedHashMap<String, String> = LinkedHashMap()
         fun preplayParameters(parameters: LinkedHashMap<String, String>) = apply { this.preplayParameters = parameters }
@@ -32,6 +41,8 @@ class UplynkSsaiDescription(
         fun build() = UplynkSsaiDescription(
             prefix = prefix,
             assetIds = assetIds,
+            externalId = externalIds,
+            userId = userId,
             preplayParameters = preplayParameters)
     }
 }

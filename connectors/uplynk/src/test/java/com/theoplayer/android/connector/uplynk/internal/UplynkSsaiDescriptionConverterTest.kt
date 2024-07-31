@@ -57,6 +57,30 @@ class UplynkSsaiDescriptionConverterTest {
     }
 
     @Test
+    fun buildPreplayUrl_whenAssetIdsIsEmpty_addsUserIdAndExternalIds() {
+        whenever(ssaiDescription.assetIds).thenReturn(listOf())
+        whenever(ssaiDescription.externalId).thenReturn(listOf("extId1", "extId2"))
+        whenever(ssaiDescription.userId).thenReturn("userId")
+
+        val result = converter.buildPreplayUrl(ssaiDescription)
+
+        assertTrue(result.contains("userId"))
+        assertTrue(result.contains("extId1,extId2/multiple.json"))
+    }
+
+    @Test
+    fun buildPreplayUrl_whenAssetIdsIsEmptyAndExternalIdIsSingle_addsUserIdAndExternalId() {
+        whenever(ssaiDescription.assetIds).thenReturn(listOf())
+        whenever(ssaiDescription.externalId).thenReturn(listOf("extId1"))
+        whenever(ssaiDescription.userId).thenReturn("userId")
+
+        val result = converter.buildPreplayUrl(ssaiDescription)
+
+        assertTrue(result.contains("userId"))
+        assertTrue(result.contains("extId1.json"))
+    }
+
+    @Test
     fun buildPreplayUrl_always_followsTheTemplate() {
         val result = converter.buildPreplayUrl(ssaiDescription)
 
