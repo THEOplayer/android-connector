@@ -4,16 +4,34 @@ import com.theoplayer.android.api.source.ssai.CustomSsaiDescription
 import kotlinx.serialization.Serializable
 
 @Serializable
-class UplynkSsaiDescription(val srcURL: String): CustomSsaiDescription() {
+class UplynkSsaiDescription(
+    val prefix: String?,
+    val assetIds: List<String>,
+    val preplayParameters: Map<String, String>
+): CustomSsaiDescription() {
+
     override val customIntegration: String
         get() = UplynkConnector.INTEGRATION_ID
+
     /**
      * A builder for a [UplynkSsaiDescription].
      */
-    class Builder(val srcURL: String = "") {
+    class Builder {
+        private var prefix: String? = null
+        fun prefix(prefix: String) = apply { this.prefix = prefix }
+
+        private var assetIds = emptyList<String>()
+        fun assetIds(assetIds: List<String>) = apply { this.assetIds = assetIds }
+
+        private var preplayParameters: Map<String, String> = emptyMap()
+        fun preplayParameters(parameters: Map<String, String>) = apply { this.preplayParameters = parameters }
+
         /**
          * Builds the [UplynkSsaiDescription].
          */
-        fun build() = UplynkSsaiDescription(srcURL = srcURL)
+        fun build() = UplynkSsaiDescription(
+            prefix = prefix,
+            assetIds = assetIds,
+            preplayParameters = preplayParameters)
     }
 }
