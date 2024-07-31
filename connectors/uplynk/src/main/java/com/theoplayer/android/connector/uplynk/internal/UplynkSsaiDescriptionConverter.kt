@@ -7,10 +7,11 @@ internal class UplynkSsaiDescriptionConverter {
 
     fun buildPreplayUrl(ssaiDescription: UplynkSsaiDescription): String = with(ssaiDescription) {
         val prefix = prefix ?: DEFAULT_PREFIX
-        val assetIds = if (assetIds.size == 1) {
-            "${assetIds.first()}.json"
-        } else {
-            assetIds.joinToString(separator = ",") + "/multiple.json"
+        val assetIds = when {
+            assetIds.isEmpty() && externalId.size == 1 -> "$userId/${externalId.first()}.json"
+            assetIds.isEmpty() && externalId.size > 1 -> "$userId/${externalId.joinToString(",")}/multiple.json"
+            assetIds.size == 1 -> "${assetIds.first()}.json"
+            else -> assetIds.joinToString(separator = ",") + "/multiple.json"
         }
         val parameters = preplayParameters.map{ "${it.key}=${it.value}" }.joinToString("&")
         return "$prefix/preplay/$assetIds?v=2&$parameters"
