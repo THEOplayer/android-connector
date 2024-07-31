@@ -24,6 +24,10 @@ internal class InternalUplynkAdIntegration(
         val ssaiDescription = uplynkSource.ssai as? UplynkSsaiDescription ?: return source
         val response = uplynkApi.preplay(uplynkDescriptionConverter.buildPreplayUrl(ssaiDescription))
 
-        return SourceDescription.Builder(response.playURL).build()
+        val newSource = source.replaceSources(source.sources.toMutableList().apply {
+            remove(uplynkSource)
+            add(0, uplynkSource.replaceSrc(response.playURL))
+        })
+        return newSource
     }
 }
