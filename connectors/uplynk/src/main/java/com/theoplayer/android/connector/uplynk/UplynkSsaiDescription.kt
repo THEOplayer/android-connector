@@ -45,14 +45,16 @@ class UplynkSsaiDescription(
         private var externalIds: List<String> = emptyList<String>()
         /**
          * Sets a list of external IDs for Uplynk Media Platform Preplay API.
+         * If [assetIds] have at least one value this property is ignored and could be empty
          *
-         * @param externalId An external identifier. (<b>NonNull</b>)
+         * @param externalIds External identifiers. (<b>NonNull</b>)
          */
         fun externalIds(ids: List<String>) = apply { this.externalIds = ids }
 
         private var userId: String? = null
         /**
          * Sets a User ID for Uplynk Media Platform Preplay API.
+         * If [assetIds] have at least one value this property is ignored and could be empty
          *
          * @param externalId An external identifier. (<b>NonNull</b>)
          */
