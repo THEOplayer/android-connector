@@ -1,4 +1,4 @@
-package com.theoplayer.android.connector.uplynk.api
+package com.theoplayer.android.connector.uplynk.network
 
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
@@ -9,7 +9,7 @@ import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 
 
-class HttpsConnection {
+internal class HttpsConnection {
     suspend fun get(urlString: String): String = runInterruptible(context = Dispatchers.IO) {
             var result: String
             var urlConnection: HttpsURLConnection? = null
