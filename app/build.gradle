@@ -50,4 +50,5 @@ dependencies {
     implementation "com.comscore:android-analytics:$comscoreVersion"
     implementation project(':connectors:yospace')
     implementation "com.yospace:admanagement-sdk:$yospaceVersion"
+    implementation project(':connectors:uplynk')
 }
