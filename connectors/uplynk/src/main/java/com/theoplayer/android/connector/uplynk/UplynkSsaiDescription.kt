@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 class UplynkSsaiDescription(
     val prefix: String?,
     val assetIds: List<String>,
-    val preplayParameters: Map<String, String>
+    val preplayParameters: LinkedHashMap<String, String>
 ): CustomSsaiDescription() {
 
     override val customIntegration: String
@@ -23,8 +23,8 @@ class UplynkSsaiDescription(
         private var assetIds = emptyList<String>()
         fun assetIds(assetIds: List<String>) = apply { this.assetIds = assetIds }
 
-        private var preplayParameters: Map<String, String> = emptyMap()
-        fun preplayParameters(parameters: Map<String, String>) = apply { this.preplayParameters = parameters }
+        private var preplayParameters: LinkedHashMap<String, String> = LinkedHashMap()
+        fun preplayParameters(parameters: LinkedHashMap<String, String>) = apply { this.preplayParameters = parameters }
 
         /**
          * Builds the [UplynkSsaiDescription].
