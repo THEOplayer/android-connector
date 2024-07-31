@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
         setupComscore()
         setupNielsen()
         setupYospace()
-        setupUplink()
+        setupUplynk()
         setupListeners()
     }
 
@@ -146,7 +146,7 @@ class MainActivity : AppCompatActivity() {
         yospaceConnector = YospaceConnector(theoplayerView)
     }
 
-    private fun setupUplink() {
+    private fun setupUplynk() {
         uplynkConnector = UplynkConnector(theoplayerView)
     }
 
