@@ -14,7 +14,7 @@ internal const val USER_AGENT = "THEOplayerUplynkConnector/buildconfigversion"
  * @param theoplayerView
  *   The THEOplayer view, which will be connected to the created connector.
  */
-class UplynkConnector @JvmOverloads constructor(
+class UplynkConnector(
     private val theoplayerView: THEOplayerView,
 ) {
     private lateinit var integration: UplynkAdIntegration
