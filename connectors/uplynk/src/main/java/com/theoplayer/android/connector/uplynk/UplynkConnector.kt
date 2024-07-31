@@ -9,7 +9,7 @@ internal const val TAG = "UplynkConnector"
 internal const val USER_AGENT = "THEOplayerUplynkConnector/buildconfigversion"
 
 /**
- * A connector for the Uplynk Ad.
+ * A connector for the Uplynk Media Platform.
  *
  * @param theoplayerView
  *   The THEOplayer view, which will be connected to the created connector.
