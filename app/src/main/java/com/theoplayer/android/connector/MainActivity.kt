@@ -22,6 +22,7 @@ import com.theoplayer.android.connector.analytics.comscore.ComscoreMetaData
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConfiguration
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConnector
 import com.theoplayer.android.connector.analytics.nielsen.NielsenConnector
+import com.theoplayer.android.connector.uplynk.UplynkConnector
 import com.theoplayer.android.connector.yospace.YospaceConnector
 
 const val TAG = "MainActivity"
@@ -33,6 +34,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var nielsenConnector: NielsenConnector
     private lateinit var comscoreConnector: ComscoreConnector
     private lateinit var yospaceConnector: YospaceConnector
+    private lateinit var uplynkConnector: UplynkConnector
     private var selectedSource: Source = sources.first()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,6 +47,7 @@ class MainActivity : AppCompatActivity() {
         setupComscore()
         setupNielsen()
         setupYospace()
+        setupUplink()
         setupListeners()
     }
 
@@ -141,6 +144,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupYospace() {
         yospaceConnector = YospaceConnector(theoplayerView)
+    }
+
+    private fun setupUplink() {
+        uplynkConnector = UplynkConnector(theoplayerView)
     }
 
     private fun setupListeners() {
