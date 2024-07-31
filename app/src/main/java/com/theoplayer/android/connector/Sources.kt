@@ -110,7 +110,25 @@ val sources: List<Source> by lazy {
                     )
                         .type(SourceType.HLS)
 //                        .ssai(UplynkSsaiDescription.Builder("https://content-aeui1.uplynk.com/preplay2/41afc04d34ad4cbd855db52402ef210e,c6b61470c27d44c4842346980ec2c7bd,588f9d967643409580aa5dbe136697a1,b1927a5d5bd9404c85fde75c307c63ad,7e9932d922e2459bac1599938f12b272,a4c40e2a8d5b46338b09d7f863049675,bcf7d78c4ff94c969b2668a6edc64278/2d1e72d308d5572d1d3406ac9235b1c4/4EAmYiYe5vqONOtOimqkGyWYbILhAAyv6UFpw3z68S1.m3u8?pbs=d63cc372b741400e868da39af9690916").build())
-                        .ssai(UplynkSsaiDescription.Builder("https://content.uplynk.com/preplay/41afc04d34ad4cbd855db52402ef210e,c6b61470c27d44c4842346980ec2c7bd,588f9d967643409580aa5dbe136697a1,b1927a5d5bd9404c85fde75c307c63ad,7e9932d922e2459bac1599938f12b272,a4c40e2a8d5b46338b09d7f863049675,bcf7d78c4ff94c969b2668a6edc64278/multiple.json?v=2&ad=adtest&ad.lib=15_sec_spots").build())
+                        .ssai(
+                            UplynkSsaiDescription
+//                                .Builder("https://content.uplynk.com/preplay/41afc04d34ad4cbd855db52402ef210e,c6b61470c27d44c4842346980ec2c7bd,588f9d967643409580aa5dbe136697a1,b1927a5d5bd9404c85fde75c307c63ad,7e9932d922e2459bac1599938f12b272,a4c40e2a8d5b46338b09d7f863049675,bcf7d78c4ff94c969b2668a6edc64278/multiple.json?v=2&ad=adtest&ad.lib=15_sec_spots")
+                                .Builder()
+                                .prefix("https://content.uplynk.com")
+                                .assetIds(listOf(
+                                    "41afc04d34ad4cbd855db52402ef210e",
+                                    "c6b61470c27d44c4842346980ec2c7bd",
+                                    "588f9d967643409580aa5dbe136697a1",
+                                    "b1927a5d5bd9404c85fde75c307c63ad",
+                                    "7e9932d922e2459bac1599938f12b272",
+                                    "a4c40e2a8d5b46338b09d7f863049675",
+                                    "bcf7d78c4ff94c969b2668a6edc64278",
+                                ))
+                                .preplayParameters(mapOf(
+                                    "ad" to "adtest",
+                                    "ad.lib" to "15_sec_spots"
+                                ))
+                                .build())
                         .build()
                 )
                 .build()
