@@ -105,10 +105,7 @@ val sources: List<Source> by lazy {
             name = "Uplynk Ads",
             sourceDescription = SourceDescription
                 .Builder(
-                    TypedSource.Builder(
-                        "no source"
-                    )
-                        .type(SourceType.HLS)
+                    TypedSource.Builder("no source")
                         .ssai(
                             UplynkSsaiDescription
                                 .Builder()
