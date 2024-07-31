@@ -5,8 +5,6 @@ import com.theoplayer.android.api.ads.ServerSideAdIntegrationController
 import com.theoplayer.android.api.source.ssai.CustomSsaiDescriptionRegistry
 
 internal const val TAG = "UplynkConnector"
-    // TODO replace to buildconfig version
-internal const val USER_AGENT = "THEOplayerUplynkConnector/buildconfigversion"
 
 /**
  * A connector for the Uplynk Media Platform.
@@ -36,7 +34,7 @@ class UplynkConnector(
         /**
          * The integration identifier for the Uplynk connector.
          *
-         * Ads created by this connector have this value as their [custom integration][Ad.getCustomIntegration].
+         * Ads created by this connector have this value as their [custom integration].
          */
         const val INTEGRATION_ID = "uplynk"
 
