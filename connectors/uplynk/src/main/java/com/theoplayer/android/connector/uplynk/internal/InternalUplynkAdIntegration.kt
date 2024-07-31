@@ -6,7 +6,7 @@ import com.theoplayer.android.api.ads.ServerSideAdIntegrationHandler
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.api.source.SourceDescription
 import com.theoplayer.android.connector.uplynk.UplynkSsaiDescription
-import com.theoplayer.android.connector.uplynk.api.UplynkApi
+import com.theoplayer.android.connector.uplynk.network.UplynkApi
 
 internal class InternalUplynkAdIntegration(
     val theoplayerView: THEOplayerView,
