@@ -25,14 +25,13 @@ internal class HttpsConnection {
                 connection.connect()
 
                 val responseCode: Int = connection.getResponseCode()
-                if (responseCode == HttpsURLConnection.HTTP_OK) {
-                    val reader = InputStreamReader(connection.inputStream)
-                    result = reader
-                        .buffered()
-                        .readText()
-                    reader.close()
-                } else {
-                    result = "Error: $responseCode"
+                result = when (responseCode) {
+                    HttpsURLConnection.HTTP_OK ->
+                        connection
+                            .inputStream
+                            .bufferedReader()
+                            .use { it.readText() }
+                    else -> "Error: $responseCode"
                 }
             } catch (e: Exception) {
                 result = e.message ?: ""
