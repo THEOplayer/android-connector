@@ -23,6 +23,7 @@ import com.theoplayer.android.connector.analytics.conviva.ConvivaConfiguration
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConnector
 import com.theoplayer.android.connector.analytics.nielsen.NielsenConnector
 import com.theoplayer.android.connector.uplynk.UplynkConnector
+import com.theoplayer.android.connector.uplynk.internal.events.UplynkEventTypes
 import com.theoplayer.android.connector.yospace.YospaceConnector
 
 const val TAG = "MainActivity"
@@ -148,6 +149,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupUplynk() {
         uplynkConnector = UplynkConnector(theoplayerView)
+        uplynkConnector.eventDispatcher.addEventListener(UplynkEventTypes.PREPLAY_RESPONSE) {
+            Log.d("UplynkConnectorEvents", "PREPLAY_RESPONSE ${it.getResponse()} - $it")
+        }
     }
 
     private fun setupListeners() {

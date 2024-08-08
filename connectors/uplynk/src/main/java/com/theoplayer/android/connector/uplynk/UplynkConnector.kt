@@ -21,6 +21,7 @@ class UplynkConnector(
     private val theoplayerView: THEOplayerView,
 ) {
     private lateinit var integration: UplynkAdIntegration
+    val eventDispatcher = UplynkEventDispatcherImpl()
 
     init {
         theoplayerView.player.ads.registerServerSideIntegration(INTEGRATION_ID, this::setupIntegration)
@@ -30,6 +31,7 @@ class UplynkConnector(
         val integration = UplynkAdIntegration(
             theoplayerView,
             controller,
+            eventDispatcher,
             UplynkSsaiDescriptionConverter()
         )
         this.integration = integration

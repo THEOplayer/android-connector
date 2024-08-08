@@ -5,12 +5,16 @@ import com.theoplayer.android.api.ads.ServerSideAdIntegrationController
 import com.theoplayer.android.api.ads.ServerSideAdIntegrationHandler
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.api.source.SourceDescription
+import com.theoplayer.android.connector.uplynk.UplynkEventDispatcherImpl
 import com.theoplayer.android.connector.uplynk.UplynkSsaiDescription
+import com.theoplayer.android.connector.uplynk.internal.events.UplynkPreplayResponseEventImpl
 import com.theoplayer.android.connector.uplynk.network.UplynkApi
+import java.util.Date
 
 internal class UplynkAdIntegration(
     val theoplayerView: THEOplayerView,
     val controller: ServerSideAdIntegrationController,
+    val eventDispatcher: UplynkEventDispatcherImpl,
     val uplynkDescriptionConverter: UplynkSsaiDescriptionConverter
 ) : ServerSideAdIntegrationHandler {
 
@@ -23,6 +27,7 @@ internal class UplynkAdIntegration(
         val uplynkSource = source.sources.find { it.ssai is UplynkSsaiDescription } ?: return source
         val ssaiDescription = uplynkSource.ssai as? UplynkSsaiDescription ?: return source
         val response = uplynkApi.preplay(uplynkDescriptionConverter.buildPreplayUrl(ssaiDescription))
+        eventDispatcher.dispatchEvent(UplynkPreplayResponseEventImpl(Date(), response))
 
         val newSource = source.replaceSources(source.sources.toMutableList().apply {
             remove(uplynkSource)
