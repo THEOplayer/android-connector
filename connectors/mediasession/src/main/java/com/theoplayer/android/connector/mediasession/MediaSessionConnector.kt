@@ -133,6 +133,13 @@ class MediaSessionConnector(val mediaSession: MediaSessionCompat) {
     }
 
     /**
+     * Get metadata provider for the current media item.
+     */
+    fun getMediaSessionMetadataProvider(): MediaMetadataProvider {
+        return metadataProvider
+    }
+
+    /**
      * Force update of the current meta data.
      */
     fun invalidateMediaSessionMetadata() {
