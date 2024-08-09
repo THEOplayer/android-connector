@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 /**
  * Represents the details of an asset retrieved from the AssetInfo request.
  *
- * This data class encapsulates various properties and metadata about an asset,
+ * This class encapsulates various properties and metadata about an asset,
  * such as its ratings, duration, thumbnail information, and more.
  *
  * For further details, please refer to the Uplynk Documentation:
