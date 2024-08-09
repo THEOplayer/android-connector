@@ -1,6 +1,7 @@
 package com.theoplayer.android.connector.uplynk.internal.events
 
 import com.theoplayer.android.api.event.Event
+import com.theoplayer.android.connector.uplynk.network.AssetInfoResponse
 import com.theoplayer.android.connector.uplynk.network.PreplayResponse
 
 /**
@@ -13,5 +14,5 @@ interface UplynkPreplayResponseEvent: UplynkEvent<UplynkPreplayResponseEvent> {
 }
 
 interface UplynkAssetInfoResponseEvent: UplynkEvent<UplynkAssetInfoResponseEvent> {
-    fun getResponse(): String
+    fun getResponse(): AssetInfoResponse
 }
