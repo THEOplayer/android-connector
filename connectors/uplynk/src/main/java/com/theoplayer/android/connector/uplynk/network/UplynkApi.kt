@@ -3,18 +3,15 @@ package com.theoplayer.android.connector.uplynk.network
 import kotlinx.serialization.json.Json
 
 internal class UplynkApi {
-    private val json = Json{
-        ignoreUnknownKeys = true
-    }
     private val network = HttpsConnection()
 
-    suspend fun preplay(srcURL: String): PreplayResponse {
+    suspend fun preplay(srcURL: String): PreplayInternalResponse {
         val body = network.get(srcURL)
-        return json.decodeFromString(body)
+        return PreplayInternalResponse(body)
     }
 
-    suspend fun assetInfo(url: String): AssetInfoResponse {
+    suspend fun assetInfo(url: String): AssetInfoInternalResponse {
         val body = network.get(url)
-        return json.decodeFromString(body)
+        return AssetInfoInternalResponse(body)
     }
 }

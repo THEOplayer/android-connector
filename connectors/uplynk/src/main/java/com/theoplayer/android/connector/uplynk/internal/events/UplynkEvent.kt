@@ -13,6 +13,16 @@ interface UplynkPreplayResponseEvent: UplynkEvent<UplynkPreplayResponseEvent> {
     fun getResponse(): PreplayResponse
 }
 
+interface UplynkPreplayErrorResponseEvent: UplynkEvent<UplynkPreplayErrorResponseEvent> {
+    fun getException(): Exception?
+    fun getBody(): String
+}
+
 interface UplynkAssetInfoResponseEvent: UplynkEvent<UplynkAssetInfoResponseEvent> {
     fun getResponse(): AssetInfoResponse
+}
+
+interface UplynkAssetInfoResponseErrorEvent: UplynkEvent<UplynkAssetInfoResponseErrorEvent> {
+    fun getException(): Exception?
+    fun getBody(): String
 }

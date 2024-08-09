@@ -9,7 +9,9 @@ import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.api.source.SourceDescription
 import com.theoplayer.android.connector.uplynk.UplynkEventDispatcherImpl
 import com.theoplayer.android.connector.uplynk.UplynkSsaiDescription
+import com.theoplayer.android.connector.uplynk.internal.events.UplynkAssetInfoErrorResponseEventImpl
 import com.theoplayer.android.connector.uplynk.internal.events.UplynkAssetInfoResponseEventImpl
+import com.theoplayer.android.connector.uplynk.internal.events.UplynkPreplayErrorResponseEventImpl
 import com.theoplayer.android.connector.uplynk.internal.events.UplynkPreplayResponseEventImpl
 import com.theoplayer.android.connector.uplynk.network.UplynkApi
 import kotlinx.coroutines.CoroutineScope
@@ -35,20 +37,41 @@ internal class UplynkAdIntegration(
         val uplynkSource = source.sources.find { it.ssai is UplynkSsaiDescription } ?: return source
         val ssaiDescription = uplynkSource.ssai as? UplynkSsaiDescription ?: return source
         val response = uplynkApi.preplay(uplynkDescriptionConverter.buildPreplayUrl(ssaiDescription))
-        eventDispatcher.dispatchEvent(UplynkPreplayResponseEventImpl(Date(), response))
+        if (response.externalResponse != null) {
+            eventDispatcher.dispatchEvent(UplynkPreplayResponseEventImpl(Date(), response.externalResponse!!))
+        } else {
+            eventDispatcher.dispatchEvent(UplynkPreplayErrorResponseEventImpl(Date(), response.body, response.error))
+        }
+
 
         val newSource = source.replaceSources(source.sources.toMutableList().apply {
             remove(uplynkSource)
-            add(0, uplynkSource.replaceSrc(response.playURL))
+            add(0, uplynkSource.replaceSrc(response.internalResponse.playURL))
         })
         if (ssaiDescription.assetInfo) {
             uplynkDescriptionConverter
-                .buildAssetInfoUrls(ssaiDescription, response.sid)
+                .buildAssetInfoUrls(ssaiDescription, response.internalResponse.sid)
                 .map { url ->
                     ioScope.async {
                         val assetInfo = uplynkApi.assetInfo(url)
                         mainThreadHandler.post {
-                            eventDispatcher.dispatchEvent(UplynkAssetInfoResponseEventImpl(Date(), assetInfo))
+                            if (assetInfo.externalResponse != null) {
+                                eventDispatcher.dispatchEvent(
+                                    UplynkAssetInfoResponseEventImpl(
+                                        Date(),
+                                        assetInfo.externalResponse!!
+                                    )
+                                )
+                            } else {
+                                eventDispatcher.dispatchEvent(
+                                    UplynkAssetInfoErrorResponseEventImpl(
+                                        Date(),
+                                        assetInfo.body,
+                                        assetInfo.error
+                                    )
+                                )
+                            }
+
                         }
                     }
                 }
