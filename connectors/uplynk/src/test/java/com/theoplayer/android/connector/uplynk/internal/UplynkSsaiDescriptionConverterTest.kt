@@ -8,6 +8,7 @@ import org.junit.Test
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.whenever
+import kotlin.test.assertContains
 
 class UplynkSsaiDescriptionConverterTest {
     private lateinit var ssaiDescription: UplynkSsaiDescription
@@ -91,5 +92,54 @@ class UplynkSsaiDescriptionConverterTest {
         assertEquals("asset1,asset2,asset3", items[2])
         assertEquals("multiple.json", items[3])
         assertEquals("v=2&p1=v1&p2=v2&p3=v3", items[4])
+    }
+
+    @Test
+    fun buildAssetInfoUrls_withoutSid_doesNotContainPbsParameter() {
+        val result = converter.buildAssetInfoUrls(ssaiDescription, "")
+
+        assertTrue(result.none { it.contains("pbs=") })
+    }
+
+    @Test
+    fun buildAssetInfoUrls_withSid_hasPbsParameter() {
+        val result = converter.buildAssetInfoUrls(ssaiDescription, "sessionId")
+
+        assertTrue(result.all { it.contains("pbs=sessionId") })
+    }
+
+    @Test
+    fun buildAssetInfoUrls_whenAssetIdIsEmptyAndExternalIdIsEmpty_returnsEmptyUrl() {
+        whenever(ssaiDescription.assetIds).thenReturn(listOf())
+        whenever(ssaiDescription.externalId).thenReturn(listOf())
+
+        val result = converter.buildAssetInfoUrls(ssaiDescription, "")
+
+        assertEquals(0, result.size)
+    }
+
+    @Test
+    fun buildAssetInfoUrls_whenAssetIdHasValues_returnsAssetInfoUrls() {
+        val result = converter.buildAssetInfoUrls(ssaiDescription, "")
+
+        assertEquals(3, result.size)
+
+        assertContains(result, "urlprefix/player/assetinfo/asset1.json")
+        assertContains(result, "urlprefix/player/assetinfo/asset2.json")
+        assertContains(result, "urlprefix/player/assetinfo/asset3.json")
+    }
+
+    @Test
+    fun buildAssetInfoUrls_whenAssetIdIsEmpty_returnsAssetInfoUrlsUsingExternalId() {
+        whenever(ssaiDescription.assetIds).thenReturn(listOf())
+        whenever(ssaiDescription.externalId).thenReturn(listOf("extId1", "extId2"))
+        whenever(ssaiDescription.userId).thenReturn("userId")
+
+        val result = converter.buildAssetInfoUrls(ssaiDescription, "")
+
+        assertEquals(2, result.size)
+
+        assertContains(result, "urlprefix/player/assetinfo/ext/userId/extId1.json")
+        assertContains(result, "urlprefix/player/assetinfo/ext/userId/extId2.json")
     }
 }

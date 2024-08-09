@@ -12,7 +12,8 @@ data class UplynkSsaiDescription(
     val assetIds: List<String> = listOf(),
     val externalId: List<String> = listOf(),
     val userId: String? = null,
-    val preplayParameters: LinkedHashMap<String, String> = linkedMapOf()
+    val preplayParameters: LinkedHashMap<String, String> = linkedMapOf(),
+    val assetInfo: Boolean
 ): CustomSsaiDescription() {
 
     override val customIntegration: String
@@ -73,6 +74,11 @@ data class UplynkSsaiDescription(
          */
         fun preplayParameters(parameters: LinkedHashMap<String, String>) = apply { this.preplayParameters = parameters }
 
+        private var assetInfo: Boolean = false
+        /**
+         * Sets flat to request asset info
+         */
+        fun assetInfo(shouldRequest: Boolean) = apply { this.assetInfo = shouldRequest }
         /**
          * Builds the [UplynkSsaiDescription].
          */
@@ -81,6 +87,7 @@ data class UplynkSsaiDescription(
             assetIds = assetIds,
             externalId = externalIds,
             userId = userId,
-            preplayParameters = preplayParameters)
+            preplayParameters = preplayParameters,
+            assetInfo = assetInfo)
     }
 }

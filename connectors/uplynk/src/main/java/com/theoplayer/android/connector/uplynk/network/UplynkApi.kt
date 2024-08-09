@@ -10,4 +10,8 @@ internal class UplynkApi {
         val body = network.get(srcURL)
         return json.decodeFromString(body)
     }
+
+    suspend fun assetInfo(url: String): String {
+        return network.get(url)
+    }
 }

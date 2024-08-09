@@ -152,6 +152,10 @@ class MainActivity : AppCompatActivity() {
         uplynkConnector.eventDispatcher.addEventListener(UplynkEventTypes.PREPLAY_RESPONSE) {
             Log.d("UplynkConnectorEvents", "PREPLAY_RESPONSE ${it.getResponse()} - $it")
         }
+
+        uplynkConnector.eventDispatcher.addEventListener(UplynkEventTypes.ASSET_INFO_RESPONSE) {
+            Log.d("UplynkConnectorEvents", "ASSET_INFO_RESPONSE ${it.getResponse()} - $it")
+        }
     }
 
     private fun setupListeners() {

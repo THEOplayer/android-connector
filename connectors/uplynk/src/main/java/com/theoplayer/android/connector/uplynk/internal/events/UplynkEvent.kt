@@ -12,4 +12,6 @@ interface UplynkPreplayResponseEvent: UplynkEvent<UplynkPreplayResponseEvent> {
     fun getResponse(): PreplayResponse
 }
 
-interface UplynkAssetInfoResponseEvent: UplynkEvent<UplynkAssetInfoResponseEvent>
+interface UplynkAssetInfoResponseEvent: UplynkEvent<UplynkAssetInfoResponseEvent> {
+    fun getResponse(): String
+}
