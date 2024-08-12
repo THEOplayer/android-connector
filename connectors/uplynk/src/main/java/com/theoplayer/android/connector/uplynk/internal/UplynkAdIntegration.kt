@@ -32,7 +32,6 @@ internal class UplynkAdIntegration(
         get() = theoplayerView.player
 
     private val uplynkApi = UplynkApi()
-    private val mainThreadHandler = Handler(Looper.getMainLooper())
 
     override suspend fun setSource(source: SourceDescription): SourceDescription {
 
@@ -80,24 +79,21 @@ internal class UplynkAdIntegration(
 
     private fun dispatchAssetInfoEvents(assetInfo: AssetInfoInternalResponse) =
         CoroutineScope(Dispatchers.IO).async {
-            mainThreadHandler.post {
-                if (assetInfo.externalResponse != null) {
-                    eventDispatcher.dispatchEvent(
-                        UplynkAssetInfoResponseEventImpl(
-                            Date(),
-                            assetInfo.externalResponse!!
-                        )
+            if (assetInfo.externalResponse != null) {
+                eventDispatcher.dispatchEvent(
+                    UplynkAssetInfoResponseEventImpl(
+                        Date(),
+                        assetInfo.externalResponse!!
                     )
-                } else {
-                    eventDispatcher.dispatchEvent(
-                        UplynkAssetInfoErrorResponseEventImpl(
-                            Date(),
-                            assetInfo.body,
-                            assetInfo.error
-                        )
+                )
+            } else {
+                eventDispatcher.dispatchEvent(
+                    UplynkAssetInfoErrorResponseEventImpl(
+                        Date(),
+                        assetInfo.body,
+                        assetInfo.error
                     )
-                }
-
+                )
             }
         }
 
