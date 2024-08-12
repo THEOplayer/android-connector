@@ -13,6 +13,8 @@ import com.theoplayer.android.connector.uplynk.internal.events.UplynkAssetInfoEr
 import com.theoplayer.android.connector.uplynk.internal.events.UplynkAssetInfoResponseEventImpl
 import com.theoplayer.android.connector.uplynk.internal.events.UplynkPreplayErrorResponseEventImpl
 import com.theoplayer.android.connector.uplynk.internal.events.UplynkPreplayResponseEventImpl
+import com.theoplayer.android.connector.uplynk.internal.network.AssetInfoInternalResponse
+import com.theoplayer.android.connector.uplynk.internal.network.PreplayInternalResponse
 import com.theoplayer.android.connector.uplynk.network.UplynkApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,17 +33,14 @@ internal class UplynkAdIntegration(
 
     private val uplynkApi = UplynkApi()
     private val mainThreadHandler = Handler(Looper.getMainLooper())
-    private val ioScope = CoroutineScope(Dispatchers.IO)
 
     override suspend fun setSource(source: SourceDescription): SourceDescription {
         val uplynkSource = source.sources.find { it.ssai is UplynkSsaiDescription } ?: return source
         val ssaiDescription = uplynkSource.ssai as? UplynkSsaiDescription ?: return source
-        val response = uplynkApi.preplay(uplynkDescriptionConverter.buildPreplayUrl(ssaiDescription))
-        if (response.externalResponse != null) {
-            eventDispatcher.dispatchEvent(UplynkPreplayResponseEventImpl(Date(), response.externalResponse!!))
-        } else {
-            eventDispatcher.dispatchEvent(UplynkPreplayErrorResponseEventImpl(Date(), response.body, response.error))
-        }
+        val response = uplynkDescriptionConverter
+            .buildPreplayUrl(ssaiDescription)
+            .let { uplynkApi.preplay(it) }
+            .also { dispatchPreplayEvents(it) }
 
 
         val newSource = source.replaceSources(source.sources.toMutableList().apply {
@@ -51,32 +50,53 @@ internal class UplynkAdIntegration(
         if (ssaiDescription.assetInfo) {
             uplynkDescriptionConverter
                 .buildAssetInfoUrls(ssaiDescription, response.internalResponse.sid)
-                .map { url ->
-                    ioScope.async {
-                        val assetInfo = uplynkApi.assetInfo(url)
-                        mainThreadHandler.post {
-                            if (assetInfo.externalResponse != null) {
-                                eventDispatcher.dispatchEvent(
-                                    UplynkAssetInfoResponseEventImpl(
-                                        Date(),
-                                        assetInfo.externalResponse!!
-                                    )
-                                )
-                            } else {
-                                eventDispatcher.dispatchEvent(
-                                    UplynkAssetInfoErrorResponseEventImpl(
-                                        Date(),
-                                        assetInfo.body,
-                                        assetInfo.error
-                                    )
-                                )
-                            }
-
-                        }
-                    }
-                }
+                .map { uplynkApi.assetInfo(it) }
+                .forEach { dispatchAssetInfoEvents(it) }
         }
 
         return newSource
     }
+
+    private fun dispatchPreplayEvents(response: PreplayInternalResponse) {
+        if (response.externalResponse != null) {
+            eventDispatcher.dispatchEvent(
+                UplynkPreplayResponseEventImpl(
+                    Date(),
+                    response.externalResponse!!
+                )
+            )
+        } else {
+            eventDispatcher.dispatchEvent(
+                UplynkPreplayErrorResponseEventImpl(
+                    Date(),
+                    response.body,
+                    response.error
+                )
+            )
+        }
+    }
+
+    private fun dispatchAssetInfoEvents(assetInfo: AssetInfoInternalResponse) =
+        CoroutineScope(Dispatchers.IO).async {
+            mainThreadHandler.post {
+                if (assetInfo.externalResponse != null) {
+                    eventDispatcher.dispatchEvent(
+                        UplynkAssetInfoResponseEventImpl(
+                            Date(),
+                            assetInfo.externalResponse!!
+                        )
+                    )
+                } else {
+                    eventDispatcher.dispatchEvent(
+                        UplynkAssetInfoErrorResponseEventImpl(
+                            Date(),
+                            assetInfo.body,
+                            assetInfo.error
+                        )
+                    )
+                }
+
+            }
+        }
+
 }
