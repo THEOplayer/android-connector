@@ -7,7 +7,7 @@ import com.theoplayer.android.api.ads.ServerSideAdIntegrationController
 import com.theoplayer.android.api.ads.ServerSideAdIntegrationHandler
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.api.source.SourceDescription
-import com.theoplayer.android.connector.uplynk.UplynkEventDispatcherImpl
+import com.theoplayer.android.connector.uplynk.UplynkEventDispatcher
 import com.theoplayer.android.connector.uplynk.UplynkSsaiDescription
 import com.theoplayer.android.connector.uplynk.internal.events.UplynkAssetInfoErrorResponseEventImpl
 import com.theoplayer.android.connector.uplynk.internal.events.UplynkAssetInfoResponseEventImpl
@@ -22,7 +22,7 @@ import java.util.Date
 internal class UplynkAdIntegration(
     val theoplayerView: THEOplayerView,
     val controller: ServerSideAdIntegrationController,
-    val eventDispatcher: UplynkEventDispatcherImpl,
+    val eventDispatcher: UplynkEventDispatcher,
     val uplynkDescriptionConverter: UplynkSsaiDescriptionConverter
 ) : ServerSideAdIntegrationHandler {
 
