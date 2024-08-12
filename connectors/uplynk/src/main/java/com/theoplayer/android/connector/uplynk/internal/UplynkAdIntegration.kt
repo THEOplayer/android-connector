@@ -7,7 +7,7 @@ import com.theoplayer.android.api.ads.ServerSideAdIntegrationController
 import com.theoplayer.android.api.ads.ServerSideAdIntegrationHandler
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.api.source.SourceDescription
-import com.theoplayer.android.connector.uplynk.UplynkEventDispatcher
+import com.theoplayer.android.connector.uplynk.common.UplynkEventDispatcher
 import com.theoplayer.android.connector.uplynk.UplynkSsaiDescription
 import com.theoplayer.android.connector.uplynk.internal.events.UplynkAssetInfoErrorResponseEventImpl
 import com.theoplayer.android.connector.uplynk.internal.events.UplynkAssetInfoResponseEventImpl

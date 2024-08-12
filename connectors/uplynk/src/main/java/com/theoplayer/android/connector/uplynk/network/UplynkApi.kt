@@ -1,7 +1,7 @@
 package com.theoplayer.android.connector.uplynk.network
 
 import com.theoplayer.android.connector.uplynk.internal.network.AssetInfoInternalResponse
-import com.theoplayer.android.connector.uplynk.internal.network.HttpsConnection
+import com.theoplayer.android.connector.uplynk.common.HttpsConnection
 import com.theoplayer.android.connector.uplynk.internal.network.PreplayInternalResponse
 
 internal class UplynkApi {

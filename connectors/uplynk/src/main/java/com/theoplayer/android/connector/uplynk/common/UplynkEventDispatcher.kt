@@ -1,4 +1,4 @@
-package com.theoplayer.android.connector.uplynk
+package com.theoplayer.android.connector.uplynk.common
 
 import android.os.Handler
 import android.os.Looper

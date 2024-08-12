@@ -6,6 +6,7 @@ import com.theoplayer.android.api.ads.ServerSideAdIntegrationController
 import com.theoplayer.android.api.source.ssai.CustomSsaiDescriptionRegistry
 import com.theoplayer.android.connector.uplynk.internal.UplynkAdIntegration
 import com.theoplayer.android.connector.uplynk.internal.UplynkSsaiDescriptionConverter
+import com.theoplayer.android.connector.uplynk.common.UplynkEventDispatcher
 
 internal const val TAG = "UplynkConnector"
 
