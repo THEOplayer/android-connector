@@ -1,5 +1,6 @@
-package com.theoplayer.android.connector.uplynk.network
+package com.theoplayer.android.connector.uplynk.internal.network
 
+import com.theoplayer.android.connector.uplynk.network.PreplayResponse
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json

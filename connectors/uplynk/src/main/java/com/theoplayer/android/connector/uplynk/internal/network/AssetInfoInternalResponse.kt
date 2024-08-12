@@ -1,11 +1,13 @@
-package com.theoplayer.android.connector.uplynk.network
+package com.theoplayer.android.connector.uplynk.internal.network
 
+import com.theoplayer.android.connector.uplynk.network.AssetInfoResponse
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 
 private val json = Json {
     ignoreUnknownKeys = true
 }
+
 
 internal class AssetInfoInternalResponse(val body: String) {
     var error: Exception? = null
