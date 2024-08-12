@@ -35,8 +35,10 @@ internal class UplynkAdIntegration(
     private val mainThreadHandler = Handler(Looper.getMainLooper())
 
     override suspend fun setSource(source: SourceDescription): SourceDescription {
-        val uplynkSource = source.sources.find { it.ssai is UplynkSsaiDescription } ?: return source
-        val ssaiDescription = uplynkSource.ssai as? UplynkSsaiDescription ?: return source
+
+        val uplynkSource = source.sources.singleOrNull { it.ssai is UplynkSsaiDescription }
+        val ssaiDescription = uplynkSource?.ssai as? UplynkSsaiDescription ?: return source
+
         val response = uplynkDescriptionConverter
             .buildPreplayUrl(ssaiDescription)
             .let { uplynkApi.preplay(it) }
