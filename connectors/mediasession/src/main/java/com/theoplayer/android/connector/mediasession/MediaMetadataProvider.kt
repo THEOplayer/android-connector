@@ -10,6 +10,7 @@ private const val PROP_ALBUM_ART = "albumArt"
 private const val PROP_ALBUM_ARTIST = "albumArtist"
 private const val PROP_ALBUM_ART_URI = "albumArtUri"
 private const val PROP_ART = "art"
+private const val PROP_ART_URI = "artUri"
 private const val PROP_ARTIST = "artist"
 private const val PROP_AUTHOR = "author"
 private const val PROP_COMPILATION = "compilation"
@@ -123,6 +124,13 @@ class MediaMetadataProvider(private val connector: MediaSessionConnector) {
      */
     fun setArt(value: Bitmap?) {
         builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ART, value)
+    }
+
+    /**
+     * See [MediaMetadataCompat.METADATA_KEY_ART_URI].
+     */
+    fun setArtUri(value: String?) {
+        builder.putString(MediaMetadataCompat.METADATA_KEY_ART_URI, value)
     }
 
     /**
@@ -314,6 +322,9 @@ class MediaMetadataProvider(private val connector: MediaSessionConnector) {
             }
             if (metadata.containsKey(PROP_ART)) {
                 setArt(metadata.get(PROP_ART) as? Bitmap)
+            }
+            if (metadata.containsKey(PROP_ART_URI)) {
+                setArtUri(metadata.get(PROP_ART_URI) as? String)
             }
             if (metadata.containsKey(PROP_ARTIST)) {
                 setArtist(metadata.get(PROP_ARTIST) as? String)
