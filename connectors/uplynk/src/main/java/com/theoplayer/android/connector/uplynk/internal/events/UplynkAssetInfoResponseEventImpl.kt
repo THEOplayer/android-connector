@@ -1,9 +1,11 @@
 package com.theoplayer.android.connector.uplynk.internal.events
 
+import com.theoplayer.android.connector.uplynk.events.UplynkAssetInfoResponseEvent
+import com.theoplayer.android.connector.uplynk.events.UplynkEventTypes
 import com.theoplayer.android.connector.uplynk.network.AssetInfoResponse
 import java.util.Date
 
-class UplynkAssetInfoResponseEventImpl(
+internal class UplynkAssetInfoResponseEventImpl(
     date: Date,
     private val response: AssetInfoResponse
 ) :

@@ -5,7 +5,7 @@ import android.os.Looper
 import com.theoplayer.android.api.event.EventDispatcher
 import com.theoplayer.android.api.event.EventListener
 import com.theoplayer.android.api.event.EventType
-import com.theoplayer.android.connector.uplynk.internal.events.UplynkEvent
+import com.theoplayer.android.connector.uplynk.events.UplynkEvent
 
 
 class UplynkEventDispatcher : EventDispatcher<UplynkEvent<*>> {

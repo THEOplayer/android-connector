@@ -1,9 +1,10 @@
 package com.theoplayer.android.connector.uplynk.internal.events
 
 import com.theoplayer.android.api.event.EventType
+import com.theoplayer.android.connector.uplynk.events.UplynkEvent
 import java.util.Date
 
-abstract class UplynkEventImpl<E : UplynkEvent<E>> internal constructor(
+internal abstract class UplynkEventImpl<E : UplynkEvent<E>> internal constructor(
     private val type: EventType<E>,
     private val date: Date
 ) : UplynkEvent<E> {

@@ -1,4 +1,4 @@
-package com.theoplayer.android.connector.uplynk.internal.events
+package com.theoplayer.android.connector.uplynk.events
 
 import com.theoplayer.android.api.event.Event
 import com.theoplayer.android.connector.uplynk.network.AssetInfoResponse

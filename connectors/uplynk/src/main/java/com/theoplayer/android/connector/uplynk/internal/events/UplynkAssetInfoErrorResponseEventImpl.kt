@@ -1,8 +1,10 @@
 package com.theoplayer.android.connector.uplynk.internal.events
 
+import com.theoplayer.android.connector.uplynk.events.UplynkAssetInfoResponseErrorEvent
+import com.theoplayer.android.connector.uplynk.events.UplynkEventTypes
 import java.util.Date
 
-class UplynkAssetInfoErrorResponseEventImpl(
+internal class UplynkAssetInfoErrorResponseEventImpl(
     date: Date,
     private val body: String,
     private val exception: Exception?

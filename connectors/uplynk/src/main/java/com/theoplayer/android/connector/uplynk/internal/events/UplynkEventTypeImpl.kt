@@ -1,8 +1,9 @@
 package com.theoplayer.android.connector.uplynk.internal.events
 
 import com.theoplayer.android.api.event.EventType
+import com.theoplayer.android.connector.uplynk.events.UplynkEvent
 
-class UplynkEventTypeImpl<E : UplynkEvent<*>>(private val name: String) : EventType<E> {
+internal class UplynkEventTypeImpl<E : UplynkEvent<*>>(private val name: String) : EventType<E> {
     override fun getName() = this.name
 
     override fun toString(): String {
