@@ -8,7 +8,7 @@ import com.theoplayer.android.api.event.EventType
 import com.theoplayer.android.connector.uplynk.events.UplynkEvent
 
 
-class UplynkEventDispatcher : EventDispatcher<UplynkEvent<*>> {
+class EventDispatcherImpl : EventDispatcher<UplynkEvent<*>> {
     private val eventMap: HashMap<EventType<*>, ArrayList<EventListener<in UplynkEvent<*>>>> = HashMap()
     private val handler = Handler(Looper.getMainLooper())
     override fun <E : UplynkEvent<*>> addEventListener(
