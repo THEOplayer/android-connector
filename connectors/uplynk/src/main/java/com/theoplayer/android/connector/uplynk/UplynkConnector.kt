@@ -7,6 +7,8 @@ import com.theoplayer.android.api.source.ssai.CustomSsaiDescriptionRegistry
 import com.theoplayer.android.connector.uplynk.internal.UplynkAdIntegration
 import com.theoplayer.android.connector.uplynk.internal.UplynkSsaiDescriptionConverter
 import com.theoplayer.android.connector.uplynk.common.EventDispatcherImpl
+import com.theoplayer.android.connector.uplynk.internal.UplynkEventDispatcher
+import com.theoplayer.android.connector.uplynk.network.UplynkApi
 
 internal const val TAG = "UplynkConnector"
 
@@ -32,8 +34,9 @@ class UplynkConnector(
         val integration = UplynkAdIntegration(
             theoplayerView,
             controller,
-            eventDispatcher,
-            UplynkSsaiDescriptionConverter()
+            UplynkEventDispatcher(eventDispatcher),
+            UplynkSsaiDescriptionConverter(),
+            UplynkApi()
         )
         this.integration = integration
         return integration
