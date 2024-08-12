@@ -70,10 +70,7 @@ class MediaMetadataProvider(private val connector: MediaSessionConnector) {
             clearMediaSessionMetadataDescription()
             return
         }
-        builder.putLong(
-            MediaMetadataCompat.METADATA_KEY_ADVERTISEMENT,
-            if (player.ads.isPlaying) 1 else 0
-        )
+        setAdvertisement(player.ads.isPlaying)
         if (!java.lang.Double.isNaN(player.duration)) {
             setDuration((1e03 * player.duration).toLong())
         }
@@ -89,6 +86,13 @@ class MediaMetadataProvider(private val connector: MediaSessionConnector) {
         }
         builder = MediaMetadataCompat.Builder()
         connector.mediaSession.setMetadata(METADATA_EMPTY)
+    }
+
+    /**
+     * See [MediaMetadataCompat.METADATA_KEY_ADVERTISEMENT].
+     */
+    fun setAdvertisement(value: Boolean?) {
+        builder.putLong(MediaMetadataCompat.METADATA_KEY_ADVERTISEMENT, if (value == true) 1 else 0)
     }
 
     /**
