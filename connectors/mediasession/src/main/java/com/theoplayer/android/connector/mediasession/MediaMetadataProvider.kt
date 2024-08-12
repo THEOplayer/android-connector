@@ -163,8 +163,10 @@ class MediaMetadataProvider(private val connector: MediaSessionConnector) {
     /**
      * See [MediaMetadataCompat.METADATA_KEY_DISC_NUMBER].
      */
-    fun setDiscNumber(value: Long) {
-        builder.putLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER, value)
+    fun setDiscNumber(value: Long?) {
+        value?.let {
+            builder.putLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER, it)
+        }
     }
 
     /**
@@ -205,15 +207,19 @@ class MediaMetadataProvider(private val connector: MediaSessionConnector) {
     /**
      * See [MediaMetadataCompat.METADATA_KEY_DOWNLOAD_STATUS].
      */
-    fun setDownloadStatus(value: Long) {
-        builder.putLong(MediaMetadataCompat.METADATA_KEY_DOWNLOAD_STATUS, value)
+    fun setDownloadStatus(value: Long?) {
+        value?.let {
+            builder.putLong(MediaMetadataCompat.METADATA_KEY_DOWNLOAD_STATUS, it)
+        }
     }
 
     /**
      * See [MediaMetadataCompat.METADATA_KEY_DURATION].
      */
-    fun setDuration(value: Long) {
-        builder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, value)
+    fun setDuration(value: Long?) {
+        value?.let {
+            builder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, it)
+        }
     }
 
     /**
@@ -247,8 +253,10 @@ class MediaMetadataProvider(private val connector: MediaSessionConnector) {
     /**
      * See [MediaMetadataCompat.METADATA_KEY_NUM_TRACKS].
      */
-    fun setNumberOfTracks(value: Long) {
-        builder.putLong(MediaMetadataCompat.METADATA_KEY_NUM_TRACKS, value)
+    fun setNumberOfTracks(value: Long?) {
+        value?.let {
+            builder.putLong(MediaMetadataCompat.METADATA_KEY_NUM_TRACKS, it)
+        }
     }
 
     /**
@@ -261,8 +269,10 @@ class MediaMetadataProvider(private val connector: MediaSessionConnector) {
     /**
      * See [MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER].
      */
-    fun setTrackNumber(value: Long) {
-        builder.putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, value)
+    fun setTrackNumber(value: Long?) {
+        value?.let {
+            builder.putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, it)
+        }
     }
 
     /**
@@ -275,8 +285,10 @@ class MediaMetadataProvider(private val connector: MediaSessionConnector) {
     /**
      * See [MediaMetadataCompat.METADATA_KEY_YEAR].
      */
-    fun setYear(value: Long) {
-        builder.putLong(MediaMetadataCompat.METADATA_KEY_YEAR, value)
+    fun setYear(value: Long?) {
+        value?.let {
+            builder.putLong(MediaMetadataCompat.METADATA_KEY_YEAR, it)
+        }
     }
 
     private fun updateMetaDataDescription(sourceDescription: SourceDescription?) {
@@ -289,111 +301,79 @@ class MediaMetadataProvider(private val connector: MediaSessionConnector) {
         }
         sourceDescription.metadata?.let { metadata ->
             if (metadata.containsKey(PROP_ALBUM)) {
-                setAlbum(metadata.get(PROP_ALBUM))
+                setAlbum(metadata.get(PROP_ALBUM) as? String)
             }
             if (metadata.containsKey(PROP_ALBUM_ART)) {
-                try {
-                    setAlbumArt(metadata.get(PROP_ALBUM_ART))
-                } catch (ignore: ClassCastException) {
-                    Log.e(TAG, "Invalid value for metadata $PROP_ALBUM_ART")
-                }
+                setAlbumArt(metadata.get(PROP_ALBUM_ART) as? Bitmap)
             }
             if (metadata.containsKey(PROP_ALBUM_ARTIST)) {
-                setAlbumArtist(metadata.get(PROP_ALBUM_ARTIST))
+                setAlbumArtist(metadata.get(PROP_ALBUM_ARTIST) as? String)
             }
             if (metadata.containsKey(PROP_ALBUM_ART_URI)) {
-                setAlbumArtUri(metadata.get(PROP_ALBUM_ART_URI))
+                setAlbumArtUri(metadata.get(PROP_ALBUM_ART_URI) as? String)
             }
             if (metadata.containsKey(PROP_ART)) {
-                try {
-                    setArt(metadata.get(PROP_ART))
-                } catch (ignore: ClassCastException) {
-                    Log.e(TAG, "Invalid value for metadata $PROP_ART")
-                }
+                setArt(metadata.get(PROP_ART) as? Bitmap)
             }
             if (metadata.containsKey(PROP_ARTIST)) {
-                setArtist(metadata.get(PROP_ARTIST))
+                setArtist(metadata.get(PROP_ARTIST) as? String)
             }
             if (metadata.containsKey(PROP_AUTHOR)) {
-                setAuthor(metadata.get(PROP_AUTHOR))
+                setAuthor(metadata.get(PROP_AUTHOR) as? String)
             }
             if (metadata.containsKey(PROP_COMPILATION)) {
-                setCompilation(metadata.get(PROP_COMPILATION))
+                setCompilation(metadata.get(PROP_COMPILATION) as? String)
             }
             if (metadata.containsKey(PROP_COMPOSER)) {
-                setComposer(metadata.get(PROP_COMPOSER))
+                setComposer(metadata.get(PROP_COMPOSER) as? String)
             }
             if (metadata.containsKey(PROP_DATE)) {
-                setDate(metadata.get(PROP_DATE))
+                setDate(metadata.get(PROP_DATE) as? String)
             }
             if (metadata.containsKey(PROP_DISC_NUMBER)) {
-                try {
-                    setDiscNumber(metadata.get(PROP_DISC_NUMBER))
-                } catch (ignore: ClassCastException) {
-                    Log.e(TAG, "Invalid value for metadata $PROP_DISC_NUMBER")
-                }
+                setDiscNumber(metadata.get(PROP_DISC_NUMBER) as? Long)
             }
             if (metadata.containsKey(PROP_DISPLAY_DESCRIPTION)) {
-                setDisplayDescription(metadata.get(PROP_DISPLAY_DESCRIPTION))
+                setDisplayDescription(metadata.get(PROP_DISPLAY_DESCRIPTION) as? String)
             }
             if (metadata.containsKey(PROP_DISPLAY_ICON)) {
-                try {
-                    setDisplayIcon(metadata.get(PROP_DISPLAY_ICON))
-                } catch (ignore: ClassCastException) {
-                    Log.e(TAG, "Invalid value for metadata $PROP_DISPLAY_ICON")
-                }
+                setDisplayIcon(metadata.get(PROP_DISPLAY_ICON) as? Bitmap)
             }
             if (metadata.containsKey(PROP_DISPLAY_ICON_URI)) {
-                setDisplayIconUri(metadata.get(PROP_DISPLAY_ICON_URI))
+                setDisplayIconUri(metadata.get(PROP_DISPLAY_ICON_URI) as? String)
             }
             if (metadata.containsKey(PROP_DISPLAY_SUBTITLE)) {
-                setDisplaySubtitle(metadata.get(PROP_DISPLAY_SUBTITLE))
+                setDisplaySubtitle(metadata.get(PROP_DISPLAY_SUBTITLE) as? String)
             }
             if (metadata.containsKey(PROP_DISPLAY_TITLE)) {
-                setDisplayTitle(metadata.get(PROP_DISPLAY_TITLE))
+                setDisplayTitle(metadata.get(PROP_DISPLAY_TITLE) as? String)
             }
             if (metadata.containsKey(PROP_DOWNLOAD_STATUS)) {
-                try {
-                    setDownloadStatus(metadata.get(PROP_DOWNLOAD_STATUS))
-                } catch (ignore: ClassCastException) {
-                    Log.e(TAG, "Invalid value for metadata $PROP_DOWNLOAD_STATUS")
-                }
+                setDownloadStatus(metadata.get(PROP_DOWNLOAD_STATUS) as? Long)
             }
             if (metadata.containsKey(PROP_GENRE)) {
-                setGenre(metadata.get(PROP_GENRE))
+                setGenre(metadata.get(PROP_GENRE) as? String)
             }
             if (metadata.containsKey(PROP_MEDIA_ID)) {
-                setMediaId(metadata.get(PROP_MEDIA_ID))
+                setMediaId(metadata.get(PROP_MEDIA_ID) as? String)
             }
             if (metadata.containsKey(PROP_MEDIA_URI)) {
-                setMediaUri(metadata.get(PROP_MEDIA_URI))
+                setMediaUri(metadata.get(PROP_MEDIA_URI) as? String)
             }
             if (metadata.containsKey(PROP_NUM_TRACKS)) {
-                try {
-                    setNumberOfTracks(metadata.get(PROP_NUM_TRACKS))
-                } catch (ignore: ClassCastException) {
-                    Log.e(TAG, "Invalid value for metadata $PROP_NUM_TRACKS")
-                }
+                setNumberOfTracks(metadata.get(PROP_NUM_TRACKS) as? Long)
             }
             if (metadata.containsKey(PROP_TITLE)) {
-                setTitle(metadata.get(PROP_TITLE))
+                setTitle(metadata.get(PROP_TITLE) as? String)
             }
             if (metadata.containsKey(PROP_TRACK_NUMBER)) {
-                try {
-                    setTrackNumber(metadata.get(PROP_TRACK_NUMBER))
-                } catch (ignore: ClassCastException) {
-                    Log.e(TAG, "Invalid value for metadata $PROP_TRACK_NUMBER")
-                }
+                setTrackNumber(metadata.get(PROP_TRACK_NUMBER) as? Long)
             }
             if (metadata.containsKey(PROP_WRITER)) {
-                setWriter(metadata.get(PROP_WRITER))
+                setWriter(metadata.get(PROP_WRITER) as? String)
             }
             if (metadata.containsKey(PROP_YEAR)) {
-                try {
-                    setYear(metadata.get(PROP_YEAR))
-                } catch (ignore: ClassCastException) {
-                    Log.e(TAG, "Invalid value for metadata $PROP_YEAR")
-                }
+                setYear(metadata.get(PROP_YEAR) as? Long)
             }
         }
     }
