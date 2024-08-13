@@ -29,7 +29,7 @@ internal class UplynkAdIntegration(
             .let { uplynkApi.preplay(it) }
             .also {
                 try {
-                    eventDispatcher.dispatchPreplayEvents(it)
+                    eventDispatcher.dispatchPreplayEvents(it.parseExternalResponse())
                 } catch (e: Exception) {
                     controller.error(e)
                 }
