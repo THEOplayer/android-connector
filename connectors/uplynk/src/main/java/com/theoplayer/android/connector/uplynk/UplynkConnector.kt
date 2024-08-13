@@ -1,6 +1,7 @@
 package com.theoplayer.android.connector.uplynk
 
 import com.theoplayer.android.api.THEOplayerView
+import com.theoplayer.android.api.ads.Ad
 import com.theoplayer.android.api.ads.ServerSideAdIntegrationController
 import com.theoplayer.android.api.source.ssai.CustomSsaiDescriptionRegistry
 import com.theoplayer.android.connector.uplynk.internal.UplynkAdIntegration
@@ -13,6 +14,8 @@ internal const val TAG = "UplynkConnector"
  *
  * @param theoplayerView
  *   The THEOplayer view, which will be connected to the created connector.
+ *
+ *   @see [Uplynk Media Platform](https://docs.edgecast.com/video/index.html)
  */
 class UplynkConnector(
     private val theoplayerView: THEOplayerView,
@@ -37,7 +40,7 @@ class UplynkConnector(
         /**
          * The integration identifier for the Uplynk connector.
          *
-         * Ads created by this connector have this value as their [custom integration].
+         * Ads created by this connector have this value as their [custom integration][Ad.getCustomIntegration].
          */
         const val INTEGRATION_ID = "uplynk"
 

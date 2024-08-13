@@ -38,7 +38,7 @@ data class UplynkSsaiDescription(
         /**
          * Sets a list of asset IDs for Uplynk Media Platform Preplay API.
          *
-         * @param externalId An external identifier. (<b>NonNull</b>)
+         * @param ids List of assets identifiers. (<b>NonNull</b>)
          */
         fun assetIds(ids: List<String>) = apply { this.assetIds = ids }
 
@@ -47,7 +47,7 @@ data class UplynkSsaiDescription(
          * Sets a list of external IDs for Uplynk Media Platform Preplay API.
          * If [assetIds] have at least one value this property is ignored and could be empty
          *
-         * @param externalIds External identifiers. (<b>NonNull</b>)
+         * @param ids External identifiers. (<b>NonNull</b>)
          */
         fun externalIds(ids: List<String>) = apply { this.externalIds = ids }
 
@@ -56,7 +56,7 @@ data class UplynkSsaiDescription(
          * Sets a User ID for Uplynk Media Platform Preplay API.
          * If [assetIds] have at least one value this property is ignored and could be empty
          *
-         * @param externalId An external identifier. (<b>NonNull</b>)
+         * @param id A user identifier. (<b>NonNull</b>)
          */
         fun userId(id: String) = apply { this.userId = id }
 
