@@ -7,9 +7,7 @@ import java.util.Date
 
 internal class UplynkPreplayResponseEventImpl(
     date: Date,
-    private val response: PreplayResponse
+    override val response: PreplayResponse
 ) :
     UplynkEventImpl<UplynkPreplayResponseEvent>(UplynkEventTypes.PREPLAY_RESPONSE, date),
-    UplynkPreplayResponseEvent {
-        override fun getResponse(): PreplayResponse = response
-    }
+    UplynkPreplayResponseEvent

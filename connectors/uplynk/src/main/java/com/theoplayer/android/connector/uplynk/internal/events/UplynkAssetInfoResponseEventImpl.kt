@@ -7,9 +7,7 @@ import java.util.Date
 
 internal class UplynkAssetInfoResponseEventImpl(
     date: Date,
-    private val response: AssetInfoResponse
+    override val response: AssetInfoResponse
 ) :
     UplynkEventImpl<UplynkAssetInfoResponseEvent>(UplynkEventTypes.ASSET_INFO_RESPONSE, date),
-    UplynkAssetInfoResponseEvent {
-        override fun getResponse(): AssetInfoResponse = response
-    }
+    UplynkAssetInfoResponseEvent

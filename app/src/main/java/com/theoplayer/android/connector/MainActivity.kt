@@ -151,20 +151,13 @@ class MainActivity : AppCompatActivity() {
     private fun setupUplynk() {
         uplynkConnector = UplynkConnector(theoplayerView)
         uplynkConnector.eventDispatcher.addEventListener(UplynkEventTypes.PREPLAY_RESPONSE) {
-            Log.d("UplynkConnectorEvents", "PREPLAY_RESPONSE ${it.getResponse()} - $it")
+            Log.d("UplynkConnectorEvents", "PREPLAY_RESPONSE ${it.response} - $it")
         }
 
         uplynkConnector.eventDispatcher.addEventListener(UplynkEventTypes.ASSET_INFO_RESPONSE) {
-            Log.d("UplynkConnectorEvents", "ASSET_INFO_RESPONSE ${it.getResponse()} - $it")
+            Log.d("UplynkConnectorEvents", "ASSET_INFO_RESPONSE ${it.response} - $it")
         }
 
-        uplynkConnector.eventDispatcher.addEventListener(UplynkEventTypes.PREPLAY_RESPONSE_ERROR) {
-            Log.d("UplynkConnectorEvents", "PREPLAY_RESPONSE_ERROR ${it.getBody()} - ${it.getException()}")
-        }
-
-        uplynkConnector.eventDispatcher.addEventListener(UplynkEventTypes.ASSET_INFO_RESPONSE_ERROR) {
-            Log.d("UplynkConnectorEvents", "ASSET_INFO_RESPONSE_ERROR ${it.getBody()} - ${it.getException()}")
-        }
         theoplayerView.player.ads.addEventListener(AdsEventTypes.AD_ERROR) {
             Log.d("UplynkConnectorEvents", "AD_ERROR " + it.error)
         }
