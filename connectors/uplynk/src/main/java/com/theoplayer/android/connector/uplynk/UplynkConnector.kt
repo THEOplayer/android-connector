@@ -15,7 +15,7 @@ internal const val TAG = "UplynkConnector"
  * @param theoplayerView
  *   The THEOplayer view, which will be connected to the created connector.
  *
- *   @see [Uplynk Media Platform](https://docs.edgecast.com/video/index.html)
+ * @see [Uplynk Media Platform](https://docs.edgecast.com/video/index.html)
  */
 class UplynkConnector(
     private val theoplayerView: THEOplayerView,
