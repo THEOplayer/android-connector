@@ -8,7 +8,7 @@ import com.theoplayer.android.api.source.SourceDescription
 import com.theoplayer.android.connector.uplynk.UplynkSsaiDescription
 import com.theoplayer.android.connector.uplynk.network.UplynkApi
 
-internal class InternalUplynkAdIntegration(
+internal class UplynkAdIntegration(
     val theoplayerView: THEOplayerView,
     val controller: ServerSideAdIntegrationController,
     val uplynkDescriptionConverter: UplynkSsaiDescriptionConverter

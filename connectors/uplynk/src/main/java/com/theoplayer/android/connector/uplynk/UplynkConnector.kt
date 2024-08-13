@@ -3,6 +3,8 @@ package com.theoplayer.android.connector.uplynk
 import com.theoplayer.android.api.THEOplayerView
 import com.theoplayer.android.api.ads.ServerSideAdIntegrationController
 import com.theoplayer.android.api.source.ssai.CustomSsaiDescriptionRegistry
+import com.theoplayer.android.connector.uplynk.internal.UplynkAdIntegration
+import com.theoplayer.android.connector.uplynk.internal.UplynkSsaiDescriptionConverter
 
 internal const val TAG = "UplynkConnector"
 
@@ -25,6 +27,7 @@ class UplynkConnector(
         val integration = UplynkAdIntegration(
             theoplayerView,
             controller,
+            UplynkSsaiDescriptionConverter()
         )
         this.integration = integration
         return integration
