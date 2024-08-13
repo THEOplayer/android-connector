@@ -10,7 +10,6 @@ import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.whenever
 
 class UplynkSsaiDescriptionConverterTest {
-    @Mock
     private lateinit var ssaiDescription: UplynkSsaiDescription
 
     private lateinit var converter: UplynkSsaiDescriptionConverter
@@ -18,9 +17,11 @@ class UplynkSsaiDescriptionConverterTest {
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-        whenever(ssaiDescription.prefix).thenReturn("urlprefix")
-        whenever(ssaiDescription.assetIds).thenReturn(listOf("asset1", "asset2", "asset3"))
-        whenever(ssaiDescription.preplayParameters).thenReturn(LinkedHashMap(mapOf("p1" to "v1", "p2" to "v2", "p3" to "v3")))
+        ssaiDescription = UplynkSsaiDescription(
+            prefix = "urlprefix",
+            assetIds = listOf("asset1", "asset2", "asset3"),
+            preplayParameters = LinkedHashMap(mapOf("p1" to "v1", "p2" to "v2", "p3" to "v3"))
+        )
         converter = UplynkSsaiDescriptionConverter()
     }
 
@@ -33,7 +34,7 @@ class UplynkSsaiDescriptionConverterTest {
 
     @Test
     fun buildPreplayUrl_whenPrefixIsNull_startsUrlFromPrefix() {
-        whenever(ssaiDescription.prefix).thenReturn(null)
+        ssaiDescription = ssaiDescription.copy(prefix = null)
 
         val result = converter.buildPreplayUrl(ssaiDescription)
 
@@ -48,8 +49,8 @@ class UplynkSsaiDescriptionConverterTest {
     }
 
     @Test
-    fun buildPreplayUrl_whenAssetIdHasSingleValue_addsThemAsCommaSeparatedList() {
-        whenever(ssaiDescription.assetIds).thenReturn(listOf("singleasset"))
+    fun buildPreplayUrl_whenAssetIdHasSingleValue_usesItAsJsonFilename() {
+        ssaiDescription = ssaiDescription.copy(assetIds = listOf("singleasset"))
 
         val result = converter.buildPreplayUrl(ssaiDescription)
 
@@ -58,9 +59,9 @@ class UplynkSsaiDescriptionConverterTest {
 
     @Test
     fun buildPreplayUrl_whenAssetIdsIsEmpty_addsUserIdAndExternalIds() {
-        whenever(ssaiDescription.assetIds).thenReturn(listOf())
-        whenever(ssaiDescription.externalId).thenReturn(listOf("extId1", "extId2"))
-        whenever(ssaiDescription.userId).thenReturn("userId")
+        ssaiDescription = UplynkSsaiDescription(
+            assetIds = listOf(), externalId = listOf("extId1", "extId2"), userId = "userId"
+        )
 
         val result = converter.buildPreplayUrl(ssaiDescription)
 
@@ -70,9 +71,9 @@ class UplynkSsaiDescriptionConverterTest {
 
     @Test
     fun buildPreplayUrl_whenAssetIdsIsEmptyAndExternalIdIsSingle_addsUserIdAndExternalId() {
-        whenever(ssaiDescription.assetIds).thenReturn(listOf())
-        whenever(ssaiDescription.externalId).thenReturn(listOf("extId1"))
-        whenever(ssaiDescription.userId).thenReturn("userId")
+        ssaiDescription = UplynkSsaiDescription(
+            assetIds = listOf(), externalId = listOf("extId1"), userId = "userId"
+        )
 
         val result = converter.buildPreplayUrl(ssaiDescription)
 
