@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
  * The configuration for server-side ad insertion using the [UplynkConnector].
  */
 @Serializable
-class UplynkSsaiDescription(
+data class UplynkSsaiDescription(
     val prefix: String?,
     val assetIds: List<String>,
     val externalId: List<String>,
