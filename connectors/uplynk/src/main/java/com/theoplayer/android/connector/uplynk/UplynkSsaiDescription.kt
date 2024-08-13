@@ -8,11 +8,11 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class UplynkSsaiDescription(
-    val prefix: String?,
-    val assetIds: List<String>,
-    val externalId: List<String>,
-    val userId: String?,
-    val preplayParameters: LinkedHashMap<String, String>
+    val prefix: String? = null,
+    val assetIds: List<String> = listOf(),
+    val externalId: List<String> = listOf(),
+    val userId: String? = null,
+    val preplayParameters: LinkedHashMap<String, String> = linkedMapOf()
 ): CustomSsaiDescription() {
 
     override val customIntegration: String
