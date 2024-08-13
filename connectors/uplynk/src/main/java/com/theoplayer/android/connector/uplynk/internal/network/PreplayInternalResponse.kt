@@ -2,7 +2,6 @@ package com.theoplayer.android.connector.uplynk.internal.network
 
 import com.theoplayer.android.connector.uplynk.network.PreplayResponse
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 
 private val json = Json{
@@ -24,17 +23,6 @@ internal data class MinimalPreplayResponse(
 
 
 internal class PreplayInternalResponse(val body: String) {
-    val internalResponse: MinimalPreplayResponse = json.decodeFromString(body)
-    var error: Exception? = null
-    val externalResponse: PreplayResponse? by lazy {
-        try {
-            json.decodeFromString(body)
-        } catch (se: SerializationException) {
-            error = se
-            null
-        } catch (ie: IllegalArgumentException) {
-            error = ie
-            null
-        }
-    }
+    fun parseMinimalResponse(): MinimalPreplayResponse = json.decodeFromString(body)
+    fun parseExternalResponse(): PreplayResponse = json.decodeFromString(body)
 }

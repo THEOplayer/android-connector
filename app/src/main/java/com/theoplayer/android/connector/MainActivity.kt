@@ -15,6 +15,7 @@ import com.theoplayer.android.api.ads.ima.GoogleImaIntegrationFactory
 import com.theoplayer.android.api.event.ads.AdBreakEvent
 import com.theoplayer.android.api.event.ads.AdsEventTypes
 import com.theoplayer.android.api.event.ads.SingleAdEvent
+import com.theoplayer.android.api.event.player.PlayerEventTypes
 import com.theoplayer.android.connector.analytics.comscore.ComscoreConfiguration
 import com.theoplayer.android.connector.analytics.comscore.ComscoreConnector
 import com.theoplayer.android.connector.analytics.comscore.ComscoreMediaType
@@ -163,6 +164,13 @@ class MainActivity : AppCompatActivity() {
 
         uplynkConnector.eventDispatcher.addEventListener(UplynkEventTypes.ASSET_INFO_RESPONSE_ERROR) {
             Log.d("UplynkConnectorEvents", "ASSET_INFO_RESPONSE_ERROR ${it.getBody()} - ${it.getException()}")
+        }
+        theoplayerView.player.ads.addEventListener(AdsEventTypes.AD_ERROR) {
+            Log.d("UplynkConnectorEvents", "AD_ERROR " + it.error)
+        }
+
+        theoplayerView.player.addEventListener(PlayerEventTypes.ERROR) {
+            Log.d("UplynkConnectorEvents", "ERROR " + it.errorObject)
         }
     }
 

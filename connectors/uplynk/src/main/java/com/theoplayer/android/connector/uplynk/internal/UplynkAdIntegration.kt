@@ -27,17 +27,31 @@ internal class UplynkAdIntegration(
         val response = uplynkDescriptionConverter
             .buildPreplayUrl(ssaiDescription)
             .let { uplynkApi.preplay(it) }
-            .also { eventDispatcher.dispatchPreplayEvents(it) }
+            .also {
+                try {
+                    eventDispatcher.dispatchPreplayEvents(it)
+                } catch (e: Exception) {
+                    controller.error(e)
+                }
+            }
 
+        val internalResponse = response.parseMinimalResponse()
 
         val newSource = source.replaceSources(source.sources.toMutableList().apply {
             remove(uplynkSource)
-            add(0, uplynkSource.replaceSrc(response.internalResponse.playURL))
+            add(0, uplynkSource.replaceSrc(internalResponse.playURL))
         })
         if (ssaiDescription.assetInfo) {
             uplynkDescriptionConverter
-                .buildAssetInfoUrls(ssaiDescription, response.internalResponse.sid)
-                .map { uplynkApi.assetInfo(it) }
+                .buildAssetInfoUrls(ssaiDescription, internalResponse.sid)
+                .mapNotNull {
+                    try {
+                        uplynkApi.assetInfo(it)
+                    } catch (e: Exception) {
+                        controller.error(e)
+                        null
+                    }
+                }
                 .forEach { eventDispatcher.dispatchAssetInfoEvents(it) }
         }
 
