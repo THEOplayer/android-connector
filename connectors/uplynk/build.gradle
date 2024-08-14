@@ -1,3 +1,5 @@
+import org.jetbrains.dokka.gradle.AbstractDokkaLeafTask
+
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
@@ -42,4 +44,8 @@ dependencies {
     testImplementation "com.theoplayer.theoplayer-sdk-android:core:$sdkVersion"
     testImplementation "org.mockito:mockito-inline:$mockitoVersion"
     testImplementation "org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion"
+}
+
+tasks.withType(AbstractDokkaLeafTask.class).configureEach {
+    moduleName = "Uplynk Connector"
 }
