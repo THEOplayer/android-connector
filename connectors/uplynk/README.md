@@ -14,7 +14,7 @@ The Uplynk connector provides a Uplynk integration for THEOplayer.
        }
    }
    ```
-2. Add THEOplayer, the Uplynk Ad Management SDK and the Uplynk Connector as dependencies in your module-level `build.gradle` file:
+2. Add THEOplayer and the Uplynk Connector as dependencies in your module-level `build.gradle` file:
    ```groovy
    dependencies {
        implementation "com.theoplayer.theoplayer-sdk-android:core:7.+"
