@@ -24,7 +24,9 @@ import com.theoplayer.android.connector.analytics.conviva.ConvivaConfiguration
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConnector
 import com.theoplayer.android.connector.analytics.nielsen.NielsenConnector
 import com.theoplayer.android.connector.uplynk.UplynkConnector
-import com.theoplayer.android.connector.uplynk.events.UplynkEventTypes
+import com.theoplayer.android.connector.uplynk.UplynkListener
+import com.theoplayer.android.connector.uplynk.network.AssetInfoResponse
+import com.theoplayer.android.connector.uplynk.network.PreplayResponse
 import com.theoplayer.android.connector.yospace.YospaceConnector
 
 const val TAG = "MainActivity"
@@ -150,13 +152,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupUplynk() {
         uplynkConnector = UplynkConnector(theoplayerView)
-        uplynkConnector.eventDispatcher.addEventListener(UplynkEventTypes.PREPLAY_RESPONSE) {
-            Log.d("UplynkConnectorEvents", "PREPLAY_RESPONSE ${it.response} - $it")
-        }
+        uplynkConnector.addListener(object: UplynkListener {
+            override fun onPreplayResponse(response: PreplayResponse) {
+                Log.d("UplynkConnectorEvents", "PREPLAY_RESPONSE $response")
+            }
 
-        uplynkConnector.eventDispatcher.addEventListener(UplynkEventTypes.ASSET_INFO_RESPONSE) {
-            Log.d("UplynkConnectorEvents", "ASSET_INFO_RESPONSE ${it.response} - $it")
-        }
+            override fun onAssetInfoResponse(response: AssetInfoResponse) {
+                Log.d("UplynkConnectorEvents", "ASSET_INFO_RESPONSE $response")
+            }
+
+        })
 
         theoplayerView.player.ads.addEventListener(AdsEventTypes.AD_ERROR) {
             Log.d("UplynkConnectorEvents", "AD_ERROR " + it.error)

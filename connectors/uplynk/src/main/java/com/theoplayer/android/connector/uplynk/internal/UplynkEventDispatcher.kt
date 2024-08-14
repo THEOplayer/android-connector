@@ -1,34 +1,24 @@
 package com.theoplayer.android.connector.uplynk.internal
 
-import com.theoplayer.android.connector.uplynk.common.EventDispatcherImpl
-import com.theoplayer.android.connector.uplynk.internal.events.UplynkAssetInfoResponseEventImpl
-import com.theoplayer.android.connector.uplynk.internal.events.UplynkPreplayResponseEventImpl
-import com.theoplayer.android.connector.uplynk.internal.network.PreplayInternalResponse
+import android.os.Handler
+import android.os.Looper
+import com.theoplayer.android.connector.uplynk.UplynkListener
 import com.theoplayer.android.connector.uplynk.network.AssetInfoResponse
 import com.theoplayer.android.connector.uplynk.network.PreplayResponse
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import java.util.Date
+import java.util.concurrent.CopyOnWriteArrayList
 
-internal class UplynkEventDispatcher(val eventDispatcher: EventDispatcherImpl) {
+internal class UplynkEventDispatcher(val handler: Handler = Handler(Looper.getMainLooper())) {
+    private val listeners = CopyOnWriteArrayList<UplynkListener>()
 
-    fun dispatchPreplayEvents(response: PreplayResponse) {
-        eventDispatcher.dispatchEvent(
-            UplynkPreplayResponseEventImpl(
-                Date(),
-                response
-            )
-        )
+    fun dispatchPreplayEvents(response: PreplayResponse) = listeners.forEach { listener ->
+        handler.post { listener.onPreplayResponse(response) }
     }
 
-    fun dispatchAssetInfoEvents(assetInfo: AssetInfoResponse) =
-        CoroutineScope(Dispatchers.IO).async {
-            eventDispatcher.dispatchEvent(
-                UplynkAssetInfoResponseEventImpl(
-                    Date(),
-                    assetInfo
-                )
-            )
-        }
+    fun dispatchAssetInfoEvents(assetInfo: AssetInfoResponse) = listeners.forEach { listener ->
+        handler.post { listener.onAssetInfoResponse(assetInfo) }
+    }
+
+    fun addListener(listener: UplynkListener) = listeners.add(listener)
+
+    fun removeListener(listener: UplynkListener) = listeners.remove(listener)
 }
