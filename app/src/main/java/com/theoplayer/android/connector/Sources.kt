@@ -119,10 +119,10 @@ val sources: List<Source> by lazy {
                                     "a4c40e2a8d5b46338b09d7f863049675",
                                     "bcf7d78c4ff94c969b2668a6edc64278",
                                 ))
-                                .preplayParameters(LinkedHashMap(mapOf(
+                                .preplayParameters(linkedMapOf(
                                     "ad" to "adtest",
                                     "ad.lib" to "15_sec_spots"
-                                )))
+                                ))
                                 .build())
                         .build()
                 )
