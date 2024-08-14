@@ -26,9 +26,7 @@ data class UplynkSsaiDescription(
         /**
          * Sets the prefix to use for Uplynk Media Platform Preplay API and Asset Info API requests.
          *
-         * <ul>
-         *     <li>If no prefix is set the default origin is used: https://content.uplynk.com
-         * </ul>
+         * - If no prefix is set the default origin is used: https://content.uplynk.com
          *
          * @param prefix The origin prefix to be used for Uplynk Media Platform requests.
          */
@@ -64,15 +62,14 @@ data class UplynkSsaiDescription(
         /**
          * Sets the parameters.
          *
-         * <ul>
-         *     <li>Each entry of the map contains the parameter name with associated value.
-         *     <li>The parameters keep their order as it's maintained by LinkedHashMap.
-         * </ul>
+         * - Each entry of the map contains the parameter name with associated value.
+         * - The parameters keep their order as it's maintained by LinkedHashMap.
          *
          * @param parameters The parameters set for the Uplynk Media Platform API configuration.
-         * <p>Example:</p>
-         * <code>{ "ad": "exampleAdServer" }</code>
-         *
+         * Example:
+         * ```
+         * linkedMapOf("ad" to "exampleAdServer")
+         * ```
          */
         fun preplayParameters(parameters: LinkedHashMap<String, String>) = apply { this.preplayParameters = parameters }
 
