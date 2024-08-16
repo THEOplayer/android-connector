@@ -5,6 +5,7 @@ import com.theoplayer.android.api.source.SourceType
 import com.theoplayer.android.api.source.TypedSource
 import com.theoplayer.android.api.source.addescription.GoogleImaAdDescription
 import com.theoplayer.android.api.source.metadata.MetadataDescription
+import com.theoplayer.android.connector.uplynk.UplynkSsaiDescription
 import com.theoplayer.android.connector.yospace.YospaceSsaiDescription
 import com.theoplayer.android.connector.yospace.YospaceStreamType
 
@@ -96,6 +97,33 @@ val sources: List<Source> by lazy {
                     )
                         .type(SourceType.DASH)
                         .ssai(YospaceSsaiDescription(streamType = YospaceStreamType.LIVEPAUSE))
+                        .build()
+                )
+                .build()
+        ),
+        Source(
+            name = "Uplynk Ads",
+            sourceDescription = SourceDescription
+                .Builder(
+                    TypedSource.Builder("no source")
+                        .ssai(
+                            UplynkSsaiDescription
+                                .Builder()
+                                .prefix("https://content.uplynk.com")
+                                .assetIds(listOf(
+                                    "41afc04d34ad4cbd855db52402ef210e",
+                                    "c6b61470c27d44c4842346980ec2c7bd",
+                                    "588f9d967643409580aa5dbe136697a1",
+                                    "b1927a5d5bd9404c85fde75c307c63ad",
+                                    "7e9932d922e2459bac1599938f12b272",
+                                    "a4c40e2a8d5b46338b09d7f863049675",
+                                    "bcf7d78c4ff94c969b2668a6edc64278",
+                                ))
+                                .preplayParameters(linkedMapOf(
+                                    "ad" to "adtest",
+                                    "ad.lib" to "15_sec_spots"
+                                ))
+                                .build())
                         .build()
                 )
                 .build()

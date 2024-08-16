@@ -40,3 +40,5 @@ if (!isJitPack) {
     include ':app'
     include ':connectors:yospace'
 }
+include ':connectors:uplynk'
+
