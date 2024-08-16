@@ -143,4 +143,16 @@ class UplynkSsaiDescriptionConverterTest {
         assertContains(result, "urlprefix/player/assetinfo/ext/userId/extId1.json")
         assertContains(result, "urlprefix/player/assetinfo/ext/userId/extId2.json")
     }
+
+
+    @Test
+    fun buildAssetInfoUrls_whenPrefixIsNotSet_returnsUrlWithDefaultPrefix() {
+        ssaiDescription = UplynkSsaiDescription(
+            assetIds = listOf("assetId1"),
+        )
+
+        val result = converter.buildAssetInfoUrls(ssaiDescription, "")
+
+        assertEquals("https://content.uplynk.com/player/assetinfo/assetId1.json", result.first())
+    }
 }

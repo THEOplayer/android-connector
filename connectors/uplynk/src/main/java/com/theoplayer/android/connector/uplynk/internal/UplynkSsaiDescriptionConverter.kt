@@ -18,6 +18,7 @@ internal class UplynkSsaiDescriptionConverter {
     }
 
     fun buildAssetInfoUrls(ssaiDescription: UplynkSsaiDescription, sessionId: String): List<String> = with(ssaiDescription) {
+        val prefix = prefix ?: DEFAULT_PREFIX
         val urlList = when {
             assetIds.isNotEmpty() -> assetIds.map {
                 "$prefix/player/assetinfo/$it.json"
