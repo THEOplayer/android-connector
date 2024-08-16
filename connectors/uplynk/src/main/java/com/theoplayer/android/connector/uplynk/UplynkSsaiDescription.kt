@@ -13,7 +13,7 @@ data class UplynkSsaiDescription(
     val externalId: List<String> = listOf(),
     val userId: String? = null,
     val preplayParameters: LinkedHashMap<String, String> = linkedMapOf(),
-    val assetInfo: Boolean
+    val assetInfo: Boolean = false
 ): CustomSsaiDescription() {
 
     override val customIntegration: String

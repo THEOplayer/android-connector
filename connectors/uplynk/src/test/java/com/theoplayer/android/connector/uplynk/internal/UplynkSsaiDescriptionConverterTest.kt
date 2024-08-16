@@ -5,9 +5,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mock
 import org.mockito.MockitoAnnotations
-import org.mockito.kotlin.whenever
 import kotlin.test.assertContains
 
 class UplynkSsaiDescriptionConverterTest {
@@ -110,8 +108,9 @@ class UplynkSsaiDescriptionConverterTest {
 
     @Test
     fun buildAssetInfoUrls_whenAssetIdIsEmptyAndExternalIdIsEmpty_returnsEmptyUrl() {
-        whenever(ssaiDescription.assetIds).thenReturn(listOf())
-        whenever(ssaiDescription.externalId).thenReturn(listOf())
+        ssaiDescription = UplynkSsaiDescription(
+            assetIds = listOf(), externalId = listOf()
+        )
 
         val result = converter.buildAssetInfoUrls(ssaiDescription, "")
 
@@ -131,9 +130,11 @@ class UplynkSsaiDescriptionConverterTest {
 
     @Test
     fun buildAssetInfoUrls_whenAssetIdIsEmpty_returnsAssetInfoUrlsUsingExternalId() {
-        whenever(ssaiDescription.assetIds).thenReturn(listOf())
-        whenever(ssaiDescription.externalId).thenReturn(listOf("extId1", "extId2"))
-        whenever(ssaiDescription.userId).thenReturn("userId")
+        ssaiDescription = ssaiDescription.copy(
+            assetIds = listOf(),
+            externalId = listOf("extId1", "extId2"),
+            userId = "userId"
+        )
 
         val result = converter.buildAssetInfoUrls(ssaiDescription, "")
 
