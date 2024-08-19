@@ -10,12 +10,12 @@ import java.util.concurrent.CopyOnWriteArrayList
 internal class UplynkEventDispatcher(val handler: Handler = Handler(Looper.getMainLooper())) {
     private val listeners = CopyOnWriteArrayList<UplynkListener>()
 
-    fun dispatchPreplayEvents(response: PreplayResponse) = listeners.forEach { listener ->
-        handler.post { listener.onPreplayResponse(response) }
+    fun dispatchPreplayEvents(response: PreplayResponse) = handler.post {
+        listeners.forEach { it.onPreplayResponse(response) }
     }
 
-    fun dispatchAssetInfoEvents(assetInfo: AssetInfoResponse) = listeners.forEach { listener ->
-        handler.post { listener.onAssetInfoResponse(assetInfo) }
+    fun dispatchAssetInfoEvents(assetInfo: AssetInfoResponse) = handler.post {
+        listeners.forEach { it.onAssetInfoResponse(assetInfo) }
     }
 
     fun addListener(listener: UplynkListener) = listeners.add(listener)
