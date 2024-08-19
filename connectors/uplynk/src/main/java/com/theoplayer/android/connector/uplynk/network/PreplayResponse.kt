@@ -34,4 +34,6 @@ data class PreplayResponse(
      *  * Possible return value: 'https://content-ause2.uplynk.com/'
      *
      */
-    val prefix: String)
+    val prefix: String,
+
+    val ads: UplynkAds)
