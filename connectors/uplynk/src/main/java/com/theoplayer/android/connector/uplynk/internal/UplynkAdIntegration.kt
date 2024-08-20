@@ -31,6 +31,7 @@ internal class UplynkAdIntegration(
                 try {
                     eventDispatcher.dispatchPreplayEvents(it.parseExternalResponse())
                 } catch (e: Exception) {
+                    eventDispatcher.dispatchPreplayFailure(e)
                     controller.error(e)
                 }
             }
@@ -48,6 +49,7 @@ internal class UplynkAdIntegration(
                     try {
                         uplynkApi.assetInfo(it)
                     } catch (e: Exception) {
+                        eventDispatcher.dispatchAssetInfoFailure(e)
                         controller.error(e)
                         null
                     }

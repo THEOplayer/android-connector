@@ -19,6 +19,13 @@ interface UplynkListener {
     fun onPreplayResponse(response: PreplayResponse) {}
 
     /**
+     * Called when a preplay response is received from Uplynk and failed to be parsed
+     *
+     * @param exception the `Exception` occurred during the response parsing
+     */
+    fun onPreplayFailure(exception: Exception) {}
+
+    /**
      * Called when an asset information response is received from Uplynk.
      *
      * For more details, refer to the [Asset Info Documentation](https://docs.edgecast.com/video/index.html#Develop/AssetInfo.htm).
@@ -27,4 +34,10 @@ interface UplynkListener {
      */
     fun onAssetInfoResponse(response: AssetInfoResponse) {}
 
+    /**
+     * Called when an asset information response is failed
+     *
+     * @param exception the `Exception` occurred during the request
+     */
+    fun onAssetInfoFailure(exception: Exception) {}
 }

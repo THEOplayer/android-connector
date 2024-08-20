@@ -18,6 +18,14 @@ internal class UplynkEventDispatcher(val handler: Handler = Handler(Looper.getMa
         listeners.forEach { it.onAssetInfoResponse(assetInfo) }
     }
 
+    fun dispatchAssetInfoFailure(e: Exception) = handler.post {
+        listeners.forEach { it.onAssetInfoFailure(e) }
+    }
+
+    fun dispatchPreplayFailure(e: Exception) = handler.post {
+        listeners.forEach { it.onPreplayFailure(e) }
+    }
+
     fun addListener(listener: UplynkListener) = listeners.add(listener)
 
     fun removeListener(listener: UplynkListener) = listeners.remove(listener)

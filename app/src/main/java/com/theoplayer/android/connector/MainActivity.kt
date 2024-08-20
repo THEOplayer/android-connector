@@ -161,6 +161,14 @@ class MainActivity : AppCompatActivity() {
                 Log.d("UplynkConnectorEvents", "ASSET_INFO_RESPONSE $response")
             }
 
+            override fun onPreplayFailure(exception: Exception) {
+                Log.d("UplynkConnectorEvents", "PREPLAY_RESPONSE_FAILURE $exception")
+            }
+
+            override fun onAssetInfoFailure(exception: Exception) {
+                Log.d("UplynkConnectorEvents", "ASSET_INFO_RESPONSE Failure $exception")
+            }
+
         })
 
         theoplayerView.player.ads.addEventListener(AdsEventTypes.AD_ERROR) {
