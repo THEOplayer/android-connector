@@ -28,9 +28,10 @@ internal class UplynkSsaiDescriptionConverter {
             }
             else -> listOf()
         }
-        return when {
-            sessionId.isBlank() -> urlList
-            else -> urlList.map { "$it?pbs=$sessionId" }
+        return if (sessionId.isBlank()) {
+            urlList
+        } else {
+            urlList.map { "$it?pbs=$sessionId" }
         }
     }
 }
