@@ -9,10 +9,10 @@ import com.theoplayer.android.connector.uplynk.UplynkSsaiDescription
 import com.theoplayer.android.connector.uplynk.internal.network.UplynkApi
 
 internal class UplynkAdIntegration(
-    val theoplayerView: THEOplayerView,
-    val controller: ServerSideAdIntegrationController,
-    val eventDispatcher: UplynkEventDispatcher,
-    val uplynkDescriptionConverter: UplynkSsaiDescriptionConverter,
+    private val theoplayerView: THEOplayerView,
+    private val controller: ServerSideAdIntegrationController,
+    private val eventDispatcher: UplynkEventDispatcher,
+    private val uplynkDescriptionConverter: UplynkSsaiDescriptionConverter,
     private val uplynkApi: UplynkApi
 ) : ServerSideAdIntegrationHandler {
 
