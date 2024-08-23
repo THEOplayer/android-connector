@@ -7,7 +7,9 @@ import com.theoplayer.android.connector.uplynk.network.AssetInfoResponse
 import com.theoplayer.android.connector.uplynk.network.PreplayResponse
 import java.util.concurrent.CopyOnWriteArrayList
 
-internal class UplynkEventDispatcher(val handler: Handler = Handler(Looper.getMainLooper())) {
+internal class UplynkEventDispatcher {
+    private val handler = Handler(Looper.getMainLooper())
+
     private val listeners = CopyOnWriteArrayList<UplynkListener>()
 
     fun dispatchPreplayEvents(response: PreplayResponse) = handler.post {
