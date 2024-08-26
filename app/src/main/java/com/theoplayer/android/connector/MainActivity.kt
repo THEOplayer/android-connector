@@ -15,6 +15,7 @@ import com.theoplayer.android.api.ads.ima.GoogleImaIntegrationFactory
 import com.theoplayer.android.api.event.ads.AdBreakEvent
 import com.theoplayer.android.api.event.ads.AdsEventTypes
 import com.theoplayer.android.api.event.ads.SingleAdEvent
+import com.theoplayer.android.api.event.player.PlayerEventTypes
 import com.theoplayer.android.connector.analytics.comscore.ComscoreConfiguration
 import com.theoplayer.android.connector.analytics.comscore.ComscoreConnector
 import com.theoplayer.android.connector.analytics.comscore.ComscoreMediaType
@@ -23,6 +24,9 @@ import com.theoplayer.android.connector.analytics.conviva.ConvivaConfiguration
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConnector
 import com.theoplayer.android.connector.analytics.nielsen.NielsenConnector
 import com.theoplayer.android.connector.uplynk.UplynkConnector
+import com.theoplayer.android.connector.uplynk.UplynkListener
+import com.theoplayer.android.connector.uplynk.network.AssetInfoResponse
+import com.theoplayer.android.connector.uplynk.network.PreplayResponse
 import com.theoplayer.android.connector.yospace.YospaceConnector
 
 const val TAG = "MainActivity"
@@ -148,6 +152,32 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupUplynk() {
         uplynkConnector = UplynkConnector(theoplayerView)
+        uplynkConnector.addListener(object: UplynkListener {
+            override fun onPreplayResponse(response: PreplayResponse) {
+                Log.d("UplynkConnectorEvents", "PREPLAY_RESPONSE $response")
+            }
+
+            override fun onAssetInfoResponse(response: AssetInfoResponse) {
+                Log.d("UplynkConnectorEvents", "ASSET_INFO_RESPONSE $response")
+            }
+
+            override fun onPreplayFailure(exception: Exception) {
+                Log.d("UplynkConnectorEvents", "PREPLAY_RESPONSE_FAILURE $exception")
+            }
+
+            override fun onAssetInfoFailure(exception: Exception) {
+                Log.d("UplynkConnectorEvents", "ASSET_INFO_RESPONSE Failure $exception")
+            }
+
+        })
+
+        theoplayerView.player.ads.addEventListener(AdsEventTypes.AD_ERROR) {
+            Log.d("UplynkConnectorEvents", "AD_ERROR " + it.error)
+        }
+
+        theoplayerView.player.addEventListener(PlayerEventTypes.ERROR) {
+            Log.d("UplynkConnectorEvents", "ERROR " + it.errorObject)
+        }
     }
 
     private fun setupListeners() {

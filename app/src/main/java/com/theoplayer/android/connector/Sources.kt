@@ -110,6 +110,7 @@ val sources: List<Source> by lazy {
                             UplynkSsaiDescription
                                 .Builder()
                                 .prefix("https://content.uplynk.com")
+                                .assetInfo(true)
                                 .assetIds(listOf(
                                     "41afc04d34ad4cbd855db52402ef210e",
                                     "c6b61470c27d44c4842346980ec2c7bd",

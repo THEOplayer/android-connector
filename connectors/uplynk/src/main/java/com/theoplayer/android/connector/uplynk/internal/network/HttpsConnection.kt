@@ -1,4 +1,4 @@
-package com.theoplayer.android.connector.uplynk.network
+package com.theoplayer.android.connector.uplynk.internal.network
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runInterruptible

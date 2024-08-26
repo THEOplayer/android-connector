@@ -6,28 +6,57 @@ import com.theoplayer.android.api.ads.ServerSideAdIntegrationHandler
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.api.source.SourceDescription
 import com.theoplayer.android.connector.uplynk.UplynkSsaiDescription
-import com.theoplayer.android.connector.uplynk.network.UplynkApi
+import com.theoplayer.android.connector.uplynk.internal.network.UplynkApi
 
 internal class UplynkAdIntegration(
-    val theoplayerView: THEOplayerView,
-    val controller: ServerSideAdIntegrationController,
-    val uplynkDescriptionConverter: UplynkSsaiDescriptionConverter
+    private val theoplayerView: THEOplayerView,
+    private val controller: ServerSideAdIntegrationController,
+    private val eventDispatcher: UplynkEventDispatcher,
+    private val uplynkDescriptionConverter: UplynkSsaiDescriptionConverter,
+    private val uplynkApi: UplynkApi
 ) : ServerSideAdIntegrationHandler {
 
     private val player: Player
         get() = theoplayerView.player
 
-    private val uplynkApi = UplynkApi()
-
     override suspend fun setSource(source: SourceDescription): SourceDescription {
-        val uplynkSource = source.sources.find { it.ssai is UplynkSsaiDescription } ?: return source
-        val ssaiDescription = uplynkSource.ssai as? UplynkSsaiDescription ?: return source
-        val response = uplynkApi.preplay(uplynkDescriptionConverter.buildPreplayUrl(ssaiDescription))
+
+        val uplynkSource = source.sources.singleOrNull { it.ssai is UplynkSsaiDescription }
+        val ssaiDescription = uplynkSource?.ssai as? UplynkSsaiDescription ?: return source
+
+        val response = uplynkDescriptionConverter
+            .buildPreplayUrl(ssaiDescription)
+            .let { uplynkApi.preplay(it) }
+            .also {
+                try {
+                    eventDispatcher.dispatchPreplayEvents(it.parseExternalResponse())
+                } catch (e: Exception) {
+                    eventDispatcher.dispatchPreplayFailure(e)
+                    controller.error(e)
+                }
+            }
+
+        val internalResponse = response.parseMinimalResponse()
 
         val newSource = source.replaceSources(source.sources.toMutableList().apply {
             remove(uplynkSource)
-            add(0, uplynkSource.replaceSrc(response.playURL))
+            add(0, uplynkSource.replaceSrc(internalResponse.playURL))
         })
+        if (ssaiDescription.assetInfo) {
+            uplynkDescriptionConverter
+                .buildAssetInfoUrls(ssaiDescription, internalResponse.sid)
+                .mapNotNull {
+                    try {
+                        uplynkApi.assetInfo(it)
+                    } catch (e: Exception) {
+                        eventDispatcher.dispatchAssetInfoFailure(e)
+                        controller.error(e)
+                        null
+                    }
+                }
+                .forEach { eventDispatcher.dispatchAssetInfoEvents(it) }
+        }
+
         return newSource
     }
 }

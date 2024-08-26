@@ -16,4 +16,22 @@ internal class UplynkSsaiDescriptionConverter {
         val parameters = preplayParameters.map{ "${it.key}=${it.value}" }.joinToString("&")
         return "$prefix/preplay/$assetIds?v=2&$parameters"
     }
+
+    fun buildAssetInfoUrls(ssaiDescription: UplynkSsaiDescription, sessionId: String): List<String> = with(ssaiDescription) {
+        val prefix = prefix ?: DEFAULT_PREFIX
+        val urlList = when {
+            assetIds.isNotEmpty() -> assetIds.map {
+                "$prefix/player/assetinfo/$it.json"
+            }
+            externalId.isNotEmpty() -> externalId.map {
+                "$prefix/player/assetinfo/ext/$userId/$it.json"
+            }
+            else -> listOf()
+        }
+        return if (sessionId.isBlank()) {
+            urlList
+        } else {
+            urlList.map { "$it?pbs=$sessionId" }
+        }
+    }
 }
