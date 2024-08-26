@@ -33,7 +33,6 @@ fun calculateCurrentAdBreakPosition(adBreak: AdBreak): String {
 
 fun calculateCurrentAdBreakInfo(adBreak: AdBreak, adBreakIndex: Int): Map<String, Any> {
     return mapOf(
-        ConvivaSdkConstants.POD_POSITION to calculateCurrentAdBreakPosition(adBreak),
         ConvivaSdkConstants.POD_DURATION to adBreak.maxDuration,
         ConvivaSdkConstants.POD_INDEX to adBreakIndex
     )
