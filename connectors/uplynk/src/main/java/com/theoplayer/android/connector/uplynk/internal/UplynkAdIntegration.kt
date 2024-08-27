@@ -3,6 +3,7 @@ package com.theoplayer.android.connector.uplynk.internal
 import com.theoplayer.android.api.THEOplayerView
 import com.theoplayer.android.api.ads.ServerSideAdIntegrationController
 import com.theoplayer.android.api.ads.ServerSideAdIntegrationHandler
+import com.theoplayer.android.api.event.player.PlayerEventTypes
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.api.source.SourceDescription
 import com.theoplayer.android.connector.uplynk.UplynkSsaiDescription
@@ -15,9 +16,16 @@ internal class UplynkAdIntegration(
     private val uplynkDescriptionConverter: UplynkSsaiDescriptionConverter,
     private val uplynkApi: UplynkApi
 ) : ServerSideAdIntegrationHandler {
-
+    private var adScheduler: UplynkAdScheduler? = null
     private val player: Player
         get() = theoplayerView.player
+
+    init {
+        player.addEventListener(PlayerEventTypes.TIMEUPDATE) {
+            adScheduler?.onTimeUpdate(it.currentTime)
+        }
+    }
+
 
     override suspend fun setSource(source: SourceDescription): SourceDescription {
 
@@ -29,7 +37,9 @@ internal class UplynkAdIntegration(
             .let { uplynkApi.preplay(it) }
             .also {
                 try {
-                    eventDispatcher.dispatchPreplayEvents(it.parseExternalResponse())
+                    val response = it.parseExternalResponse()
+                    eventDispatcher.dispatchPreplayEvents(response)
+                    adScheduler = UplynkAdScheduler(response.ads.breaks, AdHandler(controller))
                 } catch (e: Exception) {
                     eventDispatcher.dispatchPreplayFailure(e)
                     controller.error(e)

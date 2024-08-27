@@ -12,7 +12,7 @@ import kotlinx.serialization.Serializable
  * @property duration Indicates the duration of the ad break.
  */
 @Serializable
-data class UplynkAdBreaks(
+data class UplynkAdBreak(
     /**
      * A list of ad objects associated with this ad break.
      */

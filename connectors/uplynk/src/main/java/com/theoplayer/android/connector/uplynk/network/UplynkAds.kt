@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class UplynkAds(
-    val breaks: List<UplynkAdBreaks>,
+    val breaks: List<UplynkAdBreak>,
     val breakOffsets: List<UplynkBreakOffsets>,
     val placeholderOffsets: List<UplynkPlaceholderAds>
 )
