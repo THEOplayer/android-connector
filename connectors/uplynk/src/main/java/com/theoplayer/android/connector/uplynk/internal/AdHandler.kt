@@ -1,16 +1,17 @@
 package com.theoplayer.android.connector.uplynk.internal
 
 import com.theoplayer.android.api.ads.Ad
-import com.theoplayer.android.api.ads.AdBreak
 import com.theoplayer.android.api.ads.AdBreakInit
 import com.theoplayer.android.api.ads.AdInit
 import com.theoplayer.android.api.ads.ServerSideAdIntegrationController
 import com.theoplayer.android.connector.uplynk.network.UplynkAd
 import com.theoplayer.android.connector.uplynk.network.UplynkAdBreak
 import java.util.WeakHashMap
+import kotlin.time.Duration
+import kotlin.time.DurationUnit
 
-private val Float.secToMs: Int
-    get() = (this * 1000).toInt()
+private val Duration.secToMs: Int
+    get() = this.toInt(DurationUnit.MILLISECONDS)
 
 class AdHandler(private val controller: ServerSideAdIntegrationController) {
     private val scheduledAds = WeakHashMap<UplynkAd, Ad>()
@@ -21,7 +22,7 @@ class AdHandler(private val controller: ServerSideAdIntegrationController) {
         adBreak.ads.fold(adBreakInit.timeOffset) { offset, item ->
             scheduledAds[item] = controller.createAd(
                 AdInit(
-                    type = "linear",
+                    type = adBreak.type,
                     timeOffset = offset,
                     duration = item.duration.secToMs
                 ), currentAdBreak
@@ -32,26 +33,28 @@ class AdHandler(private val controller: ServerSideAdIntegrationController) {
 
     fun onAdBegin(uplynkAd: UplynkAd) {
         val ad = scheduledAds[uplynkAd]
-        check(ad != null) { "Cannot find an ad $uplynkAd" }
+        checkNotNull(ad) { "Cannot find an ad $uplynkAd" }
         controller.beginAd(ad)
     }
 
     fun onAdEnd(uplynkAd: UplynkAd) {
         val ad = scheduledAds[uplynkAd]
-        check(ad != null) { "Cannot find an ad $uplynkAd" }
+        checkNotNull(ad) { "Cannot find an ad $uplynkAd" }
         controller.endAd(ad)
     }
 
-    fun onAdProgressUpdate(currentAd: UplynkAdState, adBreak: UplynkAdBreak, time: Double) {
+    fun onAdProgressUpdate(currentAd: UplynkAdState, adBreak: UplynkAdBreak, time: Duration) {
         val ad = scheduledAds[currentAd.ad]
-        check(ad != null) { "Cannot find an ad: $currentAd" }
+        checkNotNull(ad) { "Cannot find an ad: $currentAd" }
 
         val playedDuration = adBreak.ads
             .takeWhile { it != currentAd.ad }
-            .sumOf { it.duration.toDouble() }
+            .fold(Duration.ZERO) { sum, item ->
+                sum + item.duration
+            }
 
         val startTime = adBreak.timeOffset + playedDuration
-        val progress = (time - startTime) / currentAd.ad.duration
+        val progress = ((time - startTime) / currentAd.ad.duration).coerceIn(0.0, 1.0)
 
         controller.updateAdProgress(ad, progress)
     }

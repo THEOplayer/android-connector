@@ -2,6 +2,7 @@ package com.theoplayer.android.connector.uplynk.internal
 
 import com.theoplayer.android.connector.uplynk.network.UplynkAd
 import com.theoplayer.android.connector.uplynk.network.UplynkAdBreak
+import kotlin.time.Duration
 
 data class UplynkAdBreakState(
     val adBreak: UplynkAdBreak,
@@ -46,9 +47,9 @@ class UplynkAdScheduler(
         }
     }
 
-    fun onTimeUpdate(time: Double) {
+    fun onTimeUpdate(time: Duration) {
         val currentAdBreak =
-            adBreaks.firstOrNull { time in it.adBreak.timeOffset..it.adBreak.timeOffset + it.adBreak.duration }
+            adBreaks.firstOrNull { time in it.adBreak.timeOffset..(it.adBreak.timeOffset + it.adBreak.duration) }
 
         if (currentAdBreak != null) {
             val currentAd = beginCurrentAdBreak(currentAdBreak, time)
@@ -63,9 +64,9 @@ class UplynkAdScheduler(
     private fun beginCurrentAd(
         currentAdBreak: UplynkAdBreakState,
         currentAd: UplynkAdState?,
-        time: Double
+        time: Duration
     ) {
-        check(currentAd != null) {
+        checkNotNull(currentAd) {
             "Current ad break exists but there is no current ad in $currentAdBreak"
         }
         when (currentAd.state) {
@@ -108,7 +109,7 @@ class UplynkAdScheduler(
 
     private fun beginCurrentAdBreak(
         currentAdBreak: UplynkAdBreakState,
-        time: Double
+        time: Duration
     ): UplynkAdState? {
         val currentAd = findCurrentAd(currentAdBreak, time)
         if (currentAdBreak.state != AdBreakState.STARTED) {
@@ -117,7 +118,7 @@ class UplynkAdScheduler(
         return currentAd
     }
 
-    private fun findCurrentAd(adBreak: UplynkAdBreakState, time: Double): UplynkAdState? {
+    private fun findCurrentAd(adBreak: UplynkAdBreakState, time: Duration): UplynkAdState? {
         var adStart = adBreak.adBreak.timeOffset
         for (ad in adBreak.ads) {
             val adEnd = adStart + ad.ad.duration

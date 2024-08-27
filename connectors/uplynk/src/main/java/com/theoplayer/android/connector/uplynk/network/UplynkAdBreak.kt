@@ -1,9 +1,11 @@
 package com.theoplayer.android.connector.uplynk.network
 
+import com.theoplayer.android.connector.uplynk.internal.network.DurationToSecDeserializer
 import kotlinx.serialization.Serializable
+import kotlin.time.Duration
 
 /**
- * Represents an event containing details about an ad break.
+ * Represents data containing details about an ad break.
  *
  * @property ads A list of ad objects associated with this ad break.
  * @property type Indicates the ad break type. Valid values are: "linear", "nonlinear".
@@ -33,10 +35,12 @@ data class UplynkAdBreak(
     /**
      * Indicates the start time of the ad break in the player timeline.
      */
-    val timeOffset: Float,
+    @Serializable(with = DurationToSecDeserializer::class)
+    val timeOffset: Duration,
 
     /**
      * Indicates the duration of the ad break.
      */
-    val duration: Float
+    @Serializable(with = DurationToSecDeserializer::class)
+    val duration: Duration
 )

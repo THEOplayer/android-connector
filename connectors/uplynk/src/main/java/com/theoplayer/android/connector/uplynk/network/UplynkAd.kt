@@ -1,6 +1,8 @@
 package com.theoplayer.android.connector.uplynk.network
 
+import com.theoplayer.android.connector.uplynk.internal.network.DurationToSecDeserializer
 import kotlinx.serialization.Serializable
+import kotlin.time.Duration
 
 
 /**
@@ -64,7 +66,8 @@ data class UplynkAd(
      * Indicates the duration, in seconds, of an ad's encoded video.
      * VPAID: For VPAID ads, this parameter reports the duration returned from the ad server.
      */
-    val duration: Float,
+    @Serializable(with = DurationToSecDeserializer::class)
+    val duration: Duration,
 
     /**
      * Contains the custom set of VAST extensions returned by the ad server.

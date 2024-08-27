@@ -8,6 +8,8 @@ import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.api.source.SourceDescription
 import com.theoplayer.android.connector.uplynk.UplynkSsaiDescription
 import com.theoplayer.android.connector.uplynk.internal.network.UplynkApi
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 internal class UplynkAdIntegration(
     private val theoplayerView: THEOplayerView,
@@ -22,7 +24,7 @@ internal class UplynkAdIntegration(
 
     init {
         player.addEventListener(PlayerEventTypes.TIMEUPDATE) {
-            adScheduler?.onTimeUpdate(it.currentTime)
+            adScheduler?.onTimeUpdate(it.currentTime.toDuration(DurationUnit.SECONDS))
         }
     }
 
@@ -39,7 +41,15 @@ internal class UplynkAdIntegration(
                 try {
                     val response = it.parseExternalResponse()
                     eventDispatcher.dispatchPreplayEvents(response)
-                    adScheduler = UplynkAdScheduler(response.ads.breaks, AdHandler(controller))
+                    val fastAd = response.ads.breaks
+                        .mapIndexed { i, item ->
+                            when (i) {
+                                0 -> item.copy(timeOffset = 0.0.toDuration(DurationUnit.SECONDS))
+                                1 -> item.copy(timeOffset = 70.0.toDuration(DurationUnit.SECONDS))
+                                else -> item
+                            }
+                        }
+                    adScheduler = UplynkAdScheduler(fastAd, AdHandler(controller))
                 } catch (e: Exception) {
                     eventDispatcher.dispatchPreplayFailure(e)
                     controller.error(e)
