@@ -19,15 +19,9 @@ class AdHandler(private val controller: ServerSideAdIntegrationController) {
     fun createAdBreak(adBreak: UplynkAdBreak) {
         val adBreakInit = AdBreakInit(adBreak.timeOffset.secToMs, adBreak.duration.secToMs)
         val currentAdBreak = controller.createAdBreak(adBreakInit)
-        adBreak.ads.fold(adBreakInit.timeOffset) { offset, item ->
-            scheduledAds[item] = controller.createAd(
-                AdInit(
-                    type = adBreak.type,
-                    timeOffset = offset,
-                    duration = item.duration.secToMs
-                ), currentAdBreak
-            )
-            offset + item.duration.secToMs
+        adBreak.ads.forEach {
+            val adInit = AdInit(type = adBreak.type, duration = it.duration.secToMs)
+            scheduledAds[it] = controller.createAd(adInit, currentAdBreak)
         }
     }
 
