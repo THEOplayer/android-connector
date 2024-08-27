@@ -28,8 +28,12 @@ internal class UplynkAdIntegration(
         }
     }
 
+    override suspend fun resetSource() {
+        adScheduler = null
+    }
 
     override suspend fun setSource(source: SourceDescription): SourceDescription {
+        adScheduler = null
 
         val uplynkSource = source.sources.singleOrNull { it.ssai is UplynkSsaiDescription }
         val ssaiDescription = uplynkSource?.ssai as? UplynkSsaiDescription ?: return source
@@ -41,15 +45,7 @@ internal class UplynkAdIntegration(
                 try {
                     val response = it.parseExternalResponse()
                     eventDispatcher.dispatchPreplayEvents(response)
-                    val fastAd = response.ads.breaks
-                        .mapIndexed { i, item ->
-                            when (i) {
-                                0 -> item.copy(timeOffset = 0.0.toDuration(DurationUnit.SECONDS))
-                                1 -> item.copy(timeOffset = 70.0.toDuration(DurationUnit.SECONDS))
-                                else -> item
-                            }
-                        }
-                    adScheduler = UplynkAdScheduler(fastAd, AdHandler(controller))
+                    adScheduler = UplynkAdScheduler(response.ads.breaks, AdHandler(controller))
                 } catch (e: Exception) {
                     eventDispatcher.dispatchPreplayFailure(e)
                     controller.error(e)
