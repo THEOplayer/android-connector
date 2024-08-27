@@ -36,4 +36,10 @@ data class PreplayResponse(
      */
     val prefix: String,
 
+    /**
+     * Contains ad information, such as break offsets and non-video ads.
+     *
+     *  (**NonNull**)
+     *
+     */
     val ads: UplynkAds)
