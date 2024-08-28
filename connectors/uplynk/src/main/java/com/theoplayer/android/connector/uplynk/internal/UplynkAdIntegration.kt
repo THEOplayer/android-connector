@@ -45,7 +45,8 @@ internal class UplynkAdIntegration(
                 try {
                     val response = it.parseExternalResponse()
                     eventDispatcher.dispatchPreplayEvents(response)
-                    adScheduler = UplynkAdScheduler(response.ads.breaks, AdHandler(controller))
+                    eventDispatcher.dispatchAdBreaksUpdatedEvents(response.ads)
+                    adScheduler = UplynkAdScheduler(response.ads.breaks, AdHandler(controller), eventDispatcher)
                 } catch (e: Exception) {
                     eventDispatcher.dispatchPreplayFailure(e)
                     controller.error(e)

@@ -8,6 +8,9 @@ import com.theoplayer.android.connector.uplynk.internal.UplynkAdIntegration
 import com.theoplayer.android.connector.uplynk.internal.UplynkSsaiDescriptionConverter
 import com.theoplayer.android.connector.uplynk.internal.UplynkEventDispatcher
 import com.theoplayer.android.connector.uplynk.internal.network.UplynkApi
+import com.theoplayer.android.connector.uplynk.network.UplynkAd
+import com.theoplayer.android.connector.uplynk.network.UplynkAdBreak
+import com.theoplayer.android.connector.uplynk.network.UplynkAds
 
 internal const val TAG = "UplynkConnector"
 
@@ -23,7 +26,41 @@ class UplynkConnector(
     private val theoplayerView: THEOplayerView,
 ) {
     private lateinit var integration: UplynkAdIntegration
-    private val eventDispatcher = UplynkEventDispatcher()
+
+    var adBreaks: List<UplynkAdBreak>? = null
+        private set
+    var currentAdBreak: UplynkAdBreak? = null
+        private set
+    var currentAd: UplynkAd? = null
+        private set
+
+    private val eventDispatcher = UplynkEventDispatcher().also {
+        it.addListener(object : UplynkListener {
+            override fun onAdBreaksUpdated(ads: UplynkAds) {
+                this@UplynkConnector.adBreaks = ads.breaks
+            }
+
+            override fun onAdBegin(ad: UplynkAd) {
+                check(this@UplynkConnector.currentAd == null) { "Begin ad that before ending previous currentAd = ${this@UplynkConnector.currentAd} beginAd = $ad" }
+                this@UplynkConnector.currentAd = ad
+            }
+
+            override fun onAdEnd(ad: UplynkAd) {
+                check(this@UplynkConnector.currentAd == ad) { "Trying to end ad that is not current. currentAd = ${this@UplynkConnector.currentAd} endedAd = $ad" }
+                this@UplynkConnector.currentAd = null
+            }
+
+            override fun onAdBreakBegin(adBreak: UplynkAdBreak) {
+                check(this@UplynkConnector.currentAdBreak == null) { "Begin adbreak before ending previous currentAdBreak = ${this@UplynkConnector.currentAdBreak} beginAdBreak = $adBreak" }
+                this@UplynkConnector.currentAdBreak = adBreak
+            }
+
+            override fun onAdBreakEnd(adBreak: UplynkAdBreak) {
+                check(this@UplynkConnector.currentAdBreak == adBreak) { "Trying to end adbreak that is not current. currentAdBreak = ${this@UplynkConnector.currentAdBreak} endedAdBreak = $adBreak" }
+                this@UplynkConnector.currentAdBreak = null
+            }
+        })
+    }
 
     init {
         theoplayerView.player.ads.registerServerSideIntegration(INTEGRATION_ID, this::setupIntegration)

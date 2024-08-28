@@ -5,6 +5,9 @@ import android.os.Looper
 import com.theoplayer.android.connector.uplynk.UplynkListener
 import com.theoplayer.android.connector.uplynk.network.AssetInfoResponse
 import com.theoplayer.android.connector.uplynk.network.PreplayResponse
+import com.theoplayer.android.connector.uplynk.network.UplynkAd
+import com.theoplayer.android.connector.uplynk.network.UplynkAdBreak
+import com.theoplayer.android.connector.uplynk.network.UplynkAds
 import java.util.concurrent.CopyOnWriteArrayList
 
 internal class UplynkEventDispatcher {
@@ -26,6 +29,26 @@ internal class UplynkEventDispatcher {
 
     fun dispatchPreplayFailure(e: Exception) = handler.post {
         listeners.forEach { it.onPreplayFailure(e) }
+    }
+
+    fun dispatchAdBreaksUpdatedEvents(ads: UplynkAds) {
+        listeners.forEach { it.onAdBreaksUpdated(ads) }
+    }
+
+    fun dispatchAdBeginEvent(currentAd: UplynkAd) {
+        listeners.forEach { it.onAdBegin(currentAd) }
+    }
+
+    fun dispatchAdEndEvent(currentAd: UplynkAd) {
+        listeners.forEach { it.onAdEnd(currentAd) }
+    }
+
+    fun dispatchAdBreakBeginEvent(currentAdBreak: UplynkAdBreak) {
+        listeners.forEach { it.onAdBreakBegin(currentAdBreak) }
+    }
+
+    fun dispatchAdBreakEndEvent(currentAdBreak: UplynkAdBreak) {
+        listeners.forEach { it.onAdBreakEnd(currentAdBreak) }
     }
 
     fun addListener(listener: UplynkListener) = listeners.add(listener)

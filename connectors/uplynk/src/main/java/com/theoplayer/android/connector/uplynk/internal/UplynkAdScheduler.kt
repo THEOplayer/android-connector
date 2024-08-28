@@ -27,9 +27,10 @@ enum class AdBreakState {
     FINISHED,
 }
 
-class UplynkAdScheduler(
+internal class UplynkAdScheduler(
     uplynkAdBreaks: List<UplynkAdBreak>,
-    private val adHandler: AdHandler
+    private val adHandler: AdHandler,
+    private val eventDispatcher: UplynkEventDispatcher
 ) {
     private val adBreaks = uplynkAdBreaks.map {
         adHandler.createAdBreak(it)
@@ -42,8 +43,16 @@ class UplynkAdScheduler(
     ) {
         if (currentAdBreak.state == newState) return
         currentAdBreak.state = newState
-        if (currentAdBreak.state == AdBreakState.FINISHED) {
-            endAllStartedAds(currentAdBreak)
+        when (currentAdBreak.state) {
+            AdBreakState.NOT_PLAYED -> {}
+            AdBreakState.FINISHED -> {
+                endAllStartedAds(currentAdBreak)
+                eventDispatcher.dispatchAdBreakEndEvent(currentAdBreak.adBreak)
+            }
+
+            AdBreakState.STARTED -> {
+                eventDispatcher.dispatchAdBreakBeginEvent(currentAdBreak.adBreak)
+            }
         }
     }
 
@@ -82,21 +91,26 @@ class UplynkAdScheduler(
         currentAd.state = state
         when (currentAd.state) {
             AdState.NOT_PLAYED -> {}
-            AdState.STARTED -> adHandler.onAdBegin(currentAd.ad)
-            AdState.COMPLETED -> adHandler.onAdEnd(currentAd.ad)
+            AdState.STARTED -> {
+                adHandler.onAdBegin(currentAd.ad)
+                eventDispatcher.dispatchAdBeginEvent(currentAd.ad)
+            }
+
+            AdState.COMPLETED -> {
+                adHandler.onAdEnd(currentAd.ad)
+                eventDispatcher.dispatchAdEndEvent(currentAd.ad)
+            }
         }
     }
 
     private fun endAllStartedAds(
         currentAdBreak: UplynkAdBreakState,
         currentAd: UplynkAdState? = null
-    ) {
-        currentAdBreak.ads
-            .takeWhile { currentAd == null || it != currentAd }
-            .forEach {
-                moveAdToState(it, AdState.COMPLETED)
-            }
-    }
+    ) = currentAdBreak.ads
+        .filter { it.state == AdState.STARTED && it != currentAd }
+        .forEach {
+            moveAdToState(it, AdState.COMPLETED)
+        }
 
     private fun endAllAdBreaks() = adBreaks
         .filter { it.state == AdBreakState.STARTED }

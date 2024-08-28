@@ -2,6 +2,9 @@ package com.theoplayer.android.connector.uplynk
 
 import com.theoplayer.android.connector.uplynk.network.AssetInfoResponse
 import com.theoplayer.android.connector.uplynk.network.PreplayResponse
+import com.theoplayer.android.connector.uplynk.network.UplynkAd
+import com.theoplayer.android.connector.uplynk.network.UplynkAdBreak
+import com.theoplayer.android.connector.uplynk.network.UplynkAds
 
 /**
  * A listener interface for receiving events related to Uplynk
@@ -40,4 +43,39 @@ interface UplynkListener {
      * @param exception the `Exception` occurred during the request
      */
     fun onAssetInfoFailure(exception: Exception) {}
+
+    /**
+     * Called when ad break data is updated.
+     *
+     * @param ads The updated ad break data.
+     */
+    fun onAdBreaksUpdated(ads: UplynkAds) {}
+
+    /**
+     * Called when an individual ad begins.
+     *
+     * @param ad The ad that is starting.
+     */
+    fun onAdBegin(ad: UplynkAd) {}
+
+    /**
+     * Called when an individual ad ends.
+     *
+     * @param ad The ad that has finished.
+     */
+    fun onAdEnd(ad: UplynkAd) {}
+
+    /**
+     * Called when an ad break begins.
+     *
+     * @param adBreak The ad break that is starting.
+     */
+    fun onAdBreakBegin(adBreak: UplynkAdBreak) {}
+
+    /**
+     * Called when an ad break ends.
+     *
+     * @param adBreak The ad break that has ended.
+     */
+    fun onAdBreakEnd(adBreak: UplynkAdBreak) {}
 }
