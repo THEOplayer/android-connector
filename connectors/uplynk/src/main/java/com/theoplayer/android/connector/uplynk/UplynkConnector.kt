@@ -27,10 +27,21 @@ class UplynkConnector(
 ) {
     private lateinit var integration: UplynkAdIntegration
 
+    /**
+     * Scheduled ad breaks
+     */
     var adBreaks: List<UplynkAdBreak>? = null
         private set
+
+    /**
+     * The ad break that is currently played or `null` otherwise
+     */
     var currentAdBreak: UplynkAdBreak? = null
         private set
+
+    /**
+     * The ad that is currently played or `null` otherwise
+     */
     var currentAd: UplynkAd? = null
         private set
 
@@ -78,8 +89,14 @@ class UplynkConnector(
         return integration
     }
 
+    /**
+     * Add a listener for events
+     */
     fun addListener(listener: UplynkListener) = eventDispatcher.addListener(listener)
 
+    /**
+     * Remove a listener for events
+     */
     fun removeListener(listener: UplynkListener) = eventDispatcher.removeListener(listener)
 
     companion object {
