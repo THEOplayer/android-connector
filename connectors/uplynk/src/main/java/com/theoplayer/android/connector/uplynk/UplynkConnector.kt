@@ -48,27 +48,27 @@ class UplynkConnector(
     private val eventDispatcher = UplynkEventDispatcher().also {
         it.addListener(object : UplynkListener {
             override fun onAdBreaksUpdated(ads: UplynkAds) {
-                this@UplynkConnector.adBreaks = ads.breaks
+                adBreaks = ads.breaks
             }
 
             override fun onAdBegin(ad: UplynkAd) {
-                check(this@UplynkConnector.currentAd == null) { "Begin ad that before ending previous currentAd = ${this@UplynkConnector.currentAd} beginAd = $ad" }
-                this@UplynkConnector.currentAd = ad
+                check(currentAd == null) { "Begin ad that before ending previous currentAd = ${currentAd} beginAd = $ad" }
+                currentAd = ad
             }
 
             override fun onAdEnd(ad: UplynkAd) {
-                check(this@UplynkConnector.currentAd == ad) { "Trying to end ad that is not current. currentAd = ${this@UplynkConnector.currentAd} endedAd = $ad" }
-                this@UplynkConnector.currentAd = null
+                check(currentAd == ad) { "Trying to end ad that is not current. currentAd = ${currentAd} endedAd = $ad" }
+                currentAd = null
             }
 
             override fun onAdBreakBegin(adBreak: UplynkAdBreak) {
-                check(this@UplynkConnector.currentAdBreak == null) { "Begin adbreak before ending previous currentAdBreak = ${this@UplynkConnector.currentAdBreak} beginAdBreak = $adBreak" }
-                this@UplynkConnector.currentAdBreak = adBreak
+                check(currentAdBreak == null) { "Begin adbreak before ending previous currentAdBreak = ${currentAdBreak} beginAdBreak = $adBreak" }
+                currentAdBreak = adBreak
             }
 
             override fun onAdBreakEnd(adBreak: UplynkAdBreak) {
-                check(this@UplynkConnector.currentAdBreak == adBreak) { "Trying to end adbreak that is not current. currentAdBreak = ${this@UplynkConnector.currentAdBreak} endedAdBreak = $adBreak" }
-                this@UplynkConnector.currentAdBreak = null
+                check(currentAdBreak == adBreak) { "Trying to end adbreak that is not current. currentAdBreak = ${currentAdBreak} endedAdBreak = $adBreak" }
+                currentAdBreak = null
             }
         })
     }
