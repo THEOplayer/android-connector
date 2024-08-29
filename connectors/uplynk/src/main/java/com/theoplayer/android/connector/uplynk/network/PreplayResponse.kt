@@ -34,4 +34,12 @@ data class PreplayResponse(
      *  * Possible return value: 'https://content-ause2.uplynk.com/'
      *
      */
-    val prefix: String)
+    val prefix: String,
+
+    /**
+     * Contains ad information, such as break offsets and non-video ads.
+     *
+     *  (**NonNull**)
+     *
+     */
+    val ads: UplynkAds)
