@@ -31,23 +31,23 @@ internal class UplynkEventDispatcher {
         listeners.forEach { it.onPreplayFailure(e) }
     }
 
-    fun dispatchAdBreaksUpdatedEvents(ads: UplynkAds) {
+    fun dispatchAdBreaksUpdatedEvents(ads: UplynkAds) = handler.post {
         listeners.forEach { it.onAdBreaksUpdated(ads) }
     }
 
-    fun dispatchAdBeginEvent(currentAd: UplynkAd) {
+    fun dispatchAdBeginEvent(currentAd: UplynkAd) = handler.post {
         listeners.forEach { it.onAdBegin(currentAd) }
     }
 
-    fun dispatchAdEndEvent(currentAd: UplynkAd) {
+    fun dispatchAdEndEvent(currentAd: UplynkAd) = handler.post {
         listeners.forEach { it.onAdEnd(currentAd) }
     }
 
-    fun dispatchAdBreakBeginEvent(currentAdBreak: UplynkAdBreak) {
+    fun dispatchAdBreakBeginEvent(currentAdBreak: UplynkAdBreak) = handler.post {
         listeners.forEach { it.onAdBreakBegin(currentAdBreak) }
     }
 
-    fun dispatchAdBreakEndEvent(currentAdBreak: UplynkAdBreak) {
+    fun dispatchAdBreakEndEvent(currentAdBreak: UplynkAdBreak) = handler.post {
         listeners.forEach { it.onAdBreakEnd(currentAdBreak) }
     }
 
