@@ -10,7 +10,7 @@ import kotlinx.serialization.Serializable
  * such as its ratings, duration, thumbnail information, and more.
  *
  * For further details, please refer to the Uplynk Documentation:
- * [AssetInfo Documentation](https://docs.edgecast.com/video/#Develop/AssetInfo.htm%3FTocPath%3DDevelop%7CClient%2520(Media%2520Player)%7C_____1)
+ * [AssetInfo Documentation](https://docs.edgecast.com/video/index.html#Develop/AssetInfo.htm)
  */
 @Serializable
 data class AssetInfoResponse(
