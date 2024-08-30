@@ -128,6 +128,26 @@ val sources: List<Source> by lazy {
                         .build()
                 )
                 .build()
+        ),
+        Source(
+            name = "Uplynk DRM",
+            sourceDescription = SourceDescription
+                .Builder(
+                    TypedSource.Builder("no source")
+                        .ssai(
+                            UplynkSsaiDescription
+                                .Builder()
+                                .prefix("https://content.uplynk.com")
+                                .assetInfo(true)
+                                .assetIds(listOf(
+                                    "e973a509e67241e3aa368730130a104d",
+                                    "e70a708265b94a3fa6716666994d877d",
+                                ))
+                                .contentProtected(true)
+                                .build())
+                        .build()
+                )
+                .build()
         )
     )
 }

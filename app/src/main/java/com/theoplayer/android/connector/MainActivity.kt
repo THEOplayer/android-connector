@@ -52,7 +52,38 @@ class MainActivity : AppCompatActivity() {
         setupNielsen()
         setupYospace()
         setupUplynk()
-        setupListeners()
+        setupAdListeners()
+    }
+
+    private fun setupTHEOplayer() {
+        val theoplayerConfig = THEOplayerConfig.Builder()
+            .build()
+        theoplayerView = THEOplayerView(this, theoplayerConfig)
+        theoplayerView.layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+        val tpvContainer = findViewById<FrameLayout>(R.id.tpv_container)
+        tpvContainer.addView(theoplayerView)
+    }
+
+    private fun setupGoogleImaIntegration() {
+        val googleImaIntegration = GoogleImaIntegrationFactory.createGoogleImaIntegration(theoplayerView)
+        theoplayerView.player.addIntegration(googleImaIntegration)
+    }
+
+    private fun setupConviva() {
+        val customerKey = "your_conviva_customer_key"
+        val gatewayUrl = "your_conviva_debug_gateway_url"
+
+        val metadata = hashMapOf(
+            "Conviva.applicationName" to "THEOplayer",
+            "Conviva.viewerId" to "viewerId"
+        )
+
+        val config = ConvivaConfiguration(
+            customerKey,
+            true,
+            gatewayUrl,
+        )
+        convivaConnector = ConvivaConnector(applicationContext, theoplayerView.player, metadata, config)
     }
 
     private fun setupComscore() {
@@ -106,39 +137,7 @@ class MainActivity : AppCompatActivity() {
             videoDimension = null,
             customLabels = emptyMap(),
         )
-        comscoreConnector =
-            ComscoreConnector(applicationContext, theoplayerView.player, comscoreConfiguration, metadata)
-    }
-
-    private fun setupTHEOplayer() {
-        val theoplayerConfig = THEOplayerConfig.Builder()
-            .build()
-        theoplayerView = THEOplayerView(this, theoplayerConfig)
-        theoplayerView.layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-        val tpvContainer = findViewById<FrameLayout>(R.id.tpv_container)
-        tpvContainer.addView(theoplayerView)
-    }
-
-    private fun setupGoogleImaIntegration() {
-        val googleImaIntegration = GoogleImaIntegrationFactory.createGoogleImaIntegration(theoplayerView)
-        theoplayerView.player.addIntegration(googleImaIntegration)
-    }
-
-    private fun setupConviva() {
-        val customerKey = "your_conviva_customer_key"
-        val gatewayUrl = "your_conviva_debug_gateway_url"
-
-        val metadata = hashMapOf(
-            "Conviva.applicationName" to "THEOplayer",
-            "Conviva.viewerId" to "viewerId"
-        )
-
-        val config = ConvivaConfiguration(
-            customerKey,
-            true,
-            gatewayUrl,
-        )
-        convivaConnector = ConvivaConnector(applicationContext, theoplayerView.player, metadata, config)
+        comscoreConnector = ComscoreConnector(applicationContext, theoplayerView.player, comscoreConfiguration, metadata)
     }
 
     private fun setupNielsen() {
@@ -180,7 +179,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupListeners() {
+    private fun setupAdListeners() {
         val ads = theoplayerView.player.ads
         ads.addEventListener(AdsEventTypes.ADD_AD, ::onAdEvent)
         ads.addEventListener(AdsEventTypes.AD_BEGIN, ::onAdEvent)
@@ -196,25 +195,24 @@ class MainActivity : AppCompatActivity() {
         ads.addEventListener(AdsEventTypes.REMOVE_AD_BREAK, ::onAdBreakEvent)
     }
 
-    fun onAdBreakEvent(event: AdBreakEvent<*>) {
+    private fun onAdBreakEvent(event: AdBreakEvent<*>) {
         val adBreak = event.adBreak
-        Log.d(
-            TAG,
-            "${event.type} - " +
-                    "timeOffset=${adBreak.timeOffset}, ads=${adBreak.ads.size}," +
-                    " maxDuration=${adBreak.maxDuration}," +
-                    " currentTime=${theoplayerView.player.currentTime}"
+        Log.d(TAG, "${event.type} - " +
+            "timeOffset=${adBreak.timeOffset}, " +
+            "ads=${adBreak.ads.size}, " +
+            "maxDuration=${adBreak.maxDuration}, " +
+            "currentTime=${theoplayerView.player.currentTime}"
         )
     }
 
-    fun onAdEvent(event: SingleAdEvent<*>) {
+    private fun onAdEvent(event: SingleAdEvent<*>) {
         val ad = event.ad ?: return
-        Log.d(
-            TAG,
-            "${event.type} - " +
-                    "id=${ad.id}, type=${ad.type}, adBreak.timeOffset=${ad.adBreak?.timeOffset}," +
-                    (if (ad is LinearAd) " duration=${ad.duration}," else "") +
-                    " currentTime=${theoplayerView.player.currentTime}"
+        Log.d(TAG, "${event.type} - " +
+            "id=${ad.id}, " +
+            "type=${ad.type}, " +
+            "adBreak.timeOffset=${ad.adBreak?.timeOffset}, " +
+            (if (ad is LinearAd) "duration=${ad.duration}, " else "") +
+            "currentTime=${theoplayerView.player.currentTime}"
         )
     }
 
