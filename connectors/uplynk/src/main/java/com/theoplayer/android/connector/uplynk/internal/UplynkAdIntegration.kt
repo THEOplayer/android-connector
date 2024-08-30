@@ -47,10 +47,11 @@ internal class UplynkAdIntegration(
 
         var newUplynkSource = uplynkSource.replaceSrc(minimalResponse.playURL)
         minimalResponse.drm?.let { drm ->
-            val drmBuilder = DRMConfiguration.Builder()
-            drm.widevineLicenseURL?.let { drmBuilder.widevine(KeySystemConfiguration.Builder(it).build()) }
-            drm.playreadyLicenseURL?.let { drmBuilder.playready(KeySystemConfiguration.Builder(it).build()) }
-            drm.fairplayCertificateURL?.let { drmBuilder.fairplay(FairPlayKeySystemConfiguration.Builder("", it).build()) }
+            val drmBuilder = DRMConfiguration.Builder().apply {
+                drm.widevineLicenseURL?.let { widevine(KeySystemConfiguration.Builder(it).build()) }
+                drm.playreadyLicenseURL?.let { playready(KeySystemConfiguration.Builder(it).build()) }
+                drm.fairplayCertificateURL?.let { fairplay(FairPlayKeySystemConfiguration.Builder("", it).build()) }
+            }
             newUplynkSource = newUplynkSource.replaceDrm(drmBuilder.build())
         }
 
