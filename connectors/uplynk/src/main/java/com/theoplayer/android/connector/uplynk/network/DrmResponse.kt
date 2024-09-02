@@ -11,6 +11,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class DrmResponse(
     /**
+     * Indicates whether DRM is required for playback.
+     */
+    val required: Boolean = false,
+    /**
      * The Fairplay certificate URL. (**Nullable**)
      */
     val fairplayCertificateURL: String? = null,
