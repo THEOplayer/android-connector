@@ -18,10 +18,18 @@ internal class AdHandler(private val controller: ServerSideAdIntegrationControll
     private val scheduledAds = WeakHashMap<UplynkAd, Ad>()
 
     fun createAdBreak(adBreak: UplynkAdBreak) {
-        val adBreakInit = AdBreakInit(adBreak.timeOffset.secToMs, adBreak.duration.secToMs)
+        val adBreakInit = AdBreakInit(
+            timeOffset = adBreak.timeOffset.secToMs,
+            maxDuration = adBreak.duration.secToMs,
+            customData = adBreak
+        )
         val currentAdBreak = controller.createAdBreak(adBreakInit)
         adBreak.ads.forEach {
-            val adInit = AdInit(type = adBreak.type, duration = it.duration.secToMs)
+            val adInit = AdInit(
+                type = adBreak.type,
+                duration = it.duration.secToMs,
+                customData = it
+            )
             scheduledAds[it] = controller.createAd(adInit, currentAdBreak)
         }
     }
