@@ -21,13 +21,24 @@ internal class UplynkAdIntegration(
     private val uplynkDescriptionConverter: UplynkSsaiDescriptionConverter,
     private val uplynkApi: UplynkApi
 ) : ServerSideAdIntegrationHandler {
+    private var pingScheduler: PingScheduler? = null
     private var adScheduler: UplynkAdScheduler? = null
     private val player: Player
         get() = theoplayerView.player
 
     init {
         player.addEventListener(PlayerEventTypes.TIMEUPDATE) {
-            adScheduler?.onTimeUpdate(it.currentTime.toDuration(DurationUnit.SECONDS))
+            val time = it.currentTime.toDuration(DurationUnit.SECONDS)
+            adScheduler?.onTimeUpdate(time)
+            pingScheduler?.onTimeUpdate(time)
+        }
+
+        player.addEventListener(PlayerEventTypes.SEEKING) {
+            pingScheduler?.onSeeking(it.currentTime.toDuration(DurationUnit.SECONDS))
+        }
+
+        player.addEventListener(PlayerEventTypes.SEEKED) {
+            pingScheduler?.onSeeked(it.currentTime.toDuration(DurationUnit.SECONDS))
         }
     }
 
@@ -70,6 +81,16 @@ internal class UplynkAdIntegration(
             eventDispatcher.dispatchPreplayFailure(e)
             controller.error(e)
         }
+
+        pingScheduler = PingScheduler(
+            uplynkApi,
+            uplynkDescriptionConverter,
+            minimalResponse.prefix,
+            minimalResponse.sid,
+            eventDispatcher,
+            adScheduler!!
+        )
+        pingScheduler?.onStart()
 
         if (ssaiDescription.assetInfo) {
             uplynkDescriptionConverter

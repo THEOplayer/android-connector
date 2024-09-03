@@ -1,5 +1,6 @@
 package com.theoplayer.android.connector.uplynk
 
+import com.theoplayer.android.connector.uplynk.internal.network.PingResponse
 import com.theoplayer.android.connector.uplynk.network.AssetInfoResponse
 import com.theoplayer.android.connector.uplynk.network.PreplayResponse
 
@@ -40,4 +41,13 @@ interface UplynkListener {
      * @param exception the `Exception` occurred during the request
      */
     fun onAssetInfoFailure(exception: Exception) {}
+
+    /**
+     * Called when a ping response is received from Uplynk.
+     *
+     * For more details, refer to the [Ping API Documentation](https://docs.edgecast.com/video/#Develop/Pingv2.htm).
+     *
+     * @param exception the `Exception` occurred during the request
+     */
+    fun onPingResponse(pingResponse: PingResponse) {}
 }
