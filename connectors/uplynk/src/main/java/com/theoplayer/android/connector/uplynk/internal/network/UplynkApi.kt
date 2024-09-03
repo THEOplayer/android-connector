@@ -17,4 +17,9 @@ internal class UplynkApi {
         val body = network.retry { get(url) }
         return json.decodeFromString(body)
     }
+
+    suspend fun ping(url: String): PingResponse {
+        val body = network.get(url)
+        return json.decodeFromString(body)
+    }
 }
