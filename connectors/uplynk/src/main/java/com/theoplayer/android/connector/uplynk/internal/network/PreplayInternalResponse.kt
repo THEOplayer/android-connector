@@ -22,7 +22,7 @@ internal data class MinimalPreplayResponse(
     /**
      * The zone prefix for the viewer's session. (**NonNull**)
      */
-    val prefix: String)
+    val prefix: String,
 
     /*
     * The content protection information. (**Nullable**)
