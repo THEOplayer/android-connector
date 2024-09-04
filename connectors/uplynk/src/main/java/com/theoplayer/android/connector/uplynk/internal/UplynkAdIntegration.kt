@@ -14,6 +14,7 @@ import com.theoplayer.android.connector.uplynk.internal.network.UplynkApi
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
+@Suppress("UnstableApiUsage")
 internal class UplynkAdIntegration(
     private val theoplayerView: THEOplayerView,
     private val controller: ServerSideAdIntegrationController,
