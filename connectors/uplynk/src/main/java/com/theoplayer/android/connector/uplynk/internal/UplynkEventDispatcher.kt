@@ -5,6 +5,7 @@ import android.os.Looper
 import com.theoplayer.android.connector.uplynk.UplynkListener
 import com.theoplayer.android.connector.uplynk.internal.network.PingResponse
 import com.theoplayer.android.connector.uplynk.network.AssetInfoResponse
+import com.theoplayer.android.connector.uplynk.network.PreplayLiveResponse
 import com.theoplayer.android.connector.uplynk.network.PreplayResponse
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -15,6 +16,10 @@ internal class UplynkEventDispatcher {
 
     fun dispatchPreplayEvents(response: PreplayResponse) = handler.post {
         listeners.forEach { it.onPreplayResponse(response) }
+    }
+
+    fun dispatchPreplayLiveEvents(response: PreplayLiveResponse) = handler.post {
+        listeners.forEach { it.onPreplayResponseLive(response) }
     }
 
     fun dispatchAssetInfoEvents(assetInfo: AssetInfoResponse) = handler.post {

@@ -26,7 +26,7 @@ class UplynkSsaiDescriptionConverterTest {
 
     @Test
     fun buildPreplayUrl_whenPrefixIsNotNull_startsUrlFromPrefix() {
-        val result = converter.buildPreplayUrl(ssaiDescription)
+        val result = converter.buildPreplayVodUrl(ssaiDescription)
 
         assertTrue(result.startsWith("preplayprefix"))
     }
@@ -35,14 +35,14 @@ class UplynkSsaiDescriptionConverterTest {
     fun buildPreplayUrl_whenPrefixIsNull_startsUrlFromPrefix() {
         ssaiDescription = ssaiDescription.copy(prefix = null)
 
-        val result = converter.buildPreplayUrl(ssaiDescription)
+        val result = converter.buildPreplayVodUrl(ssaiDescription)
 
         assertTrue(result.startsWith("https://content.uplynk.com"))
     }
 
     @Test
     fun buildPreplayUrl_whenAssetIdHasMultipleValues_addsThemAsCommaSeparatedList() {
-        val result = converter.buildPreplayUrl(ssaiDescription)
+        val result = converter.buildPreplayVodUrl(ssaiDescription)
 
         assertTrue(result.contains("/asset1,asset2,asset3/"))
     }
@@ -51,7 +51,7 @@ class UplynkSsaiDescriptionConverterTest {
     fun buildPreplayUrl_whenAssetIdHasSingleValue_usesItAsJsonFilename() {
         ssaiDescription = ssaiDescription.copy(assetIds = listOf("singleasset"))
 
-        val result = converter.buildPreplayUrl(ssaiDescription)
+        val result = converter.buildPreplayVodUrl(ssaiDescription)
 
         assertTrue(result.contains("/singleasset.json"))
     }
@@ -62,7 +62,7 @@ class UplynkSsaiDescriptionConverterTest {
             assetIds = listOf(), externalId = listOf("extId1", "extId2"), userId = "userId"
         )
 
-        val result = converter.buildPreplayUrl(ssaiDescription)
+        val result = converter.buildPreplayVodUrl(ssaiDescription)
 
         assertTrue(result.contains("userId"))
         assertTrue(result.contains("extId1,extId2/multiple.json"))
@@ -74,7 +74,7 @@ class UplynkSsaiDescriptionConverterTest {
             assetIds = listOf(), externalId = listOf("extId1"), userId = "userId"
         )
 
-        val result = converter.buildPreplayUrl(ssaiDescription)
+        val result = converter.buildPreplayVodUrl(ssaiDescription)
 
         assertTrue(result.contains("userId"))
         assertTrue(result.contains("extId1.json"))
@@ -82,7 +82,7 @@ class UplynkSsaiDescriptionConverterTest {
 
     @Test
     fun buildPreplayUrl_always_followsTheTemplate() {
-        val result = converter.buildPreplayUrl(ssaiDescription)
+        val result = converter.buildPreplayVodUrl(ssaiDescription)
 
         val items = result.split("/", "?")
         assertEquals("preplayprefix", items[0])

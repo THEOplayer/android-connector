@@ -2,6 +2,7 @@ package com.theoplayer.android.connector.uplynk.network
 
 import com.theoplayer.android.connector.uplynk.internal.network.DurationToSecDeserializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 import kotlin.time.Duration
 
 
@@ -73,7 +74,7 @@ data class UplynkAd(
      * Contains the custom set of VAST extensions returned by the ad server.
      * Each custom extension is reported as an object.
      */
-    val extensions: List<Map<String, String>>? = null,
+    val extensions: JsonElement? = null,
 
     /**
      * FreeWheel only: If the ad response provided by FreeWheel contains creative parameters,

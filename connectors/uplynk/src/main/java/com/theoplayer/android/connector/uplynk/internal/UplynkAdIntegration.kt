@@ -8,7 +8,10 @@ import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.api.source.SourceDescription
 import com.theoplayer.android.api.source.drm.DRMConfiguration
 import com.theoplayer.android.api.source.drm.KeySystemConfiguration
+import com.theoplayer.android.connector.uplynk.UplynkAssetType
 import com.theoplayer.android.connector.uplynk.UplynkSsaiDescription
+import com.theoplayer.android.connector.uplynk.internal.network.PreplayInternalLiveResponse
+import com.theoplayer.android.connector.uplynk.internal.network.PreplayInternalResponse
 import com.theoplayer.android.connector.uplynk.internal.network.UplynkApi
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
@@ -52,9 +55,11 @@ internal class UplynkAdIntegration(
         val uplynkSource = source.sources.singleOrNull { it.ssai is UplynkSsaiDescription }
         val ssaiDescription = uplynkSource?.ssai as? UplynkSsaiDescription ?: return source
 
-        val preplayUrl = uplynkDescriptionConverter.buildPreplayUrl(ssaiDescription)
-        val internalResponse = uplynkApi.preplay(preplayUrl)
-        val minimalResponse = internalResponse.parseMinimalResponse()
+        val minimalResponse = if (ssaiDescription.assetType == UplynkAssetType.ASSET) {
+            requestVod(ssaiDescription).parseMinimalResponse()
+        } else {
+            requestLive(ssaiDescription).parseMinimalResponse()
+        }
 
         var newUplynkSource = uplynkSource.replaceSrc(minimalResponse.playURL)
 
@@ -72,15 +77,6 @@ internal class UplynkAdIntegration(
             remove(uplynkSource)
             add(0, newUplynkSource)
         })
-
-        try {
-            val externalResponse = internalResponse.parseExternalResponse()
-            eventDispatcher.dispatchPreplayEvents(externalResponse)
-            adScheduler = UplynkAdScheduler(externalResponse.ads.breaks, AdHandler(controller))
-        } catch (e: Exception) {
-            eventDispatcher.dispatchPreplayFailure(e)
-            controller.error(e)
-        }
 
         pingScheduler = PingScheduler(
             uplynkApi,
@@ -108,5 +104,37 @@ internal class UplynkAdIntegration(
         }
 
         return newSource
+    }
+
+    private suspend fun requestLive(ssaiDescription: UplynkSsaiDescription): PreplayInternalLiveResponse {
+        return uplynkDescriptionConverter
+            .buildPreplayLiveUrl(ssaiDescription)
+            .let { uplynkApi.preplayLive(it) }
+            .also {
+                try {
+                    val response = it.parseExternalResponse()
+                    eventDispatcher.dispatchPreplayLiveEvents(response)
+                    adScheduler = UplynkAdScheduler(listOf(), AdHandler(controller))
+                } catch (e: Exception) {
+                    eventDispatcher.dispatchPreplayFailure(e)
+                    controller.error(e)
+                }
+            }
+    }
+
+    private suspend fun requestVod(ssaiDescription: UplynkSsaiDescription): PreplayInternalResponse {
+        return uplynkDescriptionConverter
+            .buildPreplayVodUrl(ssaiDescription)
+            .let { uplynkApi.preplayVod(it) }
+            .also {
+                try {
+                    val response = it.parseExternalResponse()
+                    eventDispatcher.dispatchPreplayEvents(response)
+                    adScheduler = UplynkAdScheduler(response.ads.breaks, AdHandler(controller))
+                } catch (e: Exception) {
+                    eventDispatcher.dispatchPreplayFailure(e)
+                    controller.error(e)
+                }
+            }
     }
 }

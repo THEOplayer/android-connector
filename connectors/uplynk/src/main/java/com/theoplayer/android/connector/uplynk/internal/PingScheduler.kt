@@ -22,7 +22,7 @@ internal class PingScheduler(
     private var seekStart: Duration = NEGATIVE_TIME
 
     fun onTimeUpdate(time: Duration) {
-        if (nextRequestTime > Duration.ZERO && time > nextRequestTime) {
+        if (nextRequestTime.isPositive() && time > nextRequestTime) {
             nextRequestTime = NEGATIVE_TIME
             performPing(uplynkDescriptionConverter.buildPingUrl(prefix, sessionId, time))
         }
@@ -33,7 +33,7 @@ internal class PingScheduler(
 
 
     fun onSeeking(time: Duration) {
-        if (seekStart == NEGATIVE_TIME) {
+        if (seekStart.isNegative()) {
             seekStart = time
         }
     }

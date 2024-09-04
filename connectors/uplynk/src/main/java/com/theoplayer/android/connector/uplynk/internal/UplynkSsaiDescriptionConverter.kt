@@ -11,10 +11,24 @@ private const val LINEAR_AD_DATA = 4
 internal class UplynkSsaiDescriptionConverter {
     private val DEFAULT_PREFIX = "https://content.uplynk.com"
 
-    fun buildPreplayUrl(ssaiDescription: UplynkSsaiDescription): String = with(ssaiDescription) {
+    fun buildPreplayVodUrl(ssaiDescription: UplynkSsaiDescription): String = with(ssaiDescription) {
         val prefix = prefix ?: DEFAULT_PREFIX
 
-        var url = "$prefix/preplay/$urlAssetType$urlAssetId?v=2"
+        var url = "$prefix/preplay/$urlAssetId?v=2"
+        if (ssaiDescription.contentProtected) {
+            url += "&manifest=mpd"
+            url += "&rmt=wv"
+        }
+
+        url += "&$pingParameters&$urlParameters"
+
+        return url
+    }
+
+    fun buildPreplayLiveUrl(ssaiDescription: UplynkSsaiDescription): String = with(ssaiDescription) {
+        val prefix = prefix ?: DEFAULT_PREFIX
+
+        var url = "$prefix/preplay/$urlAssetType/$urlAssetId?v=2"
         if (ssaiDescription.contentProtected) {
             url += "&manifest=mpd"
             url += "&rmt=wv"
@@ -47,8 +61,8 @@ internal class UplynkSsaiDescriptionConverter {
     private val UplynkSsaiDescription.urlAssetType
         get() = when (assetType) {
             UplynkAssetType.ASSET -> ""
-            UplynkAssetType.CHANNEL -> "channel/"
-            UplynkAssetType.EVENT -> "event/"
+            UplynkAssetType.CHANNEL -> "channel"
+            UplynkAssetType.EVENT -> "event"
         }
 
     private val UplynkSsaiDescription.urlAssetId
