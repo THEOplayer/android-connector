@@ -52,7 +52,6 @@ internal class UplynkAdIntegration(
                 val drmBuilder = DRMConfiguration.Builder().apply {
                     drm.widevineLicenseURL?.let { widevine(KeySystemConfiguration.Builder(it).build()) }
                     drm.playreadyLicenseURL?.let { playready(KeySystemConfiguration.Builder(it).build()) }
-                    drm.fairplayCertificateURL?.let { fairplay(FairPlayKeySystemConfiguration.Builder("", it).build()) }
                 }
                 newUplynkSource = newUplynkSource.replaceDrm(drmBuilder.build())
             }
