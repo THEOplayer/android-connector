@@ -6,6 +6,7 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.serialization'
     id 'org.jetbrains.dokka'
 }
+apply from: "$rootDir/connectors/publish.gradle"
 
 android {
     namespace 'com.theoplayer.android.connector.uplynk'
@@ -24,27 +25,29 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = '1.8'
     }
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3"
     compileOnly "com.theoplayer.theoplayer-sdk-android:core:$sdkVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
 
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     testImplementation "com.theoplayer.theoplayer-sdk-android:core:$sdkVersion"
     testImplementation "org.mockito:mockito-inline:$mockitoVersion"
     testImplementation "org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion"
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:1.8.10"
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 }
 
 tasks.withType(AbstractDokkaLeafTask.class).configureEach {
