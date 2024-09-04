@@ -19,6 +19,11 @@ internal data class MinimalPreplayResponse(
      */
     val sid: String,
 
+    /**
+     * The zone prefix for the viewer's session. (**NonNull**)
+     */
+    val prefix: String)
+
     /*
     * The content protection information. (**Nullable**)
     */

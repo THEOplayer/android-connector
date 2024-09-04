@@ -73,7 +73,7 @@ internal class UplynkAdIntegration(
 
         if (ssaiDescription.assetInfo) {
             uplynkDescriptionConverter
-                .buildAssetInfoUrls(ssaiDescription, minimalResponse.sid)
+                .buildAssetInfoUrls(ssaiDescription, minimalResponse.sid, internalResponse.prefix)
                 .mapNotNull {
                     try {
                         uplynkApi.assetInfo(it)
