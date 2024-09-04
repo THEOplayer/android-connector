@@ -12,6 +12,7 @@ data class UplynkSsaiDescription(
     val assetIds: List<String> = listOf(),
     val externalId: List<String> = listOf(),
     val userId: String? = null,
+    val contentProtected: Boolean = false,
     val preplayParameters: LinkedHashMap<String, String> = linkedMapOf(),
     val assetInfo: Boolean = false
 ): CustomSsaiDescription() {
@@ -59,6 +60,14 @@ data class UplynkSsaiDescription(
          */
         fun userId(id: String) = apply { this.userId = id }
 
+        private var contentProtected: Boolean = false
+        /**
+         * Sets whether the assets of the source are content protected.
+         *
+         * @param contentProtected Whether the assets of the source are content protected.
+         */
+        fun contentProtected(contentProtected: Boolean) = apply { this.contentProtected = contentProtected }
+
         private var preplayParameters: LinkedHashMap<String, String> = LinkedHashMap()
         /**
          * Sets the parameters.
@@ -76,7 +85,7 @@ data class UplynkSsaiDescription(
 
         private var assetInfo: Boolean = false
         /**
-         * Sets flat to request asset info
+         * Sets flag to request asset info.
          */
         fun assetInfo(shouldRequest: Boolean) = apply { this.assetInfo = shouldRequest }
         /**
@@ -87,6 +96,7 @@ data class UplynkSsaiDescription(
             assetIds = assetIds,
             externalId = externalIds,
             userId = userId,
+            contentProtected = contentProtected,
             preplayParameters = preplayParameters,
             assetInfo = assetInfo)
     }

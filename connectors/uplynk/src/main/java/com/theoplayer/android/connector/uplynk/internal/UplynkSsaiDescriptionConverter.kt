@@ -13,8 +13,17 @@ internal class UplynkSsaiDescriptionConverter {
             assetIds.size == 1 -> "${assetIds.first()}.json"
             else -> assetIds.joinToString(separator = ",") + "/multiple.json"
         }
-        val parameters = preplayParameters.map{ "${it.key}=${it.value}" }.joinToString("&")
-        return "$prefix/preplay/$assetIds?v=2&$parameters"
+
+        var url = "$prefix/preplay/$assetIds?v=2"
+        if (ssaiDescription.contentProtected) {
+            url += "&manifest=mpd"
+            url += "&rmt=wv"
+        }
+
+        val parameters = preplayParameters.map { "${it.key}=${it.value}" }.joinToString("&")
+        url += "&$parameters"
+
+        return url
     }
 
     fun buildAssetInfoUrls(ssaiDescription: UplynkSsaiDescription, sessionId: String): List<String> = with(ssaiDescription) {

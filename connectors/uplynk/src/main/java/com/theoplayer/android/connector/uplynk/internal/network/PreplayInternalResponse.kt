@@ -1,5 +1,6 @@
 package com.theoplayer.android.connector.uplynk.internal.network
 
+import com.theoplayer.android.connector.uplynk.network.DrmResponse
 import com.theoplayer.android.connector.uplynk.network.PreplayResponse
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -16,7 +17,13 @@ internal data class MinimalPreplayResponse(
     /**
      * The identifier of the viewer's session. (**NonNull**)
      */
-    val sid: String)
+    val sid: String,
+
+    /*
+    * The content protection information. (**Nullable**)
+    */
+    val drm: DrmResponse?
+)
 
 
 internal class PreplayInternalResponse(val body: String, private val json: Json) {

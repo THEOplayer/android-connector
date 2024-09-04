@@ -43,12 +43,16 @@ dependencies {
     implementation "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:$sdkVersion"
 
     implementation project(":connectors:analytics:conviva")
-    implementation project(":connectors:analytics:nielsen")
     implementation "com.conviva.sdk:conviva-core-sdk:$convivaVersion"
-    implementation "com.nielsenappsdk.global:ad:9.2.0.0"
+
+    implementation project(":connectors:analytics:nielsen")
+    implementation "com.nielsenappsdk.global:ad:$nielsenVersion"
+
     implementation project(':connectors:analytics:comscore')
     implementation "com.comscore:android-analytics:$comscoreVersion"
+
     implementation project(':connectors:yospace')
     implementation "com.yospace:admanagement-sdk:$yospaceVersion"
+
     implementation project(':connectors:uplynk')
 }

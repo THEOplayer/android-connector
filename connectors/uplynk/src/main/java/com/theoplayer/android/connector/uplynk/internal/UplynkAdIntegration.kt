@@ -6,6 +6,9 @@ import com.theoplayer.android.api.ads.ServerSideAdIntegrationHandler
 import com.theoplayer.android.api.event.player.PlayerEventTypes
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.api.source.SourceDescription
+import com.theoplayer.android.api.source.drm.DRMConfiguration
+import com.theoplayer.android.api.source.drm.FairPlayKeySystemConfiguration
+import com.theoplayer.android.api.source.drm.KeySystemConfiguration
 import com.theoplayer.android.connector.uplynk.UplynkSsaiDescription
 import com.theoplayer.android.connector.uplynk.internal.network.UplynkApi
 import kotlin.time.DurationUnit
@@ -38,29 +41,39 @@ internal class UplynkAdIntegration(
         val uplynkSource = source.sources.singleOrNull { it.ssai is UplynkSsaiDescription }
         val ssaiDescription = uplynkSource?.ssai as? UplynkSsaiDescription ?: return source
 
-        val response = uplynkDescriptionConverter
-            .buildPreplayUrl(ssaiDescription)
-            .let { uplynkApi.preplay(it) }
-            .also {
-                try {
-                    val response = it.parseExternalResponse()
-                    eventDispatcher.dispatchPreplayEvents(response)
-                    adScheduler = UplynkAdScheduler(response.ads.breaks, AdHandler(controller))
-                } catch (e: Exception) {
-                    eventDispatcher.dispatchPreplayFailure(e)
-                    controller.error(e)
-                }
-            }
+        val preplayUrl = uplynkDescriptionConverter.buildPreplayUrl(ssaiDescription)
+        val internalResponse = uplynkApi.preplay(preplayUrl)
+        val minimalResponse = internalResponse.parseMinimalResponse()
 
-        val internalResponse = response.parseMinimalResponse()
+        var newUplynkSource = uplynkSource.replaceSrc(minimalResponse.playURL)
+
+        minimalResponse.drm?.let { drm ->
+            if (drm.required) {
+                val drmBuilder = DRMConfiguration.Builder().apply {
+                    drm.widevineLicenseURL?.let { widevine(KeySystemConfiguration.Builder(it).build()) }
+                    drm.playreadyLicenseURL?.let { playready(KeySystemConfiguration.Builder(it).build()) }
+                }
+                newUplynkSource = newUplynkSource.replaceDrm(drmBuilder.build())
+            }
+        }
 
         val newSource = source.replaceSources(source.sources.toMutableList().apply {
             remove(uplynkSource)
-            add(0, uplynkSource.replaceSrc(internalResponse.playURL))
+            add(0, newUplynkSource)
         })
+
+        try {
+            val externalResponse = internalResponse.parseExternalResponse()
+            eventDispatcher.dispatchPreplayEvents(externalResponse)
+            adScheduler = UplynkAdScheduler(externalResponse.ads.breaks, AdHandler(controller))
+        } catch (e: Exception) {
+            eventDispatcher.dispatchPreplayFailure(e)
+            controller.error(e)
+        }
+
         if (ssaiDescription.assetInfo) {
             uplynkDescriptionConverter
-                .buildAssetInfoUrls(ssaiDescription, internalResponse.sid)
+                .buildAssetInfoUrls(ssaiDescription, minimalResponse.sid)
                 .mapNotNull {
                     try {
                         uplynkApi.assetInfo(it)
