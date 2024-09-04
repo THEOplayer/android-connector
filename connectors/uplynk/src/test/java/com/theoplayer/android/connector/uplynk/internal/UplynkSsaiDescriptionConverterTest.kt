@@ -17,7 +17,7 @@ class UplynkSsaiDescriptionConverterTest {
     fun setUp() {
         MockitoAnnotations.openMocks(this)
         ssaiDescription = UplynkSsaiDescription(
-            prefix = "urlprefix",
+            prefix = "preplayprefix",
             assetIds = listOf("asset1", "asset2", "asset3"),
             preplayParameters = LinkedHashMap(mapOf("p1" to "v1", "p2" to "v2", "p3" to "v3"))
         )
@@ -28,7 +28,7 @@ class UplynkSsaiDescriptionConverterTest {
     fun buildPreplayUrl_whenPrefixIsNotNull_startsUrlFromPrefix() {
         val result = converter.buildPreplayUrl(ssaiDescription)
 
-        assertTrue(result.startsWith("urlprefix"))
+        assertTrue(result.startsWith("preplayprefix"))
     }
 
     @Test
@@ -85,7 +85,7 @@ class UplynkSsaiDescriptionConverterTest {
         val result = converter.buildPreplayUrl(ssaiDescription)
 
         val items = result.split("/", "?")
-        assertEquals("urlprefix", items[0])
+        assertEquals("preplayprefix", items[0])
         assertEquals("preplay", items[1])
         assertEquals("asset1,asset2,asset3", items[2])
         assertEquals("multiple.json", items[3])
@@ -94,14 +94,14 @@ class UplynkSsaiDescriptionConverterTest {
 
     @Test
     fun buildAssetInfoUrls_withoutSid_doesNotContainPbsParameter() {
-        val result = converter.buildAssetInfoUrls(ssaiDescription, "")
+        val result = converter.buildAssetInfoUrls(ssaiDescription, "", "prefix")
 
         assertTrue(result.none { it.contains("pbs=") })
     }
 
     @Test
     fun buildAssetInfoUrls_withSid_hasPbsParameter() {
-        val result = converter.buildAssetInfoUrls(ssaiDescription, "sessionId")
+        val result = converter.buildAssetInfoUrls(ssaiDescription, "sessionId", "prefix")
 
         assertTrue(result.all { it.contains("pbs=sessionId") })
     }
@@ -112,20 +112,20 @@ class UplynkSsaiDescriptionConverterTest {
             assetIds = listOf(), externalId = listOf()
         )
 
-        val result = converter.buildAssetInfoUrls(ssaiDescription, "")
+        val result = converter.buildAssetInfoUrls(ssaiDescription, "", "prefix")
 
         assertEquals(0, result.size)
     }
 
     @Test
     fun buildAssetInfoUrls_whenAssetIdHasValues_returnsAssetInfoUrls() {
-        val result = converter.buildAssetInfoUrls(ssaiDescription, "")
+        val result = converter.buildAssetInfoUrls(ssaiDescription, "", "prefix")
 
         assertEquals(3, result.size)
 
-        assertContains(result, "urlprefix/player/assetinfo/asset1.json")
-        assertContains(result, "urlprefix/player/assetinfo/asset2.json")
-        assertContains(result, "urlprefix/player/assetinfo/asset3.json")
+        assertContains(result, "prefix/player/assetinfo/asset1.json")
+        assertContains(result, "prefix/player/assetinfo/asset2.json")
+        assertContains(result, "prefix/player/assetinfo/asset3.json")
     }
 
     @Test
@@ -136,23 +136,11 @@ class UplynkSsaiDescriptionConverterTest {
             userId = "userId"
         )
 
-        val result = converter.buildAssetInfoUrls(ssaiDescription, "")
+        val result = converter.buildAssetInfoUrls(ssaiDescription, "", "prefix")
 
         assertEquals(2, result.size)
 
-        assertContains(result, "urlprefix/player/assetinfo/ext/userId/extId1.json")
-        assertContains(result, "urlprefix/player/assetinfo/ext/userId/extId2.json")
-    }
-
-
-    @Test
-    fun buildAssetInfoUrls_whenPrefixIsNotSet_returnsUrlWithDefaultPrefix() {
-        ssaiDescription = UplynkSsaiDescription(
-            assetIds = listOf("assetId1"),
-        )
-
-        val result = converter.buildAssetInfoUrls(ssaiDescription, "")
-
-        assertEquals("https://content.uplynk.com/player/assetinfo/assetId1.json", result.first())
+        assertContains(result, "prefix/player/assetinfo/ext/userId/extId1.json")
+        assertContains(result, "prefix/player/assetinfo/ext/userId/extId2.json")
     }
 }
