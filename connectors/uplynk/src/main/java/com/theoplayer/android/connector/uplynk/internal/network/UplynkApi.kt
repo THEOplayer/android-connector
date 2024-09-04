@@ -9,12 +9,12 @@ internal class UplynkApi {
     private val network = HttpsConnection()
 
     suspend fun preplay(srcURL: String): PreplayInternalResponse {
-        val body = network.get(srcURL)
+        val body = network.retry { get(srcURL) }
         return PreplayInternalResponse(body, json)
     }
 
     suspend fun assetInfo(url: String): AssetInfoResponse {
-        val body = network.get(url)
+        val body = network.retry { get(url) }
         return json.decodeFromString(body)
     }
 }

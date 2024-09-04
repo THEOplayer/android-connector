@@ -7,13 +7,13 @@ import com.theoplayer.android.api.event.player.PlayerEventTypes
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.api.source.SourceDescription
 import com.theoplayer.android.api.source.drm.DRMConfiguration
-import com.theoplayer.android.api.source.drm.FairPlayKeySystemConfiguration
 import com.theoplayer.android.api.source.drm.KeySystemConfiguration
 import com.theoplayer.android.connector.uplynk.UplynkSsaiDescription
 import com.theoplayer.android.connector.uplynk.internal.network.UplynkApi
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
+@Suppress("UnstableApiUsage")
 internal class UplynkAdIntegration(
     private val theoplayerView: THEOplayerView,
     private val controller: ServerSideAdIntegrationController,
@@ -73,7 +73,7 @@ internal class UplynkAdIntegration(
 
         if (ssaiDescription.assetInfo) {
             uplynkDescriptionConverter
-                .buildAssetInfoUrls(ssaiDescription, minimalResponse.sid)
+                .buildAssetInfoUrls(ssaiDescription, minimalResponse.sid, minimalResponse.prefix)
                 .mapNotNull {
                     try {
                         uplynkApi.assetInfo(it)

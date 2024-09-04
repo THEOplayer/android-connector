@@ -10,7 +10,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 
-object DurationToSecDeserializer : KSerializer<Duration> {
+internal object DurationToSecDeserializer : KSerializer<Duration> {
 
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("DurationSeconds", PrimitiveKind.DOUBLE)

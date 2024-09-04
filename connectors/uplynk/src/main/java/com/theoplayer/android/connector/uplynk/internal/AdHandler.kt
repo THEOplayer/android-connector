@@ -13,7 +13,8 @@ import kotlin.time.DurationUnit
 private val Duration.secToMs: Int
     get() = this.toInt(DurationUnit.MILLISECONDS)
 
-class AdHandler(private val controller: ServerSideAdIntegrationController) {
+@Suppress("UnstableApiUsage")
+internal class AdHandler(private val controller: ServerSideAdIntegrationController) {
     private val scheduledAds = WeakHashMap<UplynkAd, Ad>()
 
     fun createAdBreak(adBreak: UplynkAdBreak) {
