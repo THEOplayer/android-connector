@@ -27,11 +27,6 @@ data class PingResponse(
     val ads: UplynkAds? = null,
 
     /**
-     *
-     */
-    val boundaries: List<BoundaryDetail>? = null,
-
-    /**
      * **VAST Only**
      *
      * Contains the custom set of VAST extensions returned by the ad server.
