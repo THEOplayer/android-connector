@@ -45,4 +45,4 @@ data class PreplayResponse(
      * Indicates the URL to the XML file containing interstitial information for Apple TV.
      * This parameter reports null when ads are not found.
      */
-    val interstitialURL: String?)
+    val interstitialURL: String? = null)
