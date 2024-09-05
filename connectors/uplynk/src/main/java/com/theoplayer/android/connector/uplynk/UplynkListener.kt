@@ -27,7 +27,7 @@ interface UplynkListener {
      *
      * @param response the `PreplayLiveResponse` object containing information relevant to the preplay request.
      */
-    fun onPreplayResponseLive(response: PreplayLiveResponse){}
+    fun onPreplayLiveResponse(response: PreplayLiveResponse){}
 
     /**
      * Called when a preplay response is received from Uplynk and failed to be parsed

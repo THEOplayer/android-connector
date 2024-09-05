@@ -19,7 +19,7 @@ internal class UplynkEventDispatcher {
     }
 
     fun dispatchPreplayLiveEvents(response: PreplayLiveResponse) = handler.post {
-        listeners.forEach { it.onPreplayResponseLive(response) }
+        listeners.forEach { it.onPreplayLiveResponse(response) }
     }
 
     fun dispatchAssetInfoEvents(assetInfo: AssetInfoResponse) = handler.post {
