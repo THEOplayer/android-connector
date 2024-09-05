@@ -89,7 +89,7 @@ class UplynkSsaiDescriptionConverterTest {
         assertEquals("preplay", items[1])
         assertEquals("asset1,asset2,asset3", items[2])
         assertEquals("multiple.json", items[3])
-        assertEquals("v=2&p1=v1&p2=v2&p3=v3", items[4])
+        assertEquals("v=2&ad.pingc=0&p1=v1&p2=v2&p3=v3", items[4])
     }
 
     @Test
