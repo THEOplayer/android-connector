@@ -73,6 +73,11 @@ data class UplynkAd(
     /**
      * Contains the custom set of VAST extensions returned by the ad server.
      * Each custom extension is reported as an object.
+     *
+     * This is returned as a JsonElement because the extensions structure is custom.
+     * You could build deserialisation logic if needed depending on the expected structure of this field
+     *
+     * Check more info in [documentation](https://docs.edgecast.com/video/#AdIntegration/VAST-VPAID.htm#CustomVASTExt)
      */
     val extensions: JsonElement? = null,
 
