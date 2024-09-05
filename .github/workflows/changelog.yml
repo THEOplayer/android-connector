@@ -1,0 +1,35 @@
+name: Update Changelog
+on:
+  # Runs whenever a new tag is pushed
+  push:
+    tags:
+      - '*.*.*'
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  # Update Changelog job
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Update Changelogs
+        run: |
+          changelogs=("$(find "connectors" -type f -name "CHANGELOG.md")")
+          version=$GITHUB_REF_NAME
+          date=$(date +"%Y-%m-%d")
+          
+          for changelog in ${changelogs[*]}
+          do
+          echo "$changelog"
+          # Replace the line containing "## Unreleased" with new version and date
+          sed -i -e "s/^## Unreleased$/## [$v] - $date/" "$changelog"
+          done
+      - name: Commit Changelogs
+        run: |
+          git add connectors/**/CHANGELOG.md
+          git commit -m "update CHANGELOG.md"
+          git push
