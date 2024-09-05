@@ -15,11 +15,12 @@ For more details about importing THEOplayer Android SDK check the [documentation
 
 | Connector    | Dependency       | Supported From |                      Documentation                       |
 |:-------------|:-----------------|:--------------:|:--------------------------------------------------------:|
-| Uplynk       | `uplynk:+`       |     8.0.0      |       [documentation](connectors/uplynk/README.md)       |
 | Comscore     | `comscore:+`     |     6.10.0     | [documentation](connectors/analytics/comscore/README.md) |
 | Conviva      | `conviva:+`      |     4.1.0      | [documentation](connectors/analytics/conviva/README.md)  |
-| Nielsen      | `nielsen:+`      |     5.5.0      | [documentation](connectors/analytics/nielsen/README.md)  |
 | MediaSession | `mediasession:+` |     4.8.0      |    [documentation](connectors/mediasession/README.md)    |
+| Nielsen      | `nielsen:+`      |     5.5.0      | [documentation](connectors/analytics/nielsen/README.md)  |
+| Uplynk       | `uplynk:+`       |     7.12.0     |       [documentation](connectors/uplynk/README.md)       |
+| Yospace      | `yospace:+`      |     7.6.0      |      [documentation](connectors/yospace/README.md)       |
 
 Notes:
 * The `+` will fetch the latest released version of THEOplayer Android SDK Connector.
