@@ -3,6 +3,7 @@ package com.theoplayer.android.connector.uplynk.internal
 import com.theoplayer.android.connector.uplynk.internal.network.UplynkApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
@@ -20,6 +21,8 @@ internal class PingScheduler(
 
     private var nextRequestTime: Duration = NEGATIVE_TIME
     private var seekStart: Duration = NEGATIVE_TIME
+    private val job = SupervisorJob()
+    private val scope = CoroutineScope(Dispatchers.IO + job)
 
     fun onTimeUpdate(time: Duration) {
         if (nextRequestTime.isPositive() && time > nextRequestTime) {
@@ -50,7 +53,11 @@ internal class PingScheduler(
         seekStart = NEGATIVE_TIME
     }
 
-    private fun performPing(url: String) = CoroutineScope(Dispatchers.IO).launch {
+    fun destroy() {
+        job.cancel()
+    }
+
+    private fun performPing(url: String) = scope.launch {
         val pingResponse = uplynkApi.ping(url)
         nextRequestTime = pingResponse.nextTime
         eventDispatcher.dispatchPingEvent(pingResponse)

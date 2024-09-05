@@ -47,10 +47,12 @@ internal class UplynkAdIntegration(
 
     override suspend fun resetSource() {
         adScheduler = null
+        pingScheduler?.destroy()
     }
 
     override suspend fun setSource(source: SourceDescription): SourceDescription {
         adScheduler = null
+        pingScheduler?.destroy()
 
         val uplynkSource = source.sources.singleOrNull { it.ssai is UplynkSsaiDescription }
         val ssaiDescription = uplynkSource?.ssai as? UplynkSsaiDescription ?: return source
