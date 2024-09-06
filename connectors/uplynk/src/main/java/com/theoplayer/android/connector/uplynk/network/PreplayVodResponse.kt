@@ -3,13 +3,13 @@ package com.theoplayer.android.connector.uplynk.network
 import kotlinx.serialization.Serializable
 
 /**
- * The Uplynk Preplay Response API.
+ * The Uplynk Preplay Response API for video on demand
  *
  * For further details, please refer to the Uplynk Documentation:
  * [Preplay API (Version 2) Documentation](https://docs.edgecast.com/video/#Develop/Preplayv2.htm)
  */
 @Serializable
-data class PreplayResponse(
+data class PreplayVodResponse(
 
     /**
      * The manifest's URL. (**NonNull**)

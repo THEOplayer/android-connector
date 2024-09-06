@@ -3,7 +3,7 @@ package com.theoplayer.android.connector.uplynk
 import com.theoplayer.android.connector.uplynk.network.PingResponse
 import com.theoplayer.android.connector.uplynk.network.AssetInfoResponse
 import com.theoplayer.android.connector.uplynk.network.PreplayLiveResponse
-import com.theoplayer.android.connector.uplynk.network.PreplayResponse
+import com.theoplayer.android.connector.uplynk.network.PreplayVodResponse
 
 /**
  * A listener interface for receiving events related to Uplynk
@@ -16,9 +16,9 @@ interface UplynkListener {
      *
      * For more details, refer to the [Preplay API (Version 2) Documentation](https://docs.edgecast.com/video/index.html#Develop/Preplayv2.htm).
      *
-     * @param response the `PreplayResponse` object containing information relevant to the preplay request.
+     * @param response the `PreplayVodResponse` object containing information relevant to the preplay request.
      */
-    fun onPreplayResponse(response: PreplayResponse) {}
+    fun onPreplayVodResponse(response: PreplayVodResponse) {}
 
     /**
      * Called when a preplay response is received from Uplynk for live channel or an event.
