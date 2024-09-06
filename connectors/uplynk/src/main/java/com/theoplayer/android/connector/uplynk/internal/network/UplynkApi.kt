@@ -1,6 +1,7 @@
 package com.theoplayer.android.connector.uplynk.internal.network
 
 import com.theoplayer.android.connector.uplynk.network.AssetInfoResponse
+import com.theoplayer.android.connector.uplynk.network.PingResponse
 import kotlinx.serialization.json.Json
 
 

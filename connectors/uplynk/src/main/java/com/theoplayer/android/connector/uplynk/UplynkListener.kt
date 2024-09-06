@@ -1,6 +1,6 @@
 package com.theoplayer.android.connector.uplynk
 
-import com.theoplayer.android.connector.uplynk.internal.network.PingResponse
+import com.theoplayer.android.connector.uplynk.network.PingResponse
 import com.theoplayer.android.connector.uplynk.network.AssetInfoResponse
 import com.theoplayer.android.connector.uplynk.network.PreplayLiveResponse
 import com.theoplayer.android.connector.uplynk.network.PreplayResponse

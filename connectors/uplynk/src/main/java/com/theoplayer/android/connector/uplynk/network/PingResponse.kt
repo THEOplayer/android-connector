@@ -1,6 +1,6 @@
-package com.theoplayer.android.connector.uplynk.internal.network
+package com.theoplayer.android.connector.uplynk.network
 
-import com.theoplayer.android.connector.uplynk.network.UplynkAds
+import com.theoplayer.android.connector.uplynk.internal.network.DurationToSecDeserializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
