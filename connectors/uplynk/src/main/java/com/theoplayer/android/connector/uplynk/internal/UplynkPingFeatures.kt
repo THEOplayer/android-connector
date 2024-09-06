@@ -3,7 +3,7 @@ package com.theoplayer.android.connector.uplynk.internal
 import com.theoplayer.android.connector.uplynk.UplynkAssetType
 import com.theoplayer.android.connector.uplynk.UplynkSsaiDescription
 
-enum class UplynkPingFeatures(val pingfValue: Int) {
+internal enum class UplynkPingFeatures(val pingfValue: Int) {
     NO_PING(0),
     AD_IMPRESSIONS(1),
     FW_VIDEO_VIEWS(2),
