@@ -8,14 +8,58 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class UplynkSsaiDescription(
+    /**
+     * Sets the prefix to use for Uplynk Media Platform Preplay API and Asset Info API requests.
+     *
+     * - If no prefix is set the default origin is used: https://content.uplynk.com
+     */
     val prefix: String? = null,
+
+    /**
+     * Sets a list of asset IDs for Uplynk Media Platform Preplay API.
+     */
     val assetIds: List<String> = listOf(),
+
+    /**
+     * Sets a list of external IDs for Uplynk Media Platform Preplay API.
+     * If [assetIds] have at least one value this property is ignored and could be empty
+     */
     val externalId: List<String> = listOf(),
+
+    /**
+     * Sets a User ID for Uplynk Media Platform Preplay API.
+     * If [assetIds] have at least one value this property is ignored and could be empty
+     */
     val userId: String? = null,
+
+    /**
+     * Sets whether the assets of the source are content protected.
+     */
     val contentProtected: Boolean = false,
+
+    /**
+     * Sets the parameters.
+     *
+     * - Each entry of the map contains the parameter name with associated value.
+     * - The parameters keep their order as it's maintained by LinkedHashMap.
+     */
     val preplayParameters: LinkedHashMap<String, String> = linkedMapOf(),
+
+    /**
+     * Sets flag to request asset info.
+     */
     val assetInfo: Boolean = false,
+
+    /**
+     * Sets the asset type.
+     *
+     *   - For all possibilities, see {@link UplynkAssetType}.
+     */
     val assetType: UplynkAssetType = UplynkAssetType.ASSET,
+
+    /**
+     * Sets the ping request configuration
+     */
     val pingConfiguration: UplynkPingConfiguration = UplynkPingConfiguration()
 ) : CustomSsaiDescription() {
 
@@ -105,13 +149,16 @@ data class UplynkSsaiDescription(
          *
          *   - For all possibilities, see {@link UplynkAssetType}.
          *
-         *   @param value The Verizon Media asset type. (<b>NonNull</b>)
+         *   @param value The Uplynk Media asset type. (<b>NonNull</b>)
          *
          */
         fun assetType(value: UplynkAssetType) = apply { this.assetType = value }
 
         private var pingConfiguration: UplynkPingConfiguration = UplynkPingConfiguration()
 
+        /**
+         * Sets the ping request configuration
+         */
         fun pingConfiguration(value: UplynkPingConfiguration) = apply { this.pingConfiguration = value }
 
         /**
@@ -164,10 +211,33 @@ data class UplynkPingConfiguration(
     val linearAdData: Boolean = false) {
     class Builder {
         private var adImpressions: Boolean = false
+        /**
+         * Whether to increase the accuracy of ad events by passing the current playback time in Ping requests.
+         *
+         * @remark Only available when {@link UplynkSsaiDescription.assetType} is `'asset'`.
+         *
+         * @defaultValue `false`
+         *
+         */
         fun adImpressions(value: Boolean) = apply { adImpressions = value }
+
         private var freeWheelVideoViews: Boolean = false
+
+        /**
+         * Whether to enable FreeWheel's Video View by Callback feature to send content impressions to the FreeWheel server.
+         *
+         * @remarks Only available when {@link UplynkSsaiDescription.assetType} is `'asset'`.
+         *
+         * @defaultValue `false`
+         */
         fun freeWheelVideoViews(value: Boolean) = apply { freeWheelVideoViews = value }
+
         private var linearAdData: Boolean = false
+        /**
+         * Whether to request information about upcoming ad breaks in the Ping responses.
+         *
+         * @defaultValue false.
+         */
         fun linearAdData(value: Boolean) = apply { linearAdData = value }
 
         fun build() = UplynkPingConfiguration(

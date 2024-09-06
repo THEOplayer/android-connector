@@ -1,6 +1,5 @@
 package com.theoplayer.android.connector.uplynk.internal.network
 
-import com.theoplayer.android.connector.uplynk.network.BoundaryDetail
 import com.theoplayer.android.connector.uplynk.network.UplynkAds
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -33,7 +32,7 @@ data class PingResponse(
      * Each custom extension is reported as an object
      *
      * This is returned as a JsonElement because the extensions structure is custom.
-     * You could build deserialisation logic if needed depending on the expected structure of this field
+     * You could build deserialization logic if needed depending on the expected structure of this field
      *
      * Check more info in [documentation](https://docs.edgecast.com/video/#AdIntegration/VAST-VPAID.htm#CustomVASTExt)
      */
