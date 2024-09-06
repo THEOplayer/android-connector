@@ -26,6 +26,7 @@ import com.theoplayer.android.connector.analytics.nielsen.NielsenConnector
 import com.theoplayer.android.connector.uplynk.UplynkConnector
 import com.theoplayer.android.connector.uplynk.UplynkListener
 import com.theoplayer.android.connector.uplynk.network.AssetInfoResponse
+import com.theoplayer.android.connector.uplynk.network.PingResponse
 import com.theoplayer.android.connector.uplynk.network.PreplayLiveResponse
 import com.theoplayer.android.connector.uplynk.network.PreplayVodResponse
 import com.theoplayer.android.connector.yospace.YospaceConnector
@@ -173,6 +174,9 @@ class MainActivity : AppCompatActivity() {
                 Log.d("UplynkConnectorEvents", "ASSET_INFO_RESPONSE Failure $exception")
             }
 
+            override fun onPingResponse(pingResponse: PingResponse) {
+                Log.d("UplynkConnectorEvents", "PING_RESPONSE $pingResponse")
+            }
         })
 
         theoplayerView.player.ads.addEventListener(AdsEventTypes.AD_ERROR) {
