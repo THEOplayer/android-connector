@@ -159,7 +159,7 @@ val sources: List<Source> by lazy {
                                 )
                                 .pingConfiguration(
                                     UplynkPingConfiguration.Builder()
-                                    .linearAdData(false)
+                                    .linearAdData(true)
                                     .adImpressions(false)
                                     .freeWheelVideoViews(false)
                                     .build())
