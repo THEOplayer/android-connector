@@ -57,7 +57,7 @@ interface UplynkListener {
      *
      * For more details, refer to the [Ping API Documentation](https://docs.edgecast.com/video/#Develop/Pingv2.htm).
      *
-     * @param exception the `Exception` occurred during the request
+     * @param pingResponse the `PingResponse` object containing ping request result
      */
     fun onPingResponse(pingResponse: PingResponse) {}
 }
