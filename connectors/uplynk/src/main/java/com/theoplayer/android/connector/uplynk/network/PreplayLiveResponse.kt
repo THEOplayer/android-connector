@@ -21,6 +21,11 @@ data class PreplayLiveResponse(
      */
     val sid: String,
 
+    /*
+    * The content protection information. (**Nullable**)
+    */
+    val drm: DrmResponse?,
+
     /**
      * The zone prefix for the viewer's session. (**NonNull**)
      *
