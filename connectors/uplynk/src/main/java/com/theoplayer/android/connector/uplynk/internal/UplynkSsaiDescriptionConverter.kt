@@ -47,9 +47,9 @@ internal class UplynkSsaiDescriptionConverter {
             val isLive = assetType == UplynkAssetType.ASSET
 
             val features = with(pingConfiguration) {
-                (AD_IMPRESSIONS.takeIf { !isLive && adImpressions }
-                    ?: 0) + (FW_VIDEO_VIEWS.takeIf { !isLive && freeWheelVideoViews }
-                    ?: 0) + (LINEAR_AD_DATA.takeIf { isLive && linearAdData } ?: 0)
+                (AD_IMPRESSIONS.takeIf { !isLive && adImpressions } ?: 0) +
+                        (FW_VIDEO_VIEWS.takeIf { !isLive && freeWheelVideoViews } ?: 0) +
+                        (LINEAR_AD_DATA.takeIf { isLive && linearAdData } ?: 0)
             }
             return if (features == 0) {
                 "ad.pingc=0"
