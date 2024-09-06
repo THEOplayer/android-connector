@@ -4,10 +4,6 @@ import com.theoplayer.android.connector.uplynk.UplynkAssetType
 import com.theoplayer.android.connector.uplynk.UplynkSsaiDescription
 import kotlin.time.Duration
 
-private const val AD_IMPRESSIONS = 1
-private const val FW_VIDEO_VIEWS = 2
-private const val LINEAR_AD_DATA = 4
-
 internal class UplynkSsaiDescriptionConverter {
     private val DEFAULT_PREFIX = "https://content.uplynk.com"
 
@@ -44,17 +40,11 @@ internal class UplynkSsaiDescriptionConverter {
 
     private val UplynkSsaiDescription.pingParameters: String
         get() {
-            val isLive = assetType == UplynkAssetType.ASSET
-
-            val features = with(pingConfiguration) {
-                (AD_IMPRESSIONS.takeIf { !isLive && adImpressions } ?: 0) +
-                        (FW_VIDEO_VIEWS.takeIf { !isLive && freeWheelVideoViews } ?: 0) +
-                        (LINEAR_AD_DATA.takeIf { isLive && linearAdData } ?: 0)
-            }
-            return if (features == 0) {
+            val feature = UplynkPingFeatures.from(this)
+            return if (feature == UplynkPingFeatures.NO_PING) {
                 "ad.pingc=0"
             } else {
-                "ad.pingc=1&ad.pingf=$features"
+                "ad.pingc=1&ad.pingf=${feature.pingfValue}"
             }
         }
 

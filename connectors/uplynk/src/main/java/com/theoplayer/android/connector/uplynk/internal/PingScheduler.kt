@@ -31,8 +31,8 @@ internal class PingScheduler(
         }
     }
 
-    fun onStart() =
-        performPing(uplynkDescriptionConverter.buildStartPingUrl(prefix, sessionId, Duration.ZERO))
+    fun onStart(time: Duration) =
+        performPing(uplynkDescriptionConverter.buildStartPingUrl(prefix, sessionId, time))
 
 
     fun onSeeking(time: Duration) {

@@ -43,6 +43,10 @@ internal class UplynkAdIntegration(
         player.addEventListener(PlayerEventTypes.SEEKED) {
             pingScheduler?.onSeeked(it.currentTime.toDuration(DurationUnit.SECONDS))
         }
+
+        player.addEventListener(PlayerEventTypes.PLAY) {
+            pingScheduler?.onStart(it.currentTime.toDuration(DurationUnit.SECONDS))
+        }
     }
 
     override suspend fun resetSource() {
@@ -80,15 +84,16 @@ internal class UplynkAdIntegration(
             add(0, newUplynkSource)
         })
 
-        pingScheduler = PingScheduler(
-            uplynkApi,
-            uplynkDescriptionConverter,
-            minimalResponse.prefix,
-            minimalResponse.sid,
-            eventDispatcher,
-            adScheduler!!
-        )
-        pingScheduler?.onStart()
+        if (UplynkPingFeatures.from(ssaiDescription) != UplynkPingFeatures.NO_PING) {
+            pingScheduler = PingScheduler(
+                uplynkApi,
+                uplynkDescriptionConverter,
+                minimalResponse.prefix,
+                minimalResponse.sid,
+                eventDispatcher,
+                adScheduler!!
+            )
+        }
 
         if (ssaiDescription.assetInfo) {
             uplynkDescriptionConverter
