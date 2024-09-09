@@ -10,24 +10,21 @@ import java.util.WeakHashMap
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 
-private val Duration.secToMs: Int
-    get() = this.toInt(DurationUnit.MILLISECONDS)
-
 @Suppress("UnstableApiUsage")
 internal class AdHandler(private val controller: ServerSideAdIntegrationController) {
     private val scheduledAds = WeakHashMap<UplynkAd, Ad>()
 
     fun createAdBreak(adBreak: UplynkAdBreak) {
         val adBreakInit = AdBreakInit(
-            timeOffset = adBreak.timeOffset.secToMs,
-            maxDuration = adBreak.duration.secToMs,
+            timeOffset = adBreak.timeOffset.inWholeSeconds.toInt(),
+            maxDuration = adBreak.duration.inWholeSeconds.toInt(),
             customData = adBreak
         )
         val currentAdBreak = controller.createAdBreak(adBreakInit)
         adBreak.ads.forEach {
             val adInit = AdInit(
                 type = adBreak.type,
-                duration = it.duration.secToMs,
+                duration = it.duration.inWholeSeconds.toInt(),
                 customData = it
             )
             scheduledAds[it] = controller.createAd(adInit, currentAdBreak)
@@ -61,5 +58,4 @@ internal class AdHandler(private val controller: ServerSideAdIntegrationControll
 
         controller.updateAdProgress(ad, progress)
     }
-
 }
