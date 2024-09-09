@@ -10,41 +10,36 @@ internal class UplynkSsaiDescriptionConverter {
     fun buildPreplayVodUrl(ssaiDescription: UplynkSsaiDescription): String = with(ssaiDescription) {
         val prefix = prefix ?: DEFAULT_PREFIX
 
-        var url = "$prefix/preplay/$urlAssetId?v=2"
-        if (ssaiDescription.contentProtected) {
-            url += "&manifest=mpd"
-            url += "&rmt=wv"
-        }
-
-        url += "&$pingParameters&$urlParameters"
-
-        return url
+        return "$prefix/preplay/$urlAssetId?v=2$drmParameters$pingParameters$urlParameters"
     }
 
     fun buildPreplayLiveUrl(ssaiDescription: UplynkSsaiDescription): String = with(ssaiDescription) {
         val prefix = prefix ?: DEFAULT_PREFIX
 
-        var url = "$prefix/preplay/$urlAssetType/$urlAssetId?v=2"
-        if (ssaiDescription.contentProtected) {
-            url += "&manifest=mpd"
-            url += "&rmt=wv"
-        }
-
-        url += "&$pingParameters&$urlParameters"
-
-        return url
+        return "$prefix/preplay/$urlAssetType/$urlAssetId?v=2$drmParameters$pingParameters$urlParameters"
     }
 
+    private val UplynkSsaiDescription.drmParameters: String
+        get() = if (contentProtected) {
+            "&manifest=mpd&rmt=wv"
+        } else {
+            ""
+        }
+
     private val UplynkSsaiDescription.urlParameters
-        get() = preplayParameters.map { "${it.key}=${it.value}" }.joinToString("&")
+        get() = if (preplayParameters.isNotEmpty()) {
+            preplayParameters.map { "${it.key}=${it.value}" }.joinToString("&", prefix = "&")
+        } else {
+            ""
+        }
 
     private val UplynkSsaiDescription.pingParameters: String
         get() {
             val feature = UplynkPingFeatures.from(this)
             return if (feature == UplynkPingFeatures.NO_PING) {
-                "ad.pingc=0"
+                "&ad.pingc=0"
             } else {
-                "ad.pingc=1&ad.pingf=${feature.pingfValue}"
+                "&ad.pingc=1&ad.pingf=${feature.pingfValue}"
             }
         }
 
