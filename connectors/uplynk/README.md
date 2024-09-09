@@ -94,7 +94,7 @@ fun logCurrentAd() {
 
 fun logCurrentAdBreak() {
     val uplynkAdBreak =
-        theoplayerView.player.ads.currentAdBreak?.customData as UplynkAdBreak? ?: return
+        theoplayerView.player.ads.currentAdBreak?.customData as? UplynkAdBreak ?: return
     Log.d(
         TAG, "UplynkAdBreak: " +
                 "type = ${uplynkAdBreak.type}, " +
