@@ -9,9 +9,9 @@ internal class UplynkApi {
     private val json = Json { ignoreUnknownKeys = true }
     private val network = HttpsConnection()
 
-    suspend fun preplayVod(srcURL: String): PreplayInternalResponse {
+    suspend fun preplayVod(srcURL: String): PreplayInternalVodResponse {
         val body = network.retry { get(srcURL) }
-        return PreplayInternalResponse(body, json)
+        return PreplayInternalVodResponse(body, json)
     }
 
     suspend fun preplayLive(srcURL: String): PreplayInternalLiveResponse {

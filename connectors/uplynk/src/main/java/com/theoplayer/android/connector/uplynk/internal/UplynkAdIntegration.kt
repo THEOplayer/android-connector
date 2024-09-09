@@ -11,7 +11,7 @@ import com.theoplayer.android.api.source.drm.KeySystemConfiguration
 import com.theoplayer.android.connector.uplynk.UplynkAssetType
 import com.theoplayer.android.connector.uplynk.UplynkSsaiDescription
 import com.theoplayer.android.connector.uplynk.internal.network.PreplayInternalLiveResponse
-import com.theoplayer.android.connector.uplynk.internal.network.PreplayInternalResponse
+import com.theoplayer.android.connector.uplynk.internal.network.PreplayInternalVodResponse
 import com.theoplayer.android.connector.uplynk.internal.network.UplynkApi
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
@@ -129,7 +129,7 @@ internal class UplynkAdIntegration(
             }
     }
 
-    private suspend fun requestVod(ssaiDescription: UplynkSsaiDescription): PreplayInternalResponse {
+    private suspend fun requestVod(ssaiDescription: UplynkSsaiDescription): PreplayInternalVodResponse {
         return uplynkDescriptionConverter
             .buildPreplayVodUrl(ssaiDescription)
             .let { uplynkApi.preplayVod(it) }

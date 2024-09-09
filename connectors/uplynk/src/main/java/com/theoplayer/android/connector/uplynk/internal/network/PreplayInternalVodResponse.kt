@@ -32,7 +32,7 @@ internal data class MinimalPreplayResponse(
 )
 
 
-internal class PreplayInternalResponse(val body: String, private val json: Json) {
+internal class PreplayInternalVodResponse(val body: String, private val json: Json) {
     fun parseMinimalResponse(): MinimalPreplayResponse = json.decodeFromString(body)
     fun parseExternalResponse(): PreplayVodResponse = json.decodeFromString(body)
 }
