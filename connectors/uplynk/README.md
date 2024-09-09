@@ -79,7 +79,7 @@ Below are examples demonstrating how to do that:
 ```kotlin
 fun logCurrentAd() {
     val uplynkAd =
-        theoplayerView.player.ads.currentAds.firstOrNull()?.customData as UplynkAd? ?: return
+        theoplayerView.player.ads.currentAds.firstOrNull()?.customData as? UplynkAd ?: return
     Log.d(
         TAG, "UplynkAd: " +
                 "apiFramework = ${uplynkAd.apiFramework}, " +
