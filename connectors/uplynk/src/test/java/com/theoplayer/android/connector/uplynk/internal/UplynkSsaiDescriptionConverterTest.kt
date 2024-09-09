@@ -59,7 +59,7 @@ class UplynkSsaiDescriptionConverterTest {
     @Test
     fun buildPreplayUrl_whenAssetIdsIsEmpty_addsUserIdAndExternalIds() {
         ssaiDescription = UplynkSsaiDescription(
-            assetIds = listOf(), externalId = listOf("extId1", "extId2"), userId = "userId"
+            assetIds = listOf(), externalIds = listOf("extId1", "extId2"), userId = "userId"
         )
 
         val result = converter.buildPreplayVodUrl(ssaiDescription)
@@ -71,7 +71,7 @@ class UplynkSsaiDescriptionConverterTest {
     @Test
     fun buildPreplayUrl_whenAssetIdsIsEmptyAndExternalIdIsSingle_addsUserIdAndExternalId() {
         ssaiDescription = UplynkSsaiDescription(
-            assetIds = listOf(), externalId = listOf("extId1"), userId = "userId"
+            assetIds = listOf(), externalIds = listOf("extId1"), userId = "userId"
         )
 
         val result = converter.buildPreplayVodUrl(ssaiDescription)
@@ -109,7 +109,7 @@ class UplynkSsaiDescriptionConverterTest {
     @Test
     fun buildAssetInfoUrls_whenAssetIdIsEmptyAndExternalIdIsEmpty_returnsEmptyUrl() {
         ssaiDescription = UplynkSsaiDescription(
-            assetIds = listOf(), externalId = listOf()
+            assetIds = listOf(), externalIds = listOf()
         )
 
         val result = converter.buildAssetInfoUrls(ssaiDescription, "", "prefix")
@@ -132,7 +132,7 @@ class UplynkSsaiDescriptionConverterTest {
     fun buildAssetInfoUrls_whenAssetIdIsEmpty_returnsAssetInfoUrlsUsingExternalId() {
         ssaiDescription = ssaiDescription.copy(
             assetIds = listOf(),
-            externalId = listOf("extId1", "extId2"),
+            externalIds = listOf("extId1", "extId2"),
             userId = "userId"
         )
 

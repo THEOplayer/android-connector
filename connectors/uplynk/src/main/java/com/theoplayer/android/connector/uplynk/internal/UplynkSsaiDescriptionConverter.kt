@@ -57,8 +57,8 @@ internal class UplynkSsaiDescriptionConverter {
 
     private val UplynkSsaiDescription.urlAssetId
         get() = when {
-            assetIds.isEmpty() && externalId.size == 1 -> "$userId/${externalId.first()}.json"
-            assetIds.isEmpty() && externalId.size > 1 -> "$userId/${externalId.joinToString(",")}/multiple.json"
+            assetIds.isEmpty() && externalIds.size == 1 -> "$userId/${externalIds.first()}.json"
+            assetIds.isEmpty() && externalIds.size > 1 -> "$userId/${externalIds.joinToString(",")}/multiple.json"
             assetIds.size == 1 -> "${assetIds.first()}.json"
             else -> assetIds.joinToString(separator = ",") + "/multiple.json"
         }
@@ -73,7 +73,7 @@ internal class UplynkSsaiDescriptionConverter {
                 "$prefix/player/assetinfo/$it.json"
             }
 
-            externalId.isNotEmpty() -> externalId.map {
+            externalIds.isNotEmpty() -> externalIds.map {
                 "$prefix/player/assetinfo/ext/$userId/$it.json"
             }
 

@@ -24,7 +24,7 @@ data class UplynkSsaiDescription(
      * Sets a list of external IDs for Uplynk Media Platform Preplay API.
      * If [assetIds] have at least one value this property is ignored and could be empty
      */
-    val externalId: List<String> = listOf(),
+    val externalIds: List<String> = listOf(),
 
     /**
      * Sets a User ID for Uplynk Media Platform Preplay API.
@@ -167,7 +167,7 @@ data class UplynkSsaiDescription(
         fun build() = UplynkSsaiDescription(
             prefix = prefix,
             assetIds = assetIds,
-            externalId = externalIds,
+            externalIds = externalIds,
             userId = userId,
             contentProtected = contentProtected,
             preplayParameters = preplayParameters,
