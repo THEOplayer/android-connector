@@ -65,5 +65,46 @@ theoplayerView.player.source = SourceDescription
     .build()
 ```
 
-[uplynk-documentation]: https://docs.edgecast.com/video/#Setup/Setup-Overview.htm%3FTocPath%3DBasic%2520Setup%7C_____0
+### Getting Ad Information
+
+To retrieve information about the currently playing ad or ad break, you can use the following properties of THEOplayer:
+
+ - `player.ads.currentAds`: Provides a list of currently playing ads.
+ - `player.ads.currentAdBreak`: Provides information about the currently active ad break.
+
+These fields contain generic data for any ad or ad break in THEOplayer. 
+However, for Uplynk-specific ad data, you can access the `customData` property. 
+Below are examples demonstrating how to do that:
+
+```kotlin
+fun logCurrentAd() {
+    val uplynkAd =
+        theoplayerView.player.ads.currentAds.firstOrNull()?.customData as? UplynkAd ?: return
+    Log.d(
+        TAG, "UplynkAd: " +
+                "apiFramework = ${uplynkAd.apiFramework}, " +
+                "events = ${uplynkAd.events}, " +
+                "duration = ${uplynkAd.duration}, " +
+                "height = ${uplynkAd.height}, " +
+                "width = ${uplynkAd.width}, " +
+                "fwParameters = ${uplynkAd.fwParameters}, " +
+                "mimeType = ${uplynkAd.mimeType}"
+    )
+}
+
+fun logCurrentAdBreak() {
+    val uplynkAdBreak =
+        theoplayerView.player.ads.currentAdBreak?.customData as? UplynkAdBreak ?: return
+    Log.d(
+        TAG, "UplynkAdBreak: " +
+                "type = ${uplynkAdBreak.type}, " +
+                "ads = ${uplynkAdBreak.ads.size}, " +
+                "duration = ${uplynkAdBreak.duration}, " +
+                "timeOffset = ${uplynkAdBreak.timeOffset}, " +
+                "position = ${uplynkAdBreak.position}"
+    )
+}
+```
+
+[uplynk-documentation]: https://docs.edgecast.com/video/#Setup/Setup-Overview.htm
 [android-getting-started]: https://www.theoplayer.com/docs/theoplayer/getting-started/sdks/android/getting-started/
