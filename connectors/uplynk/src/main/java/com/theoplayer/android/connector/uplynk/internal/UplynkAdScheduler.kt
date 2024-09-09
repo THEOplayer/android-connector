@@ -2,6 +2,8 @@ package com.theoplayer.android.connector.uplynk.internal
 
 import com.theoplayer.android.connector.uplynk.network.UplynkAd
 import com.theoplayer.android.connector.uplynk.network.UplynkAdBreak
+import com.theoplayer.android.connector.uplynk.network.UplynkAds
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.time.Duration
 
 data class UplynkAdBreakState(
@@ -31,10 +33,10 @@ internal class UplynkAdScheduler(
     uplynkAdBreaks: List<UplynkAdBreak>,
     private val adHandler: AdHandler
 ) {
-    private val adBreaks = uplynkAdBreaks.map {
+    private val adBreaks = CopyOnWriteArrayList(uplynkAdBreaks.map {
         adHandler.createAdBreak(it)
         UplynkAdBreakState(it, AdBreakState.NOT_PLAYED)
-    }
+    })
 
     private fun moveToState(
         currentAdBreak: UplynkAdBreakState,
@@ -128,4 +130,8 @@ internal class UplynkAdScheduler(
         return null
     }
 
+    fun add(ads: UplynkAds) = ads.breaks.forEach {
+        adHandler.createAdBreak(it)
+        adBreaks.add(UplynkAdBreakState(it, AdBreakState.NOT_PLAYED))
+    }
 }

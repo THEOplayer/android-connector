@@ -26,7 +26,9 @@ import com.theoplayer.android.connector.analytics.nielsen.NielsenConnector
 import com.theoplayer.android.connector.uplynk.UplynkConnector
 import com.theoplayer.android.connector.uplynk.UplynkListener
 import com.theoplayer.android.connector.uplynk.network.AssetInfoResponse
-import com.theoplayer.android.connector.uplynk.network.PreplayResponse
+import com.theoplayer.android.connector.uplynk.network.PingResponse
+import com.theoplayer.android.connector.uplynk.network.PreplayLiveResponse
+import com.theoplayer.android.connector.uplynk.network.PreplayVodResponse
 import com.theoplayer.android.connector.yospace.YospaceConnector
 
 const val TAG = "MainActivity"
@@ -152,8 +154,12 @@ class MainActivity : AppCompatActivity() {
     private fun setupUplynk() {
         uplynkConnector = UplynkConnector(theoplayerView)
         uplynkConnector.addListener(object: UplynkListener {
-            override fun onPreplayResponse(response: PreplayResponse) {
-                Log.d("UplynkConnectorEvents", "PREPLAY_RESPONSE $response")
+            override fun onPreplayVodResponse(response: PreplayVodResponse) {
+                Log.d("UplynkConnectorEvents", "PREPLAY_VOD_RESPONSE $response")
+            }
+
+            override fun onPreplayLiveResponse(response: PreplayLiveResponse) {
+                Log.d("UplynkConnectorEvents", "PREPLAY_LIVE_RESPONSE $response")
             }
 
             override fun onAssetInfoResponse(response: AssetInfoResponse) {
@@ -168,6 +174,9 @@ class MainActivity : AppCompatActivity() {
                 Log.d("UplynkConnectorEvents", "ASSET_INFO_RESPONSE Failure $exception")
             }
 
+            override fun onPingResponse(pingResponse: PingResponse) {
+                Log.d("UplynkConnectorEvents", "PING_RESPONSE $pingResponse")
+            }
         })
 
         theoplayerView.player.ads.addEventListener(AdsEventTypes.AD_ERROR) {

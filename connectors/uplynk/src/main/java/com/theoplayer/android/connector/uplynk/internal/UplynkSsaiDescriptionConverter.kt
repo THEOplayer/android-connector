@@ -1,30 +1,67 @@
 package com.theoplayer.android.connector.uplynk.internal
 
+import com.theoplayer.android.connector.uplynk.UplynkAssetType
 import com.theoplayer.android.connector.uplynk.UplynkSsaiDescription
+import kotlin.time.Duration
 
 internal class UplynkSsaiDescriptionConverter {
     private val DEFAULT_PREFIX = "https://content.uplynk.com"
 
-    fun buildPreplayUrl(ssaiDescription: UplynkSsaiDescription): String = with(ssaiDescription) {
+    fun buildPreplayVodUrl(ssaiDescription: UplynkSsaiDescription): String = with(ssaiDescription) {
         val prefix = prefix ?: DEFAULT_PREFIX
-        val assetIds = when {
-            assetIds.isEmpty() && externalId.size == 1 -> "$userId/${externalId.first()}.json"
-            assetIds.isEmpty() && externalId.size > 1 -> "$userId/${externalId.joinToString(",")}/multiple.json"
-            assetIds.size == 1 -> "${assetIds.first()}.json"
-            else -> assetIds.joinToString(separator = ",") + "/multiple.json"
-        }
 
-        var url = "$prefix/preplay/$assetIds?v=2"
+        var url = "$prefix/preplay/$urlAssetId?v=2"
         if (ssaiDescription.contentProtected) {
             url += "&manifest=mpd"
             url += "&rmt=wv"
         }
 
-        val parameters = preplayParameters.map { "${it.key}=${it.value}" }.joinToString("&")
-        url += "&$parameters"
+        url += "&$pingParameters&$urlParameters"
 
         return url
     }
+
+    fun buildPreplayLiveUrl(ssaiDescription: UplynkSsaiDescription): String = with(ssaiDescription) {
+        val prefix = prefix ?: DEFAULT_PREFIX
+
+        var url = "$prefix/preplay/$urlAssetType/$urlAssetId?v=2"
+        if (ssaiDescription.contentProtected) {
+            url += "&manifest=mpd"
+            url += "&rmt=wv"
+        }
+
+        url += "&$pingParameters&$urlParameters"
+
+        return url
+    }
+
+    private val UplynkSsaiDescription.urlParameters
+        get() = preplayParameters.map { "${it.key}=${it.value}" }.joinToString("&")
+
+    private val UplynkSsaiDescription.pingParameters: String
+        get() {
+            val feature = UplynkPingFeatures.from(this)
+            return if (feature == UplynkPingFeatures.NO_PING) {
+                "ad.pingc=0"
+            } else {
+                "ad.pingc=1&ad.pingf=${feature.pingfValue}"
+            }
+        }
+
+    private val UplynkSsaiDescription.urlAssetType
+        get() = when (assetType) {
+            UplynkAssetType.ASSET -> ""
+            UplynkAssetType.CHANNEL -> "channel"
+            UplynkAssetType.EVENT -> "event"
+        }
+
+    private val UplynkSsaiDescription.urlAssetId
+        get() = when {
+            assetIds.isEmpty() && externalIds.size == 1 -> "$userId/${externalIds.first()}.json"
+            assetIds.isEmpty() && externalIds.size > 1 -> "$userId/${externalIds.joinToString(",")}/multiple.json"
+            assetIds.size == 1 -> "${assetIds.first()}.json"
+            else -> assetIds.joinToString(separator = ",") + "/multiple.json"
+        }
 
     fun buildAssetInfoUrls(
         ssaiDescription: UplynkSsaiDescription,
@@ -36,7 +73,7 @@ internal class UplynkSsaiDescriptionConverter {
                 "$prefix/player/assetinfo/$it.json"
             }
 
-            externalId.isNotEmpty() -> externalId.map {
+            externalIds.isNotEmpty() -> externalIds.map {
                 "$prefix/player/assetinfo/ext/$userId/$it.json"
             }
 
@@ -48,4 +85,16 @@ internal class UplynkSsaiDescriptionConverter {
             urlList.map { "$it?pbs=$sessionId" }
         }
     }
+
+    fun buildSeekedPingUrl(
+        prefix: String, sessionId: String, currentTime: Duration, seekStartTime: Duration
+    ) = buildPingUrl(prefix, sessionId, currentTime) + "&ev=seek&ft=${seekStartTime.inWholeSeconds}"
+
+    fun buildStartPingUrl(
+        prefix: String, sessionId: String, currentTime: Duration
+    ) = buildPingUrl(prefix, sessionId, currentTime) + "&ev=start"
+
+    fun buildPingUrl(
+        prefix: String, sessionId: String, currentTime: Duration
+    ) = "$prefix/session/ping/$sessionId.json?v=3&pt=${currentTime.inWholeSeconds}"
 }

@@ -10,7 +10,7 @@ import kotlinx.serialization.Serializable
  * such as its ratings, duration, thumbnail information, and more.
  *
  * For further details, please refer to the Uplynk Documentation:
- * [AssetInfo Documentation](https://docs.edgecast.com/video/index.html#Develop/AssetInfo.htm)
+ * [AssetInfo Documentation](https://docs.edgecast.com/video/#Develop/AssetInfo.htm)
  */
 @Serializable
 data class AssetInfoResponse(
@@ -38,8 +38,8 @@ data class AssetInfoResponse(
      * Returns whether an error occurred.
      *
      * <ul>
-     *     <li>Zero if error
-     *     <li>One otherwise.
+     *     <li>One if error
+     *     <li>Zero otherwise.
      * </ul>
      */
     @SerialName("error")

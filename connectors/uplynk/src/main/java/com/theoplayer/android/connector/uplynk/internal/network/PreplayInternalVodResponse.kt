@@ -1,7 +1,8 @@
 package com.theoplayer.android.connector.uplynk.internal.network
 
 import com.theoplayer.android.connector.uplynk.network.DrmResponse
-import com.theoplayer.android.connector.uplynk.network.PreplayResponse
+import com.theoplayer.android.connector.uplynk.network.PreplayLiveResponse
+import com.theoplayer.android.connector.uplynk.network.PreplayVodResponse
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
@@ -31,7 +32,12 @@ internal data class MinimalPreplayResponse(
 )
 
 
-internal class PreplayInternalResponse(val body: String, private val json: Json) {
+internal class PreplayInternalVodResponse(val body: String, private val json: Json) {
     fun parseMinimalResponse(): MinimalPreplayResponse = json.decodeFromString(body)
-    fun parseExternalResponse(): PreplayResponse = json.decodeFromString(body)
+    fun parseExternalResponse(): PreplayVodResponse = json.decodeFromString(body)
+}
+
+internal class PreplayInternalLiveResponse(val body: String, private val json: Json) {
+    fun parseMinimalResponse(): MinimalPreplayResponse = json.decodeFromString(body)
+    fun parseExternalResponse(): PreplayLiveResponse = json.decodeFromString(body)
 }
