@@ -52,6 +52,7 @@ class PlaybackStateProvider(private val connector: MediaSessionConnector) {
             addEventListener(PlayerEventTypes.ERROR, onError)
             addEventListener(PlayerEventTypes.WAITING, onWaiting)
             addEventListener(PlayerEventTypes.ENDED, onEnded)
+            addEventListener(PlayerEventTypes.SEEKED, onSeeked)
             addEventListener(PlayerEventTypes.DURATIONCHANGE, onDurationChange)
         }
     }
@@ -67,6 +68,7 @@ class PlaybackStateProvider(private val connector: MediaSessionConnector) {
             removeEventListener(PlayerEventTypes.ERROR, onError)
             removeEventListener(PlayerEventTypes.WAITING, onWaiting)
             removeEventListener(PlayerEventTypes.ENDED, onEnded)
+            removeEventListener(PlayerEventTypes.SEEKED, onSeeked)
             removeEventListener(PlayerEventTypes.DURATIONCHANGE, onDurationChange)
         }
     }
@@ -114,6 +116,14 @@ class PlaybackStateProvider(private val connector: MediaSessionConnector) {
 
     private val onEnded = { _: EndedEvent ->
         updatePlaybackState(PlaybackStateCompat.STATE_PAUSED)
+    }
+
+    private val onSeeked = { _: SeekedEvent ->
+        // Some clients listening to the mediaSession, such as Notifications, do not update the
+        // currentTime until playbackState becomes PLAYING, so force it.
+        val oldPlaybackState = playbackState
+        updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
+        updatePlaybackState(oldPlaybackState)
     }
 
     private val onDurationChange = { _: DurationChangeEvent ->
