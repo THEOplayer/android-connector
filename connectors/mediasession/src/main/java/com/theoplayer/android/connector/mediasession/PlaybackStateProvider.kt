@@ -122,8 +122,10 @@ class PlaybackStateProvider(private val connector: MediaSessionConnector) {
         // Some clients listening to the mediaSession, such as Notifications, do not update the
         // currentTime until playbackState becomes PLAYING, so force it.
         val oldPlaybackState = playbackState
-        updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
-        updatePlaybackState(oldPlaybackState)
+        playbackState = PlaybackStateCompat.STATE_PLAYING
+        invalidatePlaybackState()
+        playbackState = oldPlaybackState
+        invalidatePlaybackState()
     }
 
     private val onDurationChange = { _: DurationChangeEvent ->
