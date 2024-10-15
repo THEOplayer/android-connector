@@ -24,6 +24,7 @@ import com.theoplayer.android.connector.analytics.conviva.utils.calculateBufferL
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateConvivaOptions
 import com.theoplayer.android.connector.analytics.conviva.utils.collectContentMetadata
 import com.theoplayer.android.connector.analytics.conviva.utils.collectPlayerInfo
+import com.theoplayer.android.connector.analytics.conviva.utils.flattenErrorObject
 import java.lang.Double.isFinite
 
 private const val TAG = "ConvivaHandler"
@@ -138,9 +139,17 @@ class ConvivaHandler(
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "onError: ${event.errorObject.message}")
             }
+
+            val error = event.errorObject
+            // Report error details in a separate event, which should be passed a flat <String, String> map.
+            val errorDetails = flattenErrorObject(error)
+            if (errorDetails.isNotEmpty()) {
+                convivaVideoAnalytics.reportPlaybackEvent("ErrorDetailsEvent", errorDetails)
+            }
+
             // Report error and cleanup immediately.
             // The contentInfo provides metadata for the failed video.
-            reportPlaybackFailed(event.errorObject.message ?: "Fatal error occurred")
+            reportPlaybackFailed(error.message ?: "Fatal error occurred")
         }
 
         onSegmentNotFound = EventListener<SegmentNotFoundEvent> {

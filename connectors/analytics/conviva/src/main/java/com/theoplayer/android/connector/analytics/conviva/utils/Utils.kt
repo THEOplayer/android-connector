@@ -4,6 +4,7 @@ import com.conviva.sdk.ConvivaSdkConstants
 import com.theoplayer.android.api.THEOplayerGlobal
 import com.theoplayer.android.api.ads.AdBreak
 import com.theoplayer.android.api.ads.GoogleImaAd
+import com.theoplayer.android.api.error.THEOplayerException
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConfiguration
 import com.theoplayer.android.connector.analytics.conviva.ConvivaMetadata
@@ -158,4 +159,14 @@ fun calculateBufferLength(player: Player): Long {
         }
     }
     return (1e3 * bufferLength).toLong()
+}
+
+fun flattenErrorObject(error: THEOplayerException): Map<String, String> {
+    return mapOf(
+        "code" to error.code.name,
+        "category" to error.category.name,
+        "stack" to (error.stackTraceToString()),
+        "cause.stack" to (error.cause?.stackTraceToString() ?: ""),
+        "cause.message" to (error.cause?.message ?: "")
+    ).filterValues { it != "" } // Remove entries with empty values
 }
