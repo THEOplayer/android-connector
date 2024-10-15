@@ -165,7 +165,8 @@ fun flattenErrorObject(error: THEOplayerException): Map<String, String> {
     return mapOf(
         "code" to error.code.name,
         "category" to error.category.name,
-        "stack" to (error.cause?.stackTraceToString() ?: ""),
-        "message" to (error.cause?.message ?: "")
+        "stack" to (error.stackTraceToString()),
+        "cause.stack" to (error.cause?.stackTraceToString() ?: ""),
+        "cause.message" to (error.cause?.message ?: "")
     ).filterValues { it != "" } // Remove entries with empty values
 }
