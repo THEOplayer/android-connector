@@ -141,7 +141,7 @@ class ConvivaHandler(
             }
 
             val error = event.errorObject
-            // Optionally report error details, which should be a flat <String, String> map.
+            // Report error details in a separate event, which should be passed a flat <String, String> map.
             val errorDetails = flattenErrorObject(error)
             if (errorDetails.isNotEmpty()) {
                 convivaVideoAnalytics.reportPlaybackEvent("ErrorDetailsEvent", errorDetails)
