@@ -3,21 +3,34 @@ package com.theoplayer.android.connector.analytics.conviva.utils
 import com.conviva.sdk.ConvivaSdkConstants
 import com.theoplayer.android.api.THEOplayerGlobal
 import com.theoplayer.android.api.ads.AdBreak
+import com.theoplayer.android.api.ads.Ad
 import com.theoplayer.android.api.ads.GoogleImaAd
+import com.theoplayer.android.api.event.ads.AdIntegrationKind
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.api.timerange.TimeRanges
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConfiguration
 import com.theoplayer.android.connector.analytics.conviva.ConvivaMetadata
 
-fun calculateAdType(player: Player): ConvivaSdkConstants.AdType {
-    return if (player.source?.ads.isNullOrEmpty())
-        ConvivaSdkConstants.AdType.SERVER_SIDE
-    else
-        ConvivaSdkConstants.AdType.CLIENT_SIDE
+fun calculateAdType(ad: Ad): ConvivaSdkConstants.AdType {
+    return when(ad.integration) {
+        // TODO THEOads is a SGAI solutionm which can't be reported to Conviva as such yet.
+        AdIntegrationKind.THEO_ADS -> ConvivaSdkConstants.AdType.SERVER_SIDE
+        AdIntegrationKind.GOOGLE_IMA -> ConvivaSdkConstants.AdType.CLIENT_SIDE
+        else -> ConvivaSdkConstants.AdType.SERVER_SIDE
+    }
 }
 
-fun calculateAdTypeAsString(player: Player): String {
-    return when (calculateAdType(player)) {
+fun calculateAdType(adBreak: AdBreak): ConvivaSdkConstants.AdType {
+    return when(adBreak.integration) {
+        // TODO THEOads is a SGAI solutionm which can't be reported to Conviva as such yet.
+        AdIntegrationKind.THEO_ADS -> ConvivaSdkConstants.AdType.SERVER_SIDE
+        AdIntegrationKind.GOOGLE_IMA -> ConvivaSdkConstants.AdType.CLIENT_SIDE
+        else -> ConvivaSdkConstants.AdType.SERVER_SIDE
+    }
+}
+
+fun calculateAdTypeAsString(ad: Ad): String {
+    return when (calculateAdType(ad)) {
         ConvivaSdkConstants.AdType.SERVER_SIDE -> "Server Side"
         ConvivaSdkConstants.AdType.CLIENT_SIDE -> "Client Side"
     }
