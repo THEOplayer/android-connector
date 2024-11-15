@@ -205,7 +205,7 @@ class AdReporter(
             adBreakCounter++
             convivaVideoAnalytics.reportAdBreakStarted(
                 ConvivaSdkConstants.AdPlayer.CONTENT,
-                calculateAdType(player),
+                calculateAdType(adBreak),
                 calculateCurrentAdBreakInfo(adBreak, adBreakCounter)
             )
         } else {
@@ -229,7 +229,7 @@ class AdReporter(
             val adMetadata = collectAdMetadata(ad) + mapOf(
                 "c3.csid" to convivaVideoAnalytics.sessionId.toString(),
                 "contentAssetName" to contentAssetName,
-                "c3.ad.technology" to calculateAdTypeAsString(player),
+                "c3.ad.technology" to calculateAdTypeAsString(ad),
             )
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "reportAdStarted - $adMetadata")
@@ -250,7 +250,7 @@ class AdReporter(
 
             // Report playing state in case of SSAI, as the player will not send an additional
             // `playing` event.
-            if (calculateAdType(player) == ConvivaSdkConstants.AdType.SERVER_SIDE) {
+            if (calculateAdType(ad) == ConvivaSdkConstants.AdType.SERVER_SIDE) {
                 convivaAdAnalytics.reportAdMetric(
                     ConvivaSdkConstants.PLAYBACK.PLAYER_STATE,
                     ConvivaSdkConstants.PlayerState.PLAYING
