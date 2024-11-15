@@ -12,6 +12,7 @@ import com.theoplayer.android.api.ads.ima.GoogleImaAdEventType
 import com.theoplayer.android.api.event.EventDispatcher
 import com.theoplayer.android.api.event.EventListener
 import com.theoplayer.android.api.event.ads.AdEvent
+import com.theoplayer.android.api.event.ads.AdIntegrationKind
 import com.theoplayer.android.api.event.player.*
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.connector.analytics.conviva.BuildConfig
@@ -226,10 +227,11 @@ class AdReporter(
             // - `c3.csid`: the content’s sessionID;
             // - `contentAssetName`: the content's assetName.
             val contentAssetName = convivaHandler.contentAssetName
+            val adTechnology = if (ad.integration == AdIntegrationKind.THEO_ADS) "Server Guided" else calculateAdTypeAsString(ad)
             val adMetadata = collectAdMetadata(ad) + mapOf(
                 "c3.csid" to convivaVideoAnalytics.sessionId.toString(),
                 "contentAssetName" to contentAssetName,
-                "c3.ad.technology" to calculateAdTypeAsString(ad),
+                "c3.ad.technology" to adTechnology,
             )
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "reportAdStarted - $adMetadata")
