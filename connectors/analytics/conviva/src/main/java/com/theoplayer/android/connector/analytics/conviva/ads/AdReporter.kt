@@ -5,14 +5,23 @@ import com.conviva.sdk.ConvivaAdAnalytics
 import com.conviva.sdk.ConvivaExperienceAnalytics
 import com.conviva.sdk.ConvivaSdkConstants
 import com.conviva.sdk.ConvivaVideoAnalytics
+import com.theoplayer.android.api.ads.Ad
 import com.theoplayer.android.api.ads.AdBreak
 import com.theoplayer.android.api.ads.GoogleImaAd
 import com.theoplayer.android.api.ads.ima.GoogleImaAdEvent
 import com.theoplayer.android.api.ads.ima.GoogleImaAdEventType
 import com.theoplayer.android.api.event.EventDispatcher
 import com.theoplayer.android.api.event.EventListener
+import com.theoplayer.android.api.event.ads.AdBeginEvent
+import com.theoplayer.android.api.event.ads.AdBreakBeginEvent
+import com.theoplayer.android.api.event.ads.AdBreakEndEvent
+import com.theoplayer.android.api.event.ads.AdBreakEvent
+import com.theoplayer.android.api.event.ads.AdEndEvent
+import com.theoplayer.android.api.event.ads.AdErrorEvent
 import com.theoplayer.android.api.event.ads.AdEvent
 import com.theoplayer.android.api.event.ads.AdIntegrationKind
+import com.theoplayer.android.api.event.ads.AdSkipEvent
+import com.theoplayer.android.api.event.ads.AdsEventTypes
 import com.theoplayer.android.api.event.player.*
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.connector.analytics.conviva.BuildConfig
@@ -51,6 +60,13 @@ class AdReporter(
     private val onAdBuffering: EventListener<GoogleImaAdEvent>
     private val onAdError: EventListener<GoogleImaAdEvent>
     private val onContentResume: EventListener<GoogleImaAdEvent>
+
+    private val onAdBegin: EventListener<AdBeginEvent>
+    private val onAdBreakBegin: EventListener<AdBreakBeginEvent>
+    private val onAdEnd: EventListener<AdEndEvent>
+    private val onAdBreakEnd: EventListener<AdBreakEndEvent>
+    private val onAdSkip: EventListener<AdSkipEvent>
+    private val onAdError: EventListener<AdErrorEvent>
 
     init {
         convivaAdAnalytics.setCallback(this)
@@ -135,6 +151,30 @@ class AdReporter(
             handleAdBreakEnd()
         }
 
+        onAdBegin = EventListener<AdBeginEvent> { event ->
+            // TODO
+        }
+
+        onAdBreakBegin = EventListener<AdBreakBeginEvent> { event ->
+            // TODO
+        }
+
+        onAdEnd = EventListener<AdEndEvent> { event ->
+            // TODO
+        }
+
+        onAdBreakEnd = EventListener<AdBreakEndEvent> { event ->
+            // TODO
+        }
+
+        onAdSkip = EventListener<AdSkipEvent> { event ->
+            // TODO
+        }
+
+        onAdError = EventListener<AdErrorEvent> { event ->
+            // TODO
+        }
+
         addEventListeners()
     }
 
@@ -160,6 +200,13 @@ class AdReporter(
         player.addEventListener(PlayerEventTypes.PAUSE, onPause)
 
         (listOf(player.ads, adEventsExtension)).forEach { ads ->
+            ads?.addEventListener(AdsEventTypes.AD_BEGIN, onAdBegin)
+            ads?.addEventListener(AdsEventTypes.AD_BREAK_BEGIN, onAdBreakBegin)
+            ads?.addEventListener(AdsEventTypes.AD_END, onAdEnd)
+            ads?.addEventListener(AdsEventTypes.AD_BREAK_END, onAdBreakEnd)
+            ads?.addEventListener(AdsEventTypes.AD_SKIP, onAdSkip)
+            ads?.addEventListener(AdsEventTypes.AD_ERROR, onAdError)
+
             ads?.addEventListener(GoogleImaAdEventType.STARTED, onAdStarted)
             ads?.addEventListener(GoogleImaAdEventType.COMPLETED, onAdCompleted)
             ads?.addEventListener(GoogleImaAdEventType.SKIPPED, onAdSkip)
@@ -178,6 +225,13 @@ class AdReporter(
         player.removeEventListener(PlayerEventTypes.PAUSE, onPause)
 
         (listOf(player.ads, adEventsExtension)).forEach { ads ->
+            ads?.addEventListener(AdsEventTypes.AD_BEGIN, onAdBegin)
+            ads?.addEventListener(AdsEventTypes.AD_BREAK_BEGIN, onAdBreakBegin)
+            ads?.addEventListener(AdsEventTypes.AD_END, onAdEnd)
+            ads?.addEventListener(AdsEventTypes.AD_BREAK_END, onAdBreakEnd)
+            ads?.addEventListener(AdsEventTypes.AD_SKIP, onAdSkip)
+            ads?.addEventListener(AdsEventTypes.AD_ERROR, onAdError)
+
             ads?.removeEventListener(GoogleImaAdEventType.STARTED, onAdStarted)
             ads?.removeEventListener(GoogleImaAdEventType.COMPLETED, onAdCompleted)
             ads?.removeEventListener(GoogleImaAdEventType.SKIPPED, onAdSkip)
