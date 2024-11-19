@@ -31,7 +31,7 @@ import com.theoplayer.android.connector.analytics.conviva.utils.calculateCurrent
 import com.theoplayer.android.connector.analytics.conviva.utils.collectAdMetadata
 import com.theoplayer.android.connector.analytics.conviva.utils.collectPlayerInfo
 
-fun isAdLinear(ad: GoogleImaAd?): Boolean {
+fun isAdLinear(ad: Ad?): Boolean {
     return ad?.type == "linear"
 }
 
