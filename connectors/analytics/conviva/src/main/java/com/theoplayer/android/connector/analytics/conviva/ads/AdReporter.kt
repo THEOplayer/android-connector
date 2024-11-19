@@ -46,7 +46,7 @@ class AdReporter(
     private val adEventsExtension: EventDispatcher<AdEvent<*>>?
 ) : ConvivaExperienceAnalytics.ICallback {
     private var currentAdBreak: AdBreak? = null
-    private var currentAd: GoogleImaAd? = null
+    private var currentAd: Ad? = null
     private var adBreakCounter = 0
 
     private val onPlay: EventListener<PlayEvent>
