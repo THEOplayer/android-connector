@@ -54,12 +54,12 @@ class AdReporter(
     private val onPlaying: EventListener<PlayingEvent>
     private val onPause: EventListener<PauseEvent>
 
-    private val onAdStarted: EventListener<GoogleImaAdEvent>
-    private val onAdCompleted: EventListener<GoogleImaAdEvent>
-    private val onAdSkip: EventListener<GoogleImaAdEvent>
-    private val onAdBuffering: EventListener<GoogleImaAdEvent>
-    private val onAdError: EventListener<GoogleImaAdEvent>
-    private val onContentResume: EventListener<GoogleImaAdEvent>
+    private val onImaAdStarted: EventListener<GoogleImaAdEvent>
+    private val onImaAdCompleted: EventListener<GoogleImaAdEvent>
+    private val onImaAdSkip: EventListener<GoogleImaAdEvent>
+    private val onImaAdBuffering: EventListener<GoogleImaAdEvent>
+    private val onImaAdError: EventListener<GoogleImaAdEvent>
+    private val onImaContentResume: EventListener<GoogleImaAdEvent>
 
     private val onAdBegin: EventListener<AdBeginEvent>
     private val onAdBreakBegin: EventListener<AdBreakBeginEvent>
@@ -108,15 +108,15 @@ class AdReporter(
             }
         }
 
-        onAdStarted = EventListener<GoogleImaAdEvent> { event ->
+        onImaAdStarted = EventListener<GoogleImaAdEvent> { event ->
             handleAdBegin(event.ad)
         }
 
-        onAdCompleted = EventListener<GoogleImaAdEvent> { event ->
+        onImaAdCompleted = EventListener<GoogleImaAdEvent> { event ->
             handleAdEnd(event.ad)
         }
 
-        onAdSkip = EventListener<GoogleImaAdEvent> {
+        onImaAdSkip = EventListener<GoogleImaAdEvent> {
             if (currentAdBreak != null) {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "reportAdMetric - PlayerState.STOPPED")
@@ -128,7 +128,7 @@ class AdReporter(
             }
         }
 
-        onAdBuffering = EventListener<GoogleImaAdEvent> {
+        onImaAdBuffering = EventListener<GoogleImaAdEvent> {
             if (currentAdBreak != null) {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "reportAdMetric - PlayerState.BUFFERING")
@@ -140,14 +140,14 @@ class AdReporter(
             }
         }
 
-        onAdError = EventListener<GoogleImaAdEvent> {
+        onImaAdError = EventListener<GoogleImaAdEvent> {
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "reportAdFailed")
             }
             convivaAdAnalytics.reportAdFailed("Ad Request Failed")
         }
 
-        onContentResume = EventListener<GoogleImaAdEvent> {
+        onImaContentResume = EventListener<GoogleImaAdEvent> {
             handleAdBreakEnd()
         }
 
@@ -207,14 +207,14 @@ class AdReporter(
             ads?.addEventListener(AdsEventTypes.AD_SKIP, onAdSkip)
             ads?.addEventListener(AdsEventTypes.AD_ERROR, onAdError)
 
-            ads?.addEventListener(GoogleImaAdEventType.STARTED, onAdStarted)
-            ads?.addEventListener(GoogleImaAdEventType.COMPLETED, onAdCompleted)
-            ads?.addEventListener(GoogleImaAdEventType.SKIPPED, onAdSkip)
-            ads?.addEventListener(GoogleImaAdEventType.AD_BUFFERING, onAdBuffering)
-            ads?.addEventListener(GoogleImaAdEventType.AD_ERROR, onAdError)
+            ads?.addEventListener(GoogleImaAdEventType.STARTED, onImaAdStarted)
+            ads?.addEventListener(GoogleImaAdEventType.COMPLETED, onImaAdCompleted)
+            ads?.addEventListener(GoogleImaAdEventType.SKIPPED, onImaAdSkip)
+            ads?.addEventListener(GoogleImaAdEventType.AD_BUFFERING, onImaAdBuffering)
+            ads?.addEventListener(GoogleImaAdEventType.AD_ERROR, onImaAdError)
             ads?.addEventListener(
                 GoogleImaAdEventType.CONTENT_RESUME_REQUESTED,
-                onContentResume
+                onImaContentResume
             )
         }
     }
@@ -232,14 +232,14 @@ class AdReporter(
             ads?.addEventListener(AdsEventTypes.AD_SKIP, onAdSkip)
             ads?.addEventListener(AdsEventTypes.AD_ERROR, onAdError)
 
-            ads?.removeEventListener(GoogleImaAdEventType.STARTED, onAdStarted)
-            ads?.removeEventListener(GoogleImaAdEventType.COMPLETED, onAdCompleted)
-            ads?.removeEventListener(GoogleImaAdEventType.SKIPPED, onAdSkip)
-            ads?.removeEventListener(GoogleImaAdEventType.AD_BUFFERING, onAdBuffering)
-            ads?.removeEventListener(GoogleImaAdEventType.AD_ERROR, onAdError)
+            ads?.removeEventListener(GoogleImaAdEventType.STARTED, onImaAdStarted)
+            ads?.removeEventListener(GoogleImaAdEventType.COMPLETED, onImaAdCompleted)
+            ads?.removeEventListener(GoogleImaAdEventType.SKIPPED, onImaAdSkip)
+            ads?.removeEventListener(GoogleImaAdEventType.AD_BUFFERING, onImaAdBuffering)
+            ads?.removeEventListener(GoogleImaAdEventType.AD_ERROR, onImaAdError)
             ads?.removeEventListener(
                 GoogleImaAdEventType.CONTENT_RESUME_REQUESTED,
-                onContentResume
+                onImaContentResume
             )
         }
     }
