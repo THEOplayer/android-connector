@@ -15,7 +15,6 @@ import com.theoplayer.android.api.event.EventListener
 import com.theoplayer.android.api.event.ads.AdBeginEvent
 import com.theoplayer.android.api.event.ads.AdBreakBeginEvent
 import com.theoplayer.android.api.event.ads.AdBreakEndEvent
-import com.theoplayer.android.api.event.ads.AdBreakEvent
 import com.theoplayer.android.api.event.ads.AdEndEvent
 import com.theoplayer.android.api.event.ads.AdErrorEvent
 import com.theoplayer.android.api.event.ads.AdEvent
