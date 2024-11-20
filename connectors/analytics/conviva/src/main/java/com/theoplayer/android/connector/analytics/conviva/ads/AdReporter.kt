@@ -62,7 +62,6 @@ class AdReporter(
     private val onImaContentResume: EventListener<GoogleImaAdEvent>
 
     private val onAdBegin: EventListener<AdBeginEvent>
-    private val onAdBreakBegin: EventListener<AdBreakBeginEvent>
     private val onAdEnd: EventListener<AdEndEvent>
     private val onAdBreakEnd: EventListener<AdBreakEndEvent>
     private val onAdSkip: EventListener<AdSkipEvent>
@@ -155,10 +154,6 @@ class AdReporter(
             handleAdBegin(event.ad)
         }
 
-        onAdBreakBegin = EventListener<AdBreakBeginEvent> { event ->
-            // TODO
-        }
-
         onAdEnd = EventListener<AdEndEvent> { event ->
             // TODO
         }
@@ -201,7 +196,6 @@ class AdReporter(
 
         (listOf(player.ads, adEventsExtension)).forEach { ads ->
             ads?.addEventListener(AdsEventTypes.AD_BEGIN, onAdBegin)
-            ads?.addEventListener(AdsEventTypes.AD_BREAK_BEGIN, onAdBreakBegin)
             ads?.addEventListener(AdsEventTypes.AD_END, onAdEnd)
             ads?.addEventListener(AdsEventTypes.AD_BREAK_END, onAdBreakEnd)
             ads?.addEventListener(AdsEventTypes.AD_SKIP, onAdSkip)
@@ -226,7 +220,6 @@ class AdReporter(
 
         (listOf(player.ads, adEventsExtension)).forEach { ads ->
             ads?.addEventListener(AdsEventTypes.AD_BEGIN, onAdBegin)
-            ads?.addEventListener(AdsEventTypes.AD_BREAK_BEGIN, onAdBreakBegin)
             ads?.addEventListener(AdsEventTypes.AD_END, onAdEnd)
             ads?.addEventListener(AdsEventTypes.AD_BREAK_END, onAdBreakEnd)
             ads?.addEventListener(AdsEventTypes.AD_SKIP, onAdSkip)
