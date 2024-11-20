@@ -99,7 +99,7 @@ private fun validStringOrFallbackOrNA(str: String?, fbStr: String?): String {
 }
 
 fun collectAdMetadata(ad: GoogleImaAd): ConvivaMetadata {
-    // AssetName should not never be an empty string
+    // AssetName should never be an empty string
     val assetName = validStringOrFallbackOrNA(ad.imaAd.title, ad.id)
     return mutableMapOf(
         ConvivaSdkConstants.DURATION to ad.imaAd.duration.toInt(),
