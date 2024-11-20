@@ -5,6 +5,7 @@ import com.theoplayer.android.api.THEOplayerGlobal
 import com.theoplayer.android.api.ads.AdBreak
 import com.theoplayer.android.api.ads.Ad
 import com.theoplayer.android.api.ads.GoogleImaAd
+import com.theoplayer.android.api.ads.LinearAd
 import com.theoplayer.android.api.event.ads.AdIntegrationKind
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.api.timerange.TimeRanges
@@ -98,12 +99,28 @@ private fun validStringOrFallbackOrNA(str: String?, fbStr: String?): String {
         "NA"
 }
 
-fun collectAdMetadata(ad: GoogleImaAd): ConvivaMetadata {
-    // AssetName should never be an empty string
+fun updateAdMetadataForGoogleIma(ad: GoogleImaAd, metadata: ConvivaMetadata): ConvivaMetadata {
     val assetName = validStringOrFallbackOrNA(ad.imaAd.title, ad.id)
-    return mutableMapOf(
+    val googleImaMetadataMap = mutableMapOf(
         ConvivaSdkConstants.DURATION to ad.imaAd.duration.toInt(),
         ConvivaSdkConstants.ASSET_NAME to assetName,
+        "adMetadata" to assetName,
+        "c3.ad.creativeId" to validStringOrNA(ad.creativeId),
+        "c3.ad.system" to validStringOrNA(ad.adSystem),
+        "c3.ad.firstAdId" to (ad.wrapperAdIds.firstOrNull() ?: ad.id),
+        "c3.ad.firstCreativeId" to validStringOrNA(
+            ad.wrapperCreativeIds.firstOrNull() ?: ad.creativeId
+        ),
+        "c3.ad.firstAdSystem" to validStringOrNA(ad.wrapperAdSystems.firstOrNull() ?: ad.adSystem),
+    )
+    return metadata + googleImaMetadataMap
+}
+
+fun collectAdMetadata(ad: Ad): ConvivaMetadata {
+    // AssetName should never be an empty string
+    return mutableMapOf(
+        ConvivaSdkConstants.DURATION to if (ad is LinearAd) ad.duration else 0,
+        ConvivaSdkConstants.ASSET_NAME to ad.id,
 
         // [Required] This Ad ID is from the Ad Server that actually has the ad creative.
         // For wrapper ads, this is the last Ad ID at the end of the wrapper chain.
@@ -111,16 +128,16 @@ fun collectAdMetadata(ad: GoogleImaAd): ConvivaMetadata {
 
         // [Required] The creative name (may be the same as the ad name) as a string.
         // Creative name is available from the ad server. Set to "NA" if not available.
-        "adMetadata" to assetName,
+        "adMetadata" to ad.id,
 
         // [Required] The creative id of the ad. This creative id is from the Ad Server that actually has the ad creative.
         // For wrapper ads, this is the last creative id at the end of the wrapper chain. Set to "NA" if not available.
-        "c3.ad.creativeId" to validStringOrNA(ad.creativeId),
+        "c3.ad.creativeId" to "NA",
 
         // [Preferred] A string that identifies the Ad System (i.e. the Ad Server). This Ad System represents
         // the Ad Server that actually has the ad creative. For wrapper ads, this is the last Ad System at the end of
         // the wrapper chain. Set to "NA" if not available
-        "c3.ad.system" to validStringOrNA(ad.adSystem),
+        "c3.ad.system" to "NA",
 
         // [Preferred] A boolean value that indicates whether this ad is a Slate or not.
         // Set to "true" for Slate and "false" for a regular ad. By default, set to "false"
@@ -130,21 +147,19 @@ fun collectAdMetadata(ad: GoogleImaAd): ConvivaMetadata {
         // This tag must capture the "first" Ad Id in the wrapper chain when a Linear creative is available or there is
         // an error at the end of the wrapper chain. Set to "NA" if not available. If there is no wrapper VAST response
         // then the Ad Id and First Ad Id should be the same.
-        "c3.ad.firstAdId" to (ad.wrapperAdIds.firstOrNull() ?: ad.id),
+        "c3.ad.firstAdId" to ad.id,
 
         // [Preferred] Only valid for wrapper VAST responses.
         // This tag must capture the "first" Creative Id in the wrapper chain when a Linear creative is available or
         // there is an error at the end of the wrapper chain. Set to "NA" if not available. If there is no wrapper
         // VAST response then the Ad Creative Id and First Ad Creative Id should be the same.
-        "c3.ad.firstCreativeId" to validStringOrNA(
-            ad.wrapperCreativeIds.firstOrNull() ?: ad.creativeId
-        ),
+        "c3.ad.firstCreativeId" to "NA",
 
         // [Preferred] Only valid for wrapper VAST responses. This tag must capture the "first" Ad System in the wrapper
         // chain when a Linear creative is available or there is an error at the end of the wrapper chain. Set to "NA" if
         // not available. If there is no wrapper VAST response then the Ad System and First Ad System should be the same.
         // Examples: "GDFP", "NA".
-        "c3.ad.firstAdSystem" to validStringOrNA(ad.wrapperAdSystems.firstOrNull() ?: ad.adSystem),
+        "c3.ad.firstAdSystem" to "NA",
 
         // The name of the Ad Stitcher. If not using an Ad Stitcher, set to "NA"
         "c3.ad.adStitcher" to "NA"
