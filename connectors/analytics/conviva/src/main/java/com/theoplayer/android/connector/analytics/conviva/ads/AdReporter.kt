@@ -30,6 +30,7 @@ import com.theoplayer.android.connector.analytics.conviva.utils.calculateAdTypeA
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateCurrentAdBreakInfo
 import com.theoplayer.android.connector.analytics.conviva.utils.collectAdMetadata
 import com.theoplayer.android.connector.analytics.conviva.utils.collectPlayerInfo
+import com.theoplayer.android.connector.analytics.conviva.utils.updateAdMetadataForGoogleIma
 
 fun isAdLinear(ad: Ad?): Boolean {
     return ad?.type == "linear"
@@ -269,8 +270,8 @@ class AdReporter(
         }
     }
 
-    private fun handleAdBegin(ad: GoogleImaAd?) {
-        if (currentAdBreak == null && ad?.imaAd != null) {
+    private fun handleAdBegin(ad: Ad?) {
+        if (currentAdBreak == null && ad != null) {
             handleAdBreakBegin(ad.adBreak, isAdLinear(ad))
         }
         if (ad != null && isAdLinear(ad)) {
@@ -280,12 +281,20 @@ class AdReporter(
             // - `c3.csid`: the content’s sessionID;
             // - `contentAssetName`: the content's assetName.
             val contentAssetName = convivaHandler.contentAssetName
-            val adTechnology = if (ad.integration == AdIntegrationKind.THEO_ADS) "Server Guided" else calculateAdTypeAsString(ad)
-            val adMetadata = collectAdMetadata(ad) + mapOf(
+            val adTechnology =
+                if (ad.integration == AdIntegrationKind.THEO_ADS) "Server Guided" else calculateAdTypeAsString(
+                    ad
+                )
+            var adMetadata = collectAdMetadata(ad) + mapOf(
                 "c3.csid" to convivaVideoAnalytics.sessionId.toString(),
                 "contentAssetName" to contentAssetName,
                 "c3.ad.technology" to adTechnology,
             )
+            if (ad is GoogleImaAd) {
+                // Update with Google IMA specific information
+                adMetadata = updateAdMetadataForGoogleIma(ad, adMetadata)
+            }
+
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "reportAdStarted - $adMetadata")
             }
@@ -297,11 +306,18 @@ class AdReporter(
                 player.videoWidth,
                 player.videoHeight
             )
-            convivaAdAnalytics.reportAdMetric(
-                ConvivaSdkConstants.PLAYBACK.BITRATE,
-                player.videoWidth,
-                ad.imaAd.vastMediaBitrate
-            )
+            if (ad is GoogleImaAd) {
+                convivaAdAnalytics.reportAdMetric(
+                    ConvivaSdkConstants.PLAYBACK.BITRATE,
+                    player.videoWidth,
+                    ad.imaAd.vastMediaBitrate
+                )
+            } else {
+                convivaAdAnalytics.reportAdMetric(
+                    ConvivaSdkConstants.PLAYBACK.BITRATE,
+                    player.videoWidth
+                )
+            }
 
             // Report playing state in case of SSAI, as the player will not send an additional
             // `playing` event.
