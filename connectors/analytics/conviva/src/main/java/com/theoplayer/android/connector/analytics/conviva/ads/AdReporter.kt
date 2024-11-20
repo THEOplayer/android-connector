@@ -152,7 +152,7 @@ class AdReporter(
         }
 
         onAdBegin = EventListener<AdBeginEvent> { event ->
-            // TODO
+            handleAdBegin(event.ad)
         }
 
         onAdBreakBegin = EventListener<AdBreakBeginEvent> { event ->
