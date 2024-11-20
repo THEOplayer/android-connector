@@ -116,15 +116,7 @@ class AdReporter(
         }
 
         onImaAdSkip = EventListener<GoogleImaAdEvent> {
-            if (currentAdBreak != null) {
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "reportAdMetric - PlayerState.STOPPED")
-                }
-                convivaAdAnalytics.reportAdMetric(
-                    ConvivaSdkConstants.PLAYBACK.PLAYER_STATE,
-                    ConvivaSdkConstants.PlayerState.STOPPED
-                )
-            }
+            handleAdSkip()
         }
 
         onImaAdBuffering = EventListener<GoogleImaAdEvent> {
@@ -140,10 +132,7 @@ class AdReporter(
         }
 
         onImaAdError = EventListener<GoogleImaAdEvent> {
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "reportAdFailed")
-            }
-            convivaAdAnalytics.reportAdFailed("Ad Request Failed")
+            handleAdError()
         }
 
         onImaContentResume = EventListener<GoogleImaAdEvent> {
@@ -158,16 +147,16 @@ class AdReporter(
             handleAdEnd(event.ad)
         }
 
-        onAdBreakEnd = EventListener<AdBreakEndEvent> { event ->
-            // TODO
+        onAdBreakEnd = EventListener<AdBreakEndEvent> {
+            handleAdBreakEnd()
         }
 
-        onAdSkip = EventListener<AdSkipEvent> { event ->
-            // TODO
+        onAdSkip = EventListener<AdSkipEvent> {
+            handleAdSkip()
         }
 
-        onAdError = EventListener<AdErrorEvent> { event ->
-            // TODO
+        onAdError = EventListener<AdErrorEvent> {
+            handleAdError()
         }
 
         addEventListeners()
@@ -354,6 +343,25 @@ class AdReporter(
             }
         }
         currentAdBreak = null
+    }
+
+    private fun handleAdSkip() {
+        if (currentAdBreak != null) {
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "reportAdMetric - PlayerState.STOPPED")
+            }
+            convivaAdAnalytics.reportAdMetric(
+                ConvivaSdkConstants.PLAYBACK.PLAYER_STATE,
+                ConvivaSdkConstants.PlayerState.STOPPED
+            )
+        }
+    }
+
+    private fun handleAdError() {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "reportAdFailed")
+        }
+        convivaAdAnalytics.reportAdFailed("Ad Request Failed")
     }
 
     fun reset() {
