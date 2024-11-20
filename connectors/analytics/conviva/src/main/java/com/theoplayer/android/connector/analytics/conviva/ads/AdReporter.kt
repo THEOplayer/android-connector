@@ -155,7 +155,7 @@ class AdReporter(
         }
 
         onAdEnd = EventListener<AdEndEvent> { event ->
-            // TODO
+            handleAdEnd(event.ad)
         }
 
         onAdBreakEnd = EventListener<AdBreakEndEvent> { event ->
@@ -327,7 +327,7 @@ class AdReporter(
         }
     }
 
-    private fun handleAdEnd(ad: GoogleImaAd?) {
+    private fun handleAdEnd(ad: Ad?) {
         if (ad != null && isAdLinear(ad)) {
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "reportAdEnded")
