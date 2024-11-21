@@ -14,7 +14,7 @@ import com.theoplayer.android.connector.analytics.conviva.ConvivaMetadata
 
 fun calculateAdType(ad: Ad): ConvivaSdkConstants.AdType {
     return when(ad.integration) {
-        // TODO THEOads is a SGAI solutionm which can't be reported to Conviva as such yet.
+        // TODO THEOads is a SGAI solution which can't be reported to Conviva as such yet.
         AdIntegrationKind.THEO_ADS -> ConvivaSdkConstants.AdType.SERVER_SIDE
         AdIntegrationKind.GOOGLE_IMA -> ConvivaSdkConstants.AdType.CLIENT_SIDE
         else -> ConvivaSdkConstants.AdType.SERVER_SIDE
@@ -23,7 +23,7 @@ fun calculateAdType(ad: Ad): ConvivaSdkConstants.AdType {
 
 fun calculateAdType(adBreak: AdBreak): ConvivaSdkConstants.AdType {
     return when(adBreak.integration) {
-        // TODO THEOads is a SGAI solutionm which can't be reported to Conviva as such yet.
+        // TODO THEOads is a SGAI solution which can't be reported to Conviva as such yet.
         AdIntegrationKind.THEO_ADS -> ConvivaSdkConstants.AdType.SERVER_SIDE
         AdIntegrationKind.GOOGLE_IMA -> ConvivaSdkConstants.AdType.CLIENT_SIDE
         else -> ConvivaSdkConstants.AdType.SERVER_SIDE
