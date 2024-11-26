@@ -106,7 +106,7 @@ class MediaMetadataProvider(private val connector: MediaSessionConnector) {
      * See [MediaMetadataCompat.METADATA_KEY_ALBUM_ART].
      */
     fun setAlbumArt(value: Bitmap?) {
-        builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, value)
+        builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, makeSafeBitmapCopy(value))
     }
 
     /**
@@ -127,7 +127,7 @@ class MediaMetadataProvider(private val connector: MediaSessionConnector) {
      * See [MediaMetadataCompat.METADATA_KEY_ART].
      */
     fun setArt(value: Bitmap?) {
-        builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ART, value)
+        builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ART, makeSafeBitmapCopy(value))
     }
 
     /**
@@ -192,7 +192,7 @@ class MediaMetadataProvider(private val connector: MediaSessionConnector) {
      * See [MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON].
      */
     fun setDisplayIcon(value: Bitmap?) {
-        builder.putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, value)
+        builder.putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, makeSafeBitmapCopy(value))
     }
 
     /**
@@ -392,4 +392,9 @@ class MediaMetadataProvider(private val connector: MediaSessionConnector) {
             }
         }
     }
+}
+
+fun makeSafeBitmapCopy(bitmap: Bitmap?): Bitmap? {
+    // Never pass a recycled bitmap, and make a copy so the original can be recycled.
+    return bitmap?.takeIf { !it.isRecycled }?.copy(bitmap.config, false)
 }
