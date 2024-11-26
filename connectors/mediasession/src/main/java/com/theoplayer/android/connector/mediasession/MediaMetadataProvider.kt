@@ -74,7 +74,11 @@ class MediaMetadataProvider(private val connector: MediaSessionConnector) {
         if (!java.lang.Double.isNaN(player.duration)) {
             setDuration((1e03 * player.duration).toLong())
         }
-        connector.mediaSession.setMetadata(builder.build())
+        try {
+            connector.mediaSession.setMetadata(getMediaSessionMetadata())
+        } catch(e: IllegalStateException) {
+            Log.e(TAG, "Failed to set metadata: ${e.message}")
+        }
     }
 
     /**
