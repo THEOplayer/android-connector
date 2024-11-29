@@ -268,6 +268,7 @@ class AdReporter(
                 "c3.csid" to convivaVideoAnalytics.sessionId.toString(),
                 "contentAssetName" to contentAssetName,
                 "c3.ad.technology" to adTechnology,
+                ConvivaSdkConstants.IS_LIVE to false,
             )
             if (ad is GoogleImaAd) {
                 // Update with Google IMA specific information
