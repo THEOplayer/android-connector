@@ -31,6 +31,9 @@ fun calculateAdType(adBreak: AdBreak): ConvivaSdkConstants.AdType {
 }
 
 fun calculateAdTypeAsString(ad: Ad): String {
+    if (ad.integration == AdIntegrationKind.THEO_ADS) {
+        return "Server Guided"
+    }
     return when (calculateAdType(ad)) {
         ConvivaSdkConstants.AdType.SERVER_SIDE -> "Server Side"
         ConvivaSdkConstants.AdType.CLIENT_SIDE -> "Client Side"

@@ -263,10 +263,7 @@ class AdReporter(
             // - `c3.csid`: the content’s sessionID;
             // - `contentAssetName`: the content's assetName.
             val contentAssetName = convivaHandler.contentAssetName
-            val adTechnology =
-                if (ad.integration == AdIntegrationKind.THEO_ADS) "Server Guided" else calculateAdTypeAsString(
-                    ad
-                )
+            val adTechnology = calculateAdTypeAsString(ad)
             var adMetadata = collectAdMetadata(ad) + mapOf(
                 "c3.csid" to convivaVideoAnalytics.sessionId.toString(),
                 "contentAssetName" to contentAssetName,
