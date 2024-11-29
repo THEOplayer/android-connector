@@ -230,6 +230,7 @@ class AdReporter(
                 "c3.csid" to convivaVideoAnalytics.sessionId.toString(),
                 "contentAssetName" to contentAssetName,
                 "c3.ad.technology" to calculateAdTypeAsString(player),
+                ConvivaSdkConstants.IS_LIVE to false,
             )
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "reportAdStarted - $adMetadata")
