@@ -20,11 +20,11 @@ import com.theoplayer.android.api.event.player.*
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.api.source.SourceDescription
 import com.theoplayer.android.connector.analytics.conviva.ads.AdReporter
+import com.theoplayer.android.connector.analytics.conviva.utils.ErrorReportBuilder
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateBufferLength
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateConvivaOptions
 import com.theoplayer.android.connector.analytics.conviva.utils.collectContentMetadata
 import com.theoplayer.android.connector.analytics.conviva.utils.collectPlayerInfo
-import com.theoplayer.android.connector.analytics.conviva.utils.flattenErrorObject
 import java.lang.Double.isFinite
 
 private const val TAG = "ConvivaHandler"
@@ -71,6 +71,7 @@ class ConvivaHandler(
     private val onSourceChange: EventListener<SourceChangeEvent>
     private val onEnded: EventListener<EndedEvent>
     private val onDurationChange: EventListener<DurationChangeEvent>
+    private val errorReportBuilder = ErrorReportBuilder()
 
     init {
         ConvivaAnalytics.init(
@@ -142,10 +143,10 @@ class ConvivaHandler(
 
             val error = event.errorObject
             // Report error details in a separate event, which should be passed a flat <String, String> map.
-            val errorDetails = flattenErrorObject(error)
-            if (errorDetails.isNotEmpty()) {
-                convivaVideoAnalytics.reportPlaybackEvent("ErrorDetailsEvent", errorDetails)
-            }
+            convivaVideoAnalytics.reportPlaybackEvent("ErrorDetailsEvent", errorReportBuilder.apply {
+                withPlayerBuffer(player)
+                withErrorDetails(event.errorObject)
+            }.build())
 
             // Report error and cleanup immediately.
             // The contentInfo provides metadata for the failed video.
@@ -317,6 +318,8 @@ class ConvivaHandler(
         mainHandler.post {
             ProcessLifecycleOwner.get().lifecycle.addObserver(lifecycleObserver)
         }
+
+        player.network.addHTTPInterceptor(errorReportBuilder)
     }
 
     private fun removeEventListeners() {
@@ -338,6 +341,8 @@ class ConvivaHandler(
         mainHandler.post {
             ProcessLifecycleOwner.get().lifecycle.removeObserver(lifecycleObserver)
         }
+
+        player.network.removeHTTPInterceptor(errorReportBuilder)
     }
 
     // Update API will be called by Conviva SDK at regular intervals to compute playback
