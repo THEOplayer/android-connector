@@ -74,7 +74,11 @@ class MediaMetadataProvider(private val connector: MediaSessionConnector) {
         if (!java.lang.Double.isNaN(player.duration)) {
             setDuration((1e03 * player.duration).toLong())
         }
-        connector.mediaSession.setMetadata(builder.build())
+        try {
+            connector.mediaSession.setMetadata(getMediaSessionMetadata())
+        } catch(e: IllegalStateException) {
+            Log.e(TAG, "Failed to set metadata: ${e.message}")
+        }
     }
 
     /**
@@ -106,7 +110,7 @@ class MediaMetadataProvider(private val connector: MediaSessionConnector) {
      * See [MediaMetadataCompat.METADATA_KEY_ALBUM_ART].
      */
     fun setAlbumArt(value: Bitmap?) {
-        builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, value)
+        builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, makeSafeBitmapCopy(value))
     }
 
     /**
@@ -127,7 +131,7 @@ class MediaMetadataProvider(private val connector: MediaSessionConnector) {
      * See [MediaMetadataCompat.METADATA_KEY_ART].
      */
     fun setArt(value: Bitmap?) {
-        builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ART, value)
+        builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ART, makeSafeBitmapCopy(value))
     }
 
     /**
@@ -192,7 +196,7 @@ class MediaMetadataProvider(private val connector: MediaSessionConnector) {
      * See [MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON].
      */
     fun setDisplayIcon(value: Bitmap?) {
-        builder.putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, value)
+        builder.putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, makeSafeBitmapCopy(value))
     }
 
     /**
@@ -392,4 +396,9 @@ class MediaMetadataProvider(private val connector: MediaSessionConnector) {
             }
         }
     }
+}
+
+fun makeSafeBitmapCopy(bitmap: Bitmap?): Bitmap? {
+    // Never pass a recycled bitmap, and make a copy so the original can be recycled.
+    return bitmap?.takeIf { !it.isRecycled }?.copy(bitmap.config, false)
 }
