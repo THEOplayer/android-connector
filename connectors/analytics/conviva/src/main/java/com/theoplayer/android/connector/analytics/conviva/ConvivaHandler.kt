@@ -231,7 +231,7 @@ class ConvivaHandler(
             Log.d(TAG, "setContentInfo")
         }
         customMetadata = customMetadata + metadata
-        convivaVideoAnalytics.setContentInfo(metadata)
+        convivaVideoAnalytics.setContentInfo(this.customMetadata)
     }
 
     fun setAdInfo(metadata: ConvivaMetadata) {
