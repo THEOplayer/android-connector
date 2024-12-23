@@ -13,12 +13,10 @@ import com.theoplayer.android.api.ads.ima.GoogleImaAdEventType
 import com.theoplayer.android.api.event.EventDispatcher
 import com.theoplayer.android.api.event.EventListener
 import com.theoplayer.android.api.event.ads.AdBeginEvent
-import com.theoplayer.android.api.event.ads.AdBreakBeginEvent
 import com.theoplayer.android.api.event.ads.AdBreakEndEvent
 import com.theoplayer.android.api.event.ads.AdEndEvent
 import com.theoplayer.android.api.event.ads.AdErrorEvent
 import com.theoplayer.android.api.event.ads.AdEvent
-import com.theoplayer.android.api.event.ads.AdIntegrationKind
 import com.theoplayer.android.api.event.ads.AdSkipEvent
 import com.theoplayer.android.api.event.ads.AdsEventTypes
 import com.theoplayer.android.api.event.player.*
