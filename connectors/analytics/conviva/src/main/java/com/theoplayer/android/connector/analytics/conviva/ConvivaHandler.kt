@@ -171,6 +171,7 @@ class ConvivaHandler(
             }
             maybeReportPlaybackEnded()
             currentSource = player.source
+            customMetadata = mapOf()
         }
 
         onEnded = EventListener<EndedEvent> {
@@ -231,7 +232,7 @@ class ConvivaHandler(
             Log.d(TAG, "setContentInfo")
         }
         customMetadata = customMetadata + metadata
-        convivaVideoAnalytics.setContentInfo(metadata)
+        convivaVideoAnalytics.setContentInfo(customMetadata)
     }
 
     fun setAdInfo(metadata: ConvivaMetadata) {
