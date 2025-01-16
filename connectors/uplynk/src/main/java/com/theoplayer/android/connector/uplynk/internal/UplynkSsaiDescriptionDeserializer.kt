@@ -13,12 +13,14 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
 internal object UplynkSsaiDescriptionDeserializer : CustomSsaiDescriptionSerializer {
+    private val json = Json { ignoreUnknownKeys = true }
+
     override fun fromJson(json: String): UplynkSsaiDescription {
-        return Json.decodeFromString(UplynkSsaiDescriptionKSerializer, json)
+        return this.json.decodeFromString(UplynkSsaiDescriptionKSerializer, json)
     }
 
     override fun toJson(value: CustomSsaiDescription): String {
-        return Json.encodeToString(
+        return this.json.encodeToString(
             UplynkSsaiDescriptionKSerializer,
             value as UplynkSsaiDescription
         )

@@ -90,7 +90,10 @@ enum class YospaceStreamType {
 }
 
 internal object YospaceSsaiDescriptionSerializer : CustomSsaiDescriptionSerializer {
-    private val json = Json { encodeDefaults = true }
+    private val json = Json {
+        ignoreUnknownKeys = true
+        encodeDefaults = true
+    }
 
     override fun fromJson(json: String): YospaceSsaiDescription {
         return this.json.decodeFromString(YospaceSsaiDescriptionKSerializer, json)
