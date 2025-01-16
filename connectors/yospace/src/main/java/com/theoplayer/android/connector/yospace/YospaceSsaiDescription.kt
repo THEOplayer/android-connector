@@ -41,24 +41,31 @@ data class YospaceSsaiDescription @JvmOverloads constructor(
     /**
      * A builder for a [YospaceSsaiDescription].
      */
-    class Builder() {
+    class Builder {
         private var streamType: YospaceStreamType = YospaceStreamType.LIVE
         private var sessionProperties: Session.SessionProperties = Session.SessionProperties()
 
         /**
          * Sets the type of the requested stream.
          */
-        fun streamType(streamType: YospaceStreamType) = apply { this.streamType = streamType }
+        fun streamType(streamType: YospaceStreamType) = apply {
+            this.streamType = streamType
+        }
 
         /**
          * Sets the custom properties to set when initializing the Yospace session.
          */
-        fun sessionProperties(sessionProperties: Session.SessionProperties) = apply { this.sessionProperties = sessionProperties }
+        fun sessionProperties(sessionProperties: Session.SessionProperties) = apply {
+            this.sessionProperties = sessionProperties
+        }
 
         /**
          * Builds the [YospaceSsaiDescription].
          */
-        fun build() = YospaceSsaiDescription(streamType = streamType, sessionProperties = sessionProperties)
+        fun build() = YospaceSsaiDescription(
+            streamType = streamType,
+            sessionProperties = sessionProperties
+        )
     }
 }
 
