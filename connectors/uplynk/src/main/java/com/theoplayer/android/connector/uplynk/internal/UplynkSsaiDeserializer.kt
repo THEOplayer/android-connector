@@ -1,7 +1,9 @@
-package com.theoplayer.android.connector.uplynk
+package com.theoplayer.android.connector.uplynk.internal
 
 import com.theoplayer.android.api.source.ssai.CustomSsaiDescription
 import com.theoplayer.android.api.source.ssai.CustomSsaiDescriptionSerializer
+import com.theoplayer.android.connector.uplynk.UplynkConnector
+import com.theoplayer.android.connector.uplynk.UplynkSsaiDescription
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -10,7 +12,7 @@ import kotlinx.serialization.json.JsonTransformingSerializer
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
-object UplynkSsaiDeserializer : CustomSsaiDescriptionSerializer {
+internal object UplynkSsaiDeserializer : CustomSsaiDescriptionSerializer {
     override fun fromJson(json: String): UplynkSsaiDescription {
         return Json.decodeFromString(UplynkSsaiDescriptionKSerializer, json)
     }

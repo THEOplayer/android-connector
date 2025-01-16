@@ -2,7 +2,6 @@ package com.theoplayer.android.connector.uplynk.internal
 
 import com.theoplayer.android.connector.uplynk.UplynkConnector
 import com.theoplayer.android.connector.uplynk.UplynkSsaiDescription
-import com.theoplayer.android.connector.uplynk.UplynkSsaiDeserializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonArray

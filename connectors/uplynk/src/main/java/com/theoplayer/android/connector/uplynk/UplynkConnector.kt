@@ -7,6 +7,7 @@ import com.theoplayer.android.api.source.ssai.CustomSsaiDescriptionRegistry
 import com.theoplayer.android.connector.uplynk.internal.UplynkAdIntegration
 import com.theoplayer.android.connector.uplynk.internal.UplynkSsaiDescriptionConverter
 import com.theoplayer.android.connector.uplynk.internal.UplynkEventDispatcher
+import com.theoplayer.android.connector.uplynk.internal.UplynkSsaiDeserializer
 import com.theoplayer.android.connector.uplynk.internal.network.UplynkApi
 
 internal const val TAG = "UplynkConnector"
