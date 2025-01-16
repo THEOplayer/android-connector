@@ -4,8 +4,6 @@ import com.theoplayer.android.api.source.ssai.CustomSsaiDescription
 import com.theoplayer.android.api.source.ssai.CustomSsaiDescriptionSerializer
 import com.theoplayer.android.connector.yospace.internal.YospaceSessionPropertiesKSerializer
 import com.yospace.admanagement.Session
-import kotlinx.serialization.EncodeDefault
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
@@ -18,7 +16,6 @@ import kotlinx.serialization.json.jsonPrimitive
 /**
  * The configuration for server-side ad insertion using the [YospaceConnector].
  */
-@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class YospaceSsaiDescription @JvmOverloads constructor(
     /**
@@ -26,12 +23,10 @@ data class YospaceSsaiDescription @JvmOverloads constructor(
      *
      * Default: [YospaceStreamType.LIVE]
      */
-    @EncodeDefault
     val streamType: YospaceStreamType = YospaceStreamType.LIVE,
     /**
      * Custom properties to set when initializing the Yospace session.
      */
-    @EncodeDefault
     @Serializable(with = YospaceSessionPropertiesKSerializer::class)
     val sessionProperties: Session.SessionProperties = Session.SessionProperties()
 ) : CustomSsaiDescription() {
@@ -95,12 +90,14 @@ enum class YospaceStreamType {
 }
 
 internal class YospaceSsaiDescriptionSerializer : CustomSsaiDescriptionSerializer {
+    private val json = Json { encodeDefaults = true }
+
     override fun fromJson(json: String): YospaceSsaiDescription {
-        return Json.decodeFromString(YospaceSsaiDescriptionKSerializer, json)
+        return this.json.decodeFromString(YospaceSsaiDescriptionKSerializer, json)
     }
 
     override fun toJson(value: CustomSsaiDescription): String {
-        return Json.encodeToString(
+        return this.json.encodeToString(
             YospaceSsaiDescriptionKSerializer,
             value as YospaceSsaiDescription
         )
