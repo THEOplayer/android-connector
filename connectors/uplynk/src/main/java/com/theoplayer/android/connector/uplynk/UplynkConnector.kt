@@ -54,7 +54,7 @@ class UplynkConnector(
         const val INTEGRATION_ID = "uplynk"
 
         init {
-            CustomSsaiDescriptionRegistry.register(INTEGRATION_ID, UplynkSsaiDeserializer())
+            CustomSsaiDescriptionRegistry.register(INTEGRATION_ID, UplynkSsaiDeserializer)
         }
     }
 }

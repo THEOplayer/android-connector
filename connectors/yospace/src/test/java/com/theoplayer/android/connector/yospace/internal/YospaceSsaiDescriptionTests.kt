@@ -10,21 +10,13 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
 import org.junit.Assert.assertEquals
-import org.junit.Before
 import org.junit.Test
 
 class YospaceSsaiDescriptionSerializerTests {
-    private lateinit var serializer: YospaceSsaiDescriptionSerializer
-
-    @Before
-    fun setup() {
-        serializer = YospaceSsaiDescriptionSerializer()
-    }
-
     @Test
     fun givenEmptySsaiDescription_WhenSerialize_ThenReturnsExpected() {
         val ssaiDescription = YospaceSsaiDescription()
-        val jsonString = serializer.toJson(ssaiDescription)
+        val jsonString = YospaceSsaiDescriptionSerializer.toJson(ssaiDescription)
         val jsonObject = Json.parseToJsonElement(jsonString).jsonObject
         assertEquals(jsonObject["integration"], JsonPrimitive(YospaceConnector.INTEGRATION_ID))
         assertEquals(jsonObject["streamType"], JsonPrimitive(YospaceStreamType.LIVE.toString()))
@@ -52,7 +44,7 @@ class YospaceSsaiDescriptionSerializerTests {
         val ssaiDescription = YospaceSsaiDescription(
             streamType = YospaceStreamType.LIVEPAUSE
         )
-        val jsonString = serializer.toJson(ssaiDescription)
+        val jsonString = YospaceSsaiDescriptionSerializer.toJson(ssaiDescription)
         val jsonObject = Json.parseToJsonElement(jsonString).jsonObject
         assertEquals(jsonObject["streamType"], JsonPrimitive(YospaceStreamType.LIVEPAUSE.toString()))
     }
@@ -67,7 +59,7 @@ class YospaceSsaiDescriptionSerializerTests {
                 customHttpHeaders = testHeaders
             }
         )
-        val jsonString = serializer.toJson(ssaiDescription)
+        val jsonString = YospaceSsaiDescriptionSerializer.toJson(ssaiDescription)
         val jsonObject = Json.parseToJsonElement(jsonString).jsonObject
         val jsonSessionProperties = jsonObject["sessionProperties"]?.jsonObject
         assertEquals(jsonSessionProperties?.get("userAgent"), JsonPrimitive(testUserAgent))

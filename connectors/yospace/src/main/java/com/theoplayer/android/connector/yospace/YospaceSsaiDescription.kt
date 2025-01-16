@@ -89,7 +89,7 @@ enum class YospaceStreamType {
     VOD,
 }
 
-internal class YospaceSsaiDescriptionSerializer : CustomSsaiDescriptionSerializer {
+internal object YospaceSsaiDescriptionSerializer : CustomSsaiDescriptionSerializer {
     private val json = Json { encodeDefaults = true }
 
     override fun fromJson(json: String): YospaceSsaiDescription {

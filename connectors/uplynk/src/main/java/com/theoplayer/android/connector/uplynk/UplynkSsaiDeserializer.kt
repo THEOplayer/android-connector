@@ -5,7 +5,7 @@ import com.theoplayer.android.api.source.ssai.CustomSsaiDescriptionSerializer
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-class UplynkSsaiDeserializer : CustomSsaiDescriptionSerializer {
+object UplynkSsaiDeserializer : CustomSsaiDescriptionSerializer {
     override fun fromJson(json: String): UplynkSsaiDescription {
         return Json.decodeFromString(json)
     }
