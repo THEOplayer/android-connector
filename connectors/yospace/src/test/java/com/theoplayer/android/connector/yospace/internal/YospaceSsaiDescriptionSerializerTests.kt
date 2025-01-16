@@ -65,4 +65,23 @@ class YospaceSsaiDescriptionSerializerTests {
         assertEquals(jsonSessionProperties?.get("userAgent"), JsonPrimitive(testUserAgent))
         assertEquals(jsonSessionProperties?.get("customHttpHeaders"), JsonObject(testHeaders.mapValues { JsonPrimitive(it.value) }))
     }
+
+    @Test
+    fun `given SSAI description with session properties, when serialize and deserialize, then returns equivalent object`() {
+        val testUserAgent = "Test User Agent"
+        val testHeaders = mapOf("X-Hello" to "World")
+        val ssaiDescription = YospaceSsaiDescription(
+            sessionProperties = SessionProperties().apply {
+                userAgent = testUserAgent
+                customHttpHeaders = testHeaders
+            }
+        )
+        val jsonString = YospaceSsaiDescriptionSerializer.toJson(ssaiDescription)
+        val deserializedSsaiDescription = YospaceSsaiDescriptionSerializer.fromJson(jsonString)
+        assertEquals(ssaiDescription.streamType, deserializedSsaiDescription.streamType)
+        assertEquals(
+            ssaiDescription.sessionProperties.serialize(),
+            deserializedSsaiDescription.sessionProperties.serialize()
+        )
+    }
 }

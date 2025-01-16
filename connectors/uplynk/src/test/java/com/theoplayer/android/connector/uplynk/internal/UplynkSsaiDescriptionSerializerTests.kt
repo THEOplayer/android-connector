@@ -37,4 +37,19 @@ class UplynkSsaiDescriptionSerializerTests {
         assertEquals(jsonObject["assetIds"]?.jsonArray?.size, 3)
         assertEquals(jsonObject["preplayParameters"]?.jsonObject?.size, 3)
     }
+
+    @Test
+    fun `given SSAI description with parameters, when serialize and deserialize, then returns equivalent object`() {
+        val ssaiDescription = UplynkSsaiDescription(
+            prefix = "preplayprefix",
+            assetIds = listOf("asset1", "asset2", "asset3"),
+            preplayParameters = LinkedHashMap(mapOf("p1" to "v1", "p2" to "v2", "p3" to "v3"))
+        )
+        val jsonString = UplynkSsaiDescriptionDeserializer.toJson(ssaiDescription)
+        val deserializedSsaiDescription = UplynkSsaiDescriptionDeserializer.fromJson(jsonString)
+        assertEquals(
+            ssaiDescription,
+            deserializedSsaiDescription
+        )
+    }
 }
