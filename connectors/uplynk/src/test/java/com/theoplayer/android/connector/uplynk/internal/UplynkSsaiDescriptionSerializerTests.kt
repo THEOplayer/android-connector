@@ -13,7 +13,7 @@ class UplynkSsaiDescriptionSerializerTests {
     @Test
     fun givenEmptySsaiDescription_WhenSerialize_ThenReturnsExpected() {
         val ssaiDescription = UplynkSsaiDescription()
-        val jsonString = UplynkSsaiDeserializer.toJson(ssaiDescription)
+        val jsonString = UplynkSsaiDescriptionDeserializer.toJson(ssaiDescription)
         val jsonObject = Json.parseToJsonElement(jsonString).jsonObject
         assertEquals(jsonObject.keys, setOf("integration"))
         assertEquals(jsonObject["integration"], JsonPrimitive(UplynkConnector.INTEGRATION_ID))
@@ -26,7 +26,7 @@ class UplynkSsaiDescriptionSerializerTests {
             assetIds = listOf("asset1", "asset2", "asset3"),
             preplayParameters = LinkedHashMap(mapOf("p1" to "v1", "p2" to "v2", "p3" to "v3"))
         )
-        val jsonString = UplynkSsaiDeserializer.toJson(ssaiDescription)
+        val jsonString = UplynkSsaiDescriptionDeserializer.toJson(ssaiDescription)
         val jsonObject = Json.parseToJsonElement(jsonString).jsonObject
         assertEquals(
             jsonObject.keys,

@@ -12,7 +12,7 @@ import kotlinx.serialization.json.JsonTransformingSerializer
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
-internal object UplynkSsaiDeserializer : CustomSsaiDescriptionSerializer {
+internal object UplynkSsaiDescriptionDeserializer : CustomSsaiDescriptionSerializer {
     override fun fromJson(json: String): UplynkSsaiDescription {
         return Json.decodeFromString(UplynkSsaiDescriptionKSerializer, json)
     }
