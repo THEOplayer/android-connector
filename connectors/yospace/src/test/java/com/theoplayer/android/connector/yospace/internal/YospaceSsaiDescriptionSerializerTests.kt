@@ -14,7 +14,7 @@ import org.junit.Test
 
 class YospaceSsaiDescriptionSerializerTests {
     @Test
-    fun givenEmptySsaiDescription_WhenSerialize_ThenReturnsExpected() {
+    fun `given empty SSAI description, when serialize, then returns expected object`() {
         val ssaiDescription = YospaceSsaiDescription()
         val jsonString = YospaceSsaiDescriptionSerializer.toJson(ssaiDescription)
         val jsonObject = Json.parseToJsonElement(jsonString).jsonObject
@@ -40,7 +40,7 @@ class YospaceSsaiDescriptionSerializerTests {
     }
 
     @Test
-    fun givenSsaiDescriptionWithStreamType_WhenSerialize_ThenReturnsExpected() {
+    fun `given SSAI description with stream type, when serialize, then returns expected object`() {
         val ssaiDescription = YospaceSsaiDescription(
             streamType = YospaceStreamType.LIVEPAUSE
         )
@@ -50,7 +50,7 @@ class YospaceSsaiDescriptionSerializerTests {
     }
 
     @Test
-    fun givenSsaiDescriptionWithSessionProperties_WhenSerialize_ThenReturnsExpected() {
+    fun `given SSAI description with session properties, when serialize, then returns expected object`() {
         val testUserAgent = "Test User Agent"
         val testHeaders = mapOf("X-Hello" to "World")
         val ssaiDescription = YospaceSsaiDescription(

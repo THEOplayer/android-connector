@@ -11,7 +11,7 @@ import org.junit.Test
 
 class UplynkSsaiDescriptionSerializerTests {
     @Test
-    fun givenEmptySsaiDescription_WhenSerialize_ThenReturnsExpected() {
+    fun `given empty SSAI description, when serialize, then returns expected object`() {
         val ssaiDescription = UplynkSsaiDescription()
         val jsonString = UplynkSsaiDescriptionDeserializer.toJson(ssaiDescription)
         val jsonObject = Json.parseToJsonElement(jsonString).jsonObject
@@ -20,7 +20,7 @@ class UplynkSsaiDescriptionSerializerTests {
     }
 
     @Test
-    fun givenSsaiDescriptionWithStreamType_WhenSerialize_ThenReturnsExpected() {
+    fun `given SSAI description with parameters, when serialize, then returns expected object`() {
         val ssaiDescription = UplynkSsaiDescription(
             prefix = "preplayprefix",
             assetIds = listOf("asset1", "asset2", "asset3"),
