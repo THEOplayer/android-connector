@@ -17,14 +17,14 @@ import com.theoplayer.android.connector.uplynk.UplynkSsaiDescription
 import com.theoplayer.android.connector.uplynk.internal.network.PreplayInternalLiveResponse
 import com.theoplayer.android.connector.uplynk.internal.network.PreplayInternalVodResponse
 import com.theoplayer.android.connector.uplynk.internal.network.UplynkApi
-import com.theoplayer.android.connector.uplynk.network.UplynkAdBreak
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
 enum class State {
     PLAYING_CONTENT,
-    PLAYING_SKIPPED_ADS
+    PLAYING_SKIPPED_AD_BREAK,
+    FINISHED_PLAYING_SKIPPED_AD_BREAK,
 }
 
 @Suppress("UnstableApiUsage")
@@ -43,63 +43,69 @@ internal class UplynkAdIntegration(
 
     private var seekTo: Duration? = null
     private var state = State.PLAYING_CONTENT
-    private var unWatchedAdBreaks: MutableList<UplynkAdBreak>? = null
 
     init {
         player.addEventListener(PlayerEventTypes.TIMEUPDATE) {
             val time = it.currentTime.toDuration(DurationUnit.SECONDS)
-            Log.d("Time check", "$time")
+            Log.d("AdScheduler", "TIMEUPDATE currentTime ${it.currentTime} time $time")
             adScheduler?.onTimeUpdate(time)
             pingScheduler?.onTimeUpdate(time)
 
-            if (state == State.PLAYING_SKIPPED_ADS) {
+            if (state == State.PLAYING_SKIPPED_AD_BREAK) {
                 if (adScheduler?.isPlayingAd() == false) {
-                    unWatchedAdBreaks?.removeFirstOrNull()
-                    unWatchedAdBreaks?.firstOrNull()?.let { adBreak ->
-                        this.player.currentTime =
-                            adBreak.timeOffset.toDouble(DurationUnit.SECONDS)
-                    } ?: run {
-                        state = State.PLAYING_CONTENT
-                        val actualSeekTo =
-                            checkNotNull(seekTo) { "Seek value cannot be null" } // TODO throw exception or silently fail to seek
-                        this.player.currentTime = actualSeekTo.toDouble(DurationUnit.SECONDS)
+                    Log.d("AdScheduler", "isPlayingAd false $time")
+                    when (uplynkConfiguration.onSeekOverAd) {
+                        SkippedAdStrategy.PLAY_NONE -> {}
+                        SkippedAdStrategy.PLAY_ALL -> {
+                            adScheduler?.getUnWatchedAdBreakOffset(seekTo!!)?.let { startOffset ->
+                                snapback(startOffset)
+                            } ?: goBackToContent()
+                        }
+
+                        SkippedAdStrategy.PLAY_LAST -> {
+                            goBackToContent()
+                        }
                     }
                 }
             }
         }
 
         player.addEventListener(PlayerEventTypes.SEEKING) {
-            Log.d("Time SEEKING", "${it.currentTime.toDuration(DurationUnit.SECONDS)}")
+            // TODO handle backward seek
+
             val time = it.currentTime.toDuration(DurationUnit.SECONDS)
 
             if (state == State.PLAYING_CONTENT) {
-                pingScheduler?.onSeeking(time) // TODO
-
                 seekTo = time
                 when (uplynkConfiguration.onSeekOverAd) {
-                    SkippedAdStrategy.PLAY_NONE -> seeking(time)
+                    SkippedAdStrategy.PLAY_NONE -> {
+                        // TODO if seeked on to an ad
+                    }
+
                     SkippedAdStrategy.PLAY_ALL -> {
-                        unWatchedAdBreaks = adScheduler?.getUnWatchedAdBreaks(time)?.toMutableList()
-                        snapback(time)
+                        adScheduler?.getUnWatchedAdBreakOffset(time)?.let { startOffset ->
+                            snapback(startOffset)
+                        }
                     }
 
                     SkippedAdStrategy.PLAY_LAST -> {
-                        unWatchedAdBreaks =
-                            adScheduler?.getLastUnWatchedAdBreak(time)?.toMutableList()
-                        snapback(time)
+                        adScheduler?.getLastUnWatchedAdBreakOffset(time)?.let { startOffset ->
+                            snapback(startOffset)
+                        }
                     }
                 }
+            } else if (state == State.FINISHED_PLAYING_SKIPPED_AD_BREAK) {
+                pingScheduler?.onSeeking(time)
             }
         }
 
         player.addEventListener(PlayerEventTypes.SEEKED) {
-            Log.d("Time SEEKED", "${it.currentTime.toDuration(DurationUnit.SECONDS)}")
             val time = it.currentTime.toDuration(DurationUnit.SECONDS)
 
-            if (state == State.PLAYING_CONTENT) {
-                pingScheduler?.onSeeked(time)
+            if (state == State.FINISHED_PLAYING_SKIPPED_AD_BREAK) {
+                state = State.PLAYING_CONTENT
                 seekTo = null
-                unWatchedAdBreaks = null
+                pingScheduler?.onSeeked(time)
             }
         }
 
@@ -108,18 +114,18 @@ internal class UplynkAdIntegration(
         }
     }
 
-    private fun snapback(time: Duration) {
-        if (!unWatchedAdBreaks.isNullOrEmpty()) {
-            state = State.PLAYING_SKIPPED_ADS
-            unWatchedAdBreaks?.first()?.timeOffset?.toDouble(DurationUnit.SECONDS)
-                ?.let { seekTo ->
-                    this.player.currentTime = seekTo
-                }
-        }
+    private fun goBackToContent() {
+        state = State.FINISHED_PLAYING_SKIPPED_AD_BREAK
+        val actualSeekTo =
+            checkNotNull(seekTo) { "Seek value cannot be null" } // TODO throw exception or silently fail to seek??
+        Log.d("AdScheduler", "Going back to content $actualSeekTo")
+        this.player.currentTime = actualSeekTo.toDouble(DurationUnit.SECONDS)
     }
 
-    private fun seeking(time: Duration) {
-        pingScheduler?.onSeeking(time)
+    private fun snapback(startOffset: Duration) {
+        Log.d("AdScheduler", "seeking to $startOffset")
+        state = State.PLAYING_SKIPPED_AD_BREAK
+        this.player.currentTime = startOffset.toDouble(DurationUnit.SECONDS)
     }
 
     override suspend fun resetSource() {
