@@ -19,8 +19,9 @@ internal const val TAG = "UplynkConnector"
  *
  * @see [Uplynk Media Platform](https://docs.edgecast.com/video/index.html)
  */
+// TODO add config
 class UplynkConnector(
-    private val theoplayerView: THEOplayerView,
+    private val theoplayerView: THEOplayerView, private val uplynkConfiguration: UplynkConfiguration
 ) {
     private lateinit var integration: UplynkAdIntegration
     private val eventDispatcher = UplynkEventDispatcher()
@@ -35,7 +36,8 @@ class UplynkConnector(
             controller,
             eventDispatcher,
             UplynkSsaiDescriptionConverter(),
-            UplynkApi()
+            UplynkApi(),
+            uplynkConfiguration
         )
         this.integration = integration
         return integration

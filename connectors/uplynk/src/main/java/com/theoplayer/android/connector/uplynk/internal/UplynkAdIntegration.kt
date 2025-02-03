@@ -17,14 +17,14 @@ import com.theoplayer.android.connector.uplynk.UplynkSsaiDescription
 import com.theoplayer.android.connector.uplynk.internal.network.PreplayInternalLiveResponse
 import com.theoplayer.android.connector.uplynk.internal.network.PreplayInternalVodResponse
 import com.theoplayer.android.connector.uplynk.internal.network.UplynkApi
+import com.theoplayer.android.connector.uplynk.network.UplynkAdBreak
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
 enum class State {
     PLAYING_CONTENT,
-    PLAYING_SKIPPED_ADS,
-    PLAYED_SKIPPED_ADS
+    PLAYING_SKIPPED_ADS
 }
 
 @Suppress("UnstableApiUsage")
@@ -41,9 +41,9 @@ internal class UplynkAdIntegration(
     private val player: Player
         get() = theoplayerView.player
 
-    private var seekHandled = false
     private var seekTo: Duration? = null
     private var state = State.PLAYING_CONTENT
+    private var unWatchedAdBreaks: MutableList<UplynkAdBreak>? = null
 
     init {
         player.addEventListener(PlayerEventTypes.TIMEUPDATE) {
@@ -53,14 +53,16 @@ internal class UplynkAdIntegration(
             pingScheduler?.onTimeUpdate(time)
 
             if (state == State.PLAYING_SKIPPED_ADS) {
-                //val currentAd = adScheduler?.getCurrentAdBreak(time)
                 if (adScheduler?.isPlayingAd() == false) {
-                    adScheduler?.getUnWatchedAdBreak(seekTo!!)?.let { adBreakState ->
+                    unWatchedAdBreaks?.removeFirstOrNull()
+                    unWatchedAdBreaks?.firstOrNull()?.let { adBreak ->
                         this.player.currentTime =
-                            adBreakState.adBreak.timeOffset.toDouble(DurationUnit.SECONDS)
+                            adBreak.timeOffset.toDouble(DurationUnit.SECONDS)
                     } ?: run {
-                        state = State.PLAYED_SKIPPED_ADS
-                        this.player.currentTime = seekTo!!.toDouble(DurationUnit.SECONDS)
+                        state = State.PLAYING_CONTENT
+                        val actualSeekTo =
+                            checkNotNull(seekTo) { "Seek value cannot be null" } // TODO throw exception or silently fail to seek
+                        this.player.currentTime = actualSeekTo.toDouble(DurationUnit.SECONDS)
                     }
                 }
             }
@@ -69,22 +71,24 @@ internal class UplynkAdIntegration(
         player.addEventListener(PlayerEventTypes.SEEKING) {
             Log.d("Time SEEKING", "${it.currentTime.toDuration(DurationUnit.SECONDS)}")
             val time = it.currentTime.toDuration(DurationUnit.SECONDS)
-            when(uplynkConfiguration.onSeekOverAd){
-                SkippedAdStrategy.PLAY_ALL -> snapbackAll(time)
-                SkippedAdStrategy.PLAY_NONE -> seeking(time)
-                SkippedAdStrategy.PLAY_LAST -> snapback(time)
-            }
 
             if (state == State.PLAYING_CONTENT) {
+                pingScheduler?.onSeeking(time) // TODO
+
                 seekTo = time
-                pingScheduler?.onSeeking(time)
-                adScheduler?.getUnWatchedAdBreak(time)?.let { adBreakState ->
-                    state = State.PLAYING_SKIPPED_ADS
-                    this.player.currentTime =
-                        adBreakState.adBreak.timeOffset.toDouble(DurationUnit.SECONDS)
+                when (uplynkConfiguration.onSeekOverAd) {
+                    SkippedAdStrategy.PLAY_NONE -> seeking(time)
+                    SkippedAdStrategy.PLAY_ALL -> {
+                        unWatchedAdBreaks = adScheduler?.getUnWatchedAdBreaks(time)?.toMutableList()
+                        snapback(time)
+                    }
+
+                    SkippedAdStrategy.PLAY_LAST -> {
+                        unWatchedAdBreaks =
+                            adScheduler?.getLastUnWatchedAdBreak(time)?.toMutableList()
+                        snapback(time)
+                    }
                 }
-            } else if (state == State.PLAYED_SKIPPED_ADS) {
-                state = State.PLAYING_CONTENT
             }
         }
 
@@ -94,8 +98,8 @@ internal class UplynkAdIntegration(
 
             if (state == State.PLAYING_CONTENT) {
                 pingScheduler?.onSeeked(time)
-                seekHandled = false
                 seekTo = null
+                unWatchedAdBreaks = null
             }
         }
 
@@ -104,12 +108,14 @@ internal class UplynkAdIntegration(
         }
     }
 
-    private fun snapbackAll(time: Duration) {
-        TODO("Not yet implemented")
-    }
-
     private fun snapback(time: Duration) {
-        TODO("Not yet implemented")
+        if (!unWatchedAdBreaks.isNullOrEmpty()) {
+            state = State.PLAYING_SKIPPED_ADS
+            unWatchedAdBreaks?.first()?.timeOffset?.toDouble(DurationUnit.SECONDS)
+                ?.let { seekTo ->
+                    this.player.currentTime = seekTo
+                }
+        }
     }
 
     private fun seeking(time: Duration) {
