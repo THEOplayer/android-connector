@@ -1,5 +1,6 @@
 package com.theoplayer.android.connector.uplynk.internal
 
+import com.theoplayer.android.api.ads.Ad
 import com.theoplayer.android.connector.uplynk.network.UplynkAd
 import com.theoplayer.android.connector.uplynk.network.UplynkAdBreak
 import com.theoplayer.android.connector.uplynk.network.UplynkAds
@@ -33,6 +34,7 @@ internal class UplynkAdScheduler(
     uplynkAdBreaks: List<UplynkAdBreak>,
     private val adHandler: AdHandler
 ) {
+
     private val adBreaks = CopyOnWriteArrayList(uplynkAdBreaks.map {
         adHandler.createAdBreak(it)
         UplynkAdBreakState(it, AdBreakState.NOT_PLAYED)
@@ -50,8 +52,7 @@ internal class UplynkAdScheduler(
     }
 
     fun onTimeUpdate(time: Duration) {
-        val currentAdBreak =
-            adBreaks.firstOrNull { time in it.adBreak.timeOffset..(it.adBreak.timeOffset + it.adBreak.duration) }
+        val currentAdBreak = getCurrentAdBreak(time)
 
         if (currentAdBreak != null) {
             val currentAd = beginCurrentAdBreak(currentAdBreak, time)
@@ -92,7 +93,7 @@ internal class UplynkAdScheduler(
     private fun endAllStartedAds(
         currentAdBreak: UplynkAdBreakState,
         currentAd: UplynkAdState? = null
-    )  = currentAdBreak.ads
+    ) = currentAdBreak.ads
         .filter { it.state == AdState.STARTED && it != currentAd }
         .forEach {
             moveAdToState(it, AdState.COMPLETED)
@@ -133,5 +134,22 @@ internal class UplynkAdScheduler(
     fun add(ads: UplynkAds) = ads.breaks.forEach {
         adHandler.createAdBreak(it)
         adBreaks.add(UplynkAdBreakState(it, AdBreakState.NOT_PLAYED))
+    }
+
+    fun getUnWatchedAdBreak(time: Duration): UplynkAdBreakState? {
+        // TODO !STARTED or ....
+        return adBreaks.firstOrNull { it.adBreak.timeOffset <= time && it.state == AdBreakState.NOT_PLAYED }
+    }
+
+    fun getCurrentAdBreak(time: Duration): UplynkAdBreakState? {
+        return adBreaks.firstOrNull { time in it.adBreak.timeOffset..(it.adBreak.timeOffset + it.adBreak.duration) }
+    }
+
+    fun isPlayingAd() : Boolean {
+        return adBreaks.firstOrNull { it.state == AdBreakState.STARTED } != null
+    }
+
+    fun skipAd(ad: Ad) {
+        //adHandler.onAdSkip(ad)
     }
 }
