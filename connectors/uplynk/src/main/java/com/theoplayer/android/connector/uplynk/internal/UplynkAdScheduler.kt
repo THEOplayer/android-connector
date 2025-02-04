@@ -1,7 +1,6 @@
 package com.theoplayer.android.connector.uplynk.internal
 
 import android.util.Log
-import com.theoplayer.android.api.ads.Ad
 import com.theoplayer.android.connector.uplynk.network.UplynkAd
 import com.theoplayer.android.connector.uplynk.network.UplynkAdBreak
 import com.theoplayer.android.connector.uplynk.network.UplynkAds
@@ -104,7 +103,10 @@ internal class UplynkAdScheduler(
         .filter { it.state == AdState.STARTED && it != currentAd }
         .forEach {
             moveAdToState(it, AdState.COMPLETED)
-            Log.d("AdScheduler", "endAllStartedAds ${currentAdBreak.adBreak.timeOffset} ${it.state}")
+            Log.d(
+                "AdScheduler",
+                "endAllStartedAds ${currentAdBreak.adBreak.timeOffset} ${it.state}"
+            )
         }
 
     private fun endAllAdBreaks() = adBreaks
@@ -122,7 +124,10 @@ internal class UplynkAdScheduler(
         val currentAd = findCurrentAd(currentAdBreak, time)
         if (currentAdBreak.state != AdBreakState.STARTED) {
             moveToState(currentAdBreak, AdBreakState.STARTED)
-            Log.d("AdScheduler", "beginCurrentAdBreak time $time offset ${currentAdBreak.adBreak.timeOffset} ${currentAdBreak.state} size ${currentAdBreak.adBreak.ads.size} dur ${currentAdBreak.adBreak.duration}")
+            Log.d(
+                "AdScheduler",
+                "beginCurrentAdBreak time $time offset ${currentAdBreak.adBreak.timeOffset} ${currentAdBreak.state} size ${currentAdBreak.adBreak.ads.size} dur ${currentAdBreak.adBreak.duration}"
+            )
         }
         return currentAd
     }
@@ -149,8 +154,8 @@ internal class UplynkAdScheduler(
         return adBreaks.firstOrNull { it.state == AdBreakState.STARTED } != null
     }
 
-    fun skipAd(ad: Ad) {
-        //adHandler.onAdSkip(ad)
+    fun skipAd(ad: UplynkAd) {
+        adHandler.onAdSkip(ad)
     }
 
     fun getUnWatchedAdBreakOffset(time: Duration): Duration? {

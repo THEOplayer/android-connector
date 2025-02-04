@@ -17,6 +17,7 @@ import com.theoplayer.android.connector.uplynk.UplynkSsaiDescription
 import com.theoplayer.android.connector.uplynk.internal.network.PreplayInternalLiveResponse
 import com.theoplayer.android.connector.uplynk.internal.network.PreplayInternalVodResponse
 import com.theoplayer.android.connector.uplynk.internal.network.UplynkApi
+import com.theoplayer.android.connector.uplynk.network.UplynkAd
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
@@ -41,7 +42,7 @@ internal class UplynkAdIntegration(
     private val player: Player
         get() = theoplayerView.player
 
-    private var seekTo: Duration? = null
+    private var seekToTime: Duration? = null
     private var state = State.PLAYING_CONTENT
 
     init {
@@ -57,9 +58,10 @@ internal class UplynkAdIntegration(
                     when (uplynkConfiguration.onSeekOverAd) {
                         SkippedAdStrategy.PLAY_NONE -> {}
                         SkippedAdStrategy.PLAY_ALL -> {
-                            adScheduler?.getUnWatchedAdBreakOffset(seekTo!!)?.let { startOffset ->
-                                snapback(startOffset)
-                            } ?: goBackToContent()
+                            adScheduler?.getUnWatchedAdBreakOffset(seekToTime!!)
+                                ?.let { startOffset ->
+                                    snapback(startOffset)
+                                } ?: goBackToContent()
                         }
 
                         SkippedAdStrategy.PLAY_LAST -> {
@@ -77,11 +79,12 @@ internal class UplynkAdIntegration(
             Log.d("AdScheduler", "TIMEUPDATE SEEKING currentTime ${it.currentTime} time $time")
 
             if (state == State.PLAYING_CONTENT) {
-                seekTo = time
+                seekToTime = time
                 when (uplynkConfiguration.onSeekOverAd) {
                     SkippedAdStrategy.PLAY_NONE -> {
                         adScheduler?.getLastUnWatchedAdBreakEndTime(time)?.let { endTime ->
-                            this.player.currentTime = endTime.toDouble(DurationUnit.SECONDS)
+                            state = State.FINISHED_PLAYING_SKIPPED_AD_BREAK
+                            seek(endTime)
                         }
                     }
 
@@ -108,7 +111,7 @@ internal class UplynkAdIntegration(
 
             if (state == State.FINISHED_PLAYING_SKIPPED_AD_BREAK) {
                 state = State.PLAYING_CONTENT
-                seekTo = null
+                seekToTime = null
                 pingScheduler?.onSeeked(time)
             }
         }
@@ -118,18 +121,22 @@ internal class UplynkAdIntegration(
         }
     }
 
+    private fun seek(seekTime: Duration) {
+        player.currentTime = seekTime.toDouble(DurationUnit.SECONDS)
+    }
+
     private fun goBackToContent() {
         state = State.FINISHED_PLAYING_SKIPPED_AD_BREAK
         val actualSeekTo =
-            checkNotNull(seekTo) { "Seek value cannot be null" } // TODO throw exception or silently fail to seek??
+            checkNotNull(seekToTime) { "Seek value cannot be null" } // TODO throw exception or silently fail to seek??
         Log.d("AdScheduler", "Going back to content $actualSeekTo")
-        this.player.currentTime = actualSeekTo.toDouble(DurationUnit.SECONDS)
+        seek(actualSeekTo)
     }
 
     private fun snapback(startOffset: Duration) {
         Log.d("AdScheduler", "seeking to $startOffset")
         state = State.PLAYING_SKIPPED_AD_BREAK
-        this.player.currentTime = startOffset.toDouble(DurationUnit.SECONDS)
+        seek(startOffset)
     }
 
     override suspend fun resetSource() {
@@ -212,7 +219,10 @@ internal class UplynkAdIntegration(
                 try {
                     val response = it.parseExternalResponse()
                     eventDispatcher.dispatchPreplayLiveEvents(response)
-                    adScheduler = UplynkAdScheduler(listOf(), AdHandler(controller))
+                    adScheduler = UplynkAdScheduler(
+                        listOf(),
+                        AdHandler(controller, uplynkConfiguration.defaultSkipOffset)
+                    )
                 } catch (e: Exception) {
                     eventDispatcher.dispatchPreplayFailure(e)
                     controller.error(e)
@@ -228,7 +238,10 @@ internal class UplynkAdIntegration(
                 try {
                     val response = it.parseExternalResponse()
                     eventDispatcher.dispatchPreplayEvents(response)
-                    adScheduler = UplynkAdScheduler(response.ads.breaks, AdHandler(controller))
+                    adScheduler = UplynkAdScheduler(
+                        response.ads.breaks,
+                        AdHandler(controller, uplynkConfiguration.defaultSkipOffset)
+                    )
                 } catch (e: Exception) {
                     eventDispatcher.dispatchPreplayFailure(e)
                     controller.error(e)
@@ -237,6 +250,6 @@ internal class UplynkAdIntegration(
     }
 
     override fun skipAd(ad: Ad) {
-        adScheduler?.skipAd(ad)
+        adScheduler?.skipAd(ad.customData as UplynkAd)
     }
 }

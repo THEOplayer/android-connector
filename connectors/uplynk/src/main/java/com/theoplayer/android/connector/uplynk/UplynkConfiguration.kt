@@ -7,6 +7,6 @@ enum class SkippedAdStrategy {
 }
 
 data class UplynkConfiguration(
-    val defaultSkipOffset: Double?,
-    val onSeekOverAd: SkippedAdStrategy = SkippedAdStrategy.PLAY_ALL
+    val defaultSkipOffset: Int = -1,
+    val onSeekOverAd: SkippedAdStrategy = SkippedAdStrategy.PLAY_NONE
 )
