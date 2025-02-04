@@ -74,12 +74,15 @@ internal class UplynkAdIntegration(
             // TODO handle backward seek
 
             val time = it.currentTime.toDuration(DurationUnit.SECONDS)
+            Log.d("AdScheduler", "TIMEUPDATE SEEKING currentTime ${it.currentTime} time $time")
 
             if (state == State.PLAYING_CONTENT) {
                 seekTo = time
                 when (uplynkConfiguration.onSeekOverAd) {
                     SkippedAdStrategy.PLAY_NONE -> {
-                        // TODO if seeked on to an ad
+                        adScheduler?.getLastUnWatchedAdBreakEndTime(time)?.let { endTime ->
+                            this.player.currentTime = endTime.toDouble(DurationUnit.SECONDS)
+                        }
                     }
 
                     SkippedAdStrategy.PLAY_ALL -> {
@@ -101,6 +104,7 @@ internal class UplynkAdIntegration(
 
         player.addEventListener(PlayerEventTypes.SEEKED) {
             val time = it.currentTime.toDuration(DurationUnit.SECONDS)
+            Log.d("AdScheduler", "TIMEUPDATE SEEKED currentTime ${it.currentTime} time $time")
 
             if (state == State.FINISHED_PLAYING_SKIPPED_AD_BREAK) {
                 state = State.PLAYING_CONTENT
