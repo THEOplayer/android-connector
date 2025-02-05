@@ -21,7 +21,7 @@ data class UplynkAdState(
 enum class AdState {
     NOT_PLAYED,
     STARTED,
-    COMPLETED,
+    COMPLETED
 }
 
 enum class AdBreakState {
@@ -155,7 +155,20 @@ internal class UplynkAdScheduler(
     }
 
     fun skipAd(ad: UplynkAd) {
+        //findAd(ad)?.let { moveAdToState(it, AdState.SKIPPED) }
         adHandler.onAdSkip(ad)
+    }
+
+    private fun findAd(ad: UplynkAd): UplynkAdState? {
+        for (adBreak in adBreaks) {
+            for (adState in adBreak.ads) {
+                if (adState.ad == ad && adState.state == AdState.STARTED) {
+                    return adState
+                }
+            }
+        }
+
+        return null
     }
 
     fun getUnWatchedAdBreakOffset(time: Duration): Duration? {
@@ -170,5 +183,17 @@ internal class UplynkAdScheduler(
         return adBreaks.firstOrNull { (time in it.adBreak.timeOffset..(it.adBreak.timeOffset + it.adBreak.duration)) && it.state == AdBreakState.NOT_PLAYED }?.adBreak?.let {
             it.timeOffset + it.duration
         }
+    }
+
+    fun getCurrentAdBreakEndTime(currentAd: UplynkAd): Duration? {
+        for (adBreak in adBreaks) {
+            for (ad in adBreak.ads) {
+                if (ad.ad == currentAd && ad.state == AdState.STARTED) {
+                    return adBreak.adBreak.timeOffset + adBreak.adBreak.duration
+                }
+            }
+        }
+
+        return null
     }
 }

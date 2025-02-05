@@ -250,6 +250,10 @@ internal class UplynkAdIntegration(
     }
 
     override fun skipAd(ad: Ad) {
-        adScheduler?.skipAd(ad.customData as UplynkAd)
+        val currentAd = ad.customData as UplynkAd
+        adScheduler?.getCurrentAdBreakEndTime(currentAd)?.let {
+            seek(it)
+        }
+        adScheduler?.skipAd(currentAd)
     }
 }
