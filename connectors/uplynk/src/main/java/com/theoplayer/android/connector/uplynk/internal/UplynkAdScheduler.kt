@@ -63,7 +63,7 @@ internal class UplynkAdScheduler(
             endAllAdBreaksExcept(currentAdBreak)
         } else {
             endAllAdBreaks()
-            Log.d("AdScheduler", "adBreak is null $time")
+            //Log.d("AdScheduler", "adBreak is null $time")
         }
     }
 
@@ -176,7 +176,11 @@ internal class UplynkAdScheduler(
     }
 
     fun getLastUnWatchedAdBreakOffset(time: Duration): Duration? {
-        return adBreaks.lastOrNull { it.adBreak.timeOffset <= time && it.state == AdBreakState.NOT_PLAYED }?.adBreak?.timeOffset
+         return adBreaks.lastOrNull { it.adBreak.timeOffset <= time}?.let {
+             if(it.state == AdBreakState.NOT_PLAYED)
+                 return it.adBreak.timeOffset
+             else return null
+        }
     }
 
     fun getLastUnWatchedAdBreakEndTime(time: Duration): Duration? {
