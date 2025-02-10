@@ -21,7 +21,7 @@ data class UplynkAdState(
 enum class AdState {
     NOT_PLAYED,
     STARTED,
-    COMPLETED
+    COMPLETED,
 }
 
 enum class AdBreakState {
@@ -34,7 +34,6 @@ internal class UplynkAdScheduler(
     uplynkAdBreaks: List<UplynkAdBreak>,
     private val adHandler: AdHandler
 ) {
-
     private val adBreaks = CopyOnWriteArrayList(uplynkAdBreaks.map {
         adHandler.createAdBreak(it)
         UplynkAdBreakState(it, AdBreakState.NOT_PLAYED)
@@ -75,9 +74,7 @@ internal class UplynkAdScheduler(
         }
         when (currentAd.state) {
             AdState.COMPLETED,
-            AdState.NOT_PLAYED -> {
-                moveAdToState(currentAd, AdState.STARTED)
-            }
+            AdState.NOT_PLAYED -> { moveAdToState(currentAd, AdState.STARTED) }
 
             AdState.STARTED -> adHandler.onAdProgressUpdate(currentAd, currentAdBreak.adBreak, time)
         }
@@ -108,9 +105,7 @@ internal class UplynkAdScheduler(
 
     private fun endAllAdBreaksExcept(currentAdBreak: UplynkAdBreakState?) = adBreaks
         .filter { it.state == AdBreakState.STARTED && it != currentAdBreak }
-        .forEach {
-            moveToState(it, AdBreakState.FINISHED)
-        }
+        .forEach { moveToState(it, AdBreakState.FINISHED) }
 
     private fun beginCurrentAdBreak(
         currentAdBreak: UplynkAdBreakState,

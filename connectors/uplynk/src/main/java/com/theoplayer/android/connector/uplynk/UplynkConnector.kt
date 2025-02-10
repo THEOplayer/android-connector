@@ -19,7 +19,6 @@ internal const val TAG = "UplynkConnector"
  *
  * @see [Uplynk Media Platform](https://docs.edgecast.com/video/index.html)
  */
-// TODO add config
 class UplynkConnector(
     private val theoplayerView: THEOplayerView, private val uplynkConfiguration: UplynkConfiguration
 ) {

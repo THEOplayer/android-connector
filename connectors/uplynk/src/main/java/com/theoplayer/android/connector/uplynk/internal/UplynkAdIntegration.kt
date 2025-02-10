@@ -206,16 +206,8 @@ internal class UplynkAdIntegration(
         minimalResponse.drm?.let { drm ->
             if (drm.required) {
                 val drmBuilder = DRMConfiguration.Builder().apply {
-                    drm.widevineLicenseURL?.let {
-                        widevine(
-                            KeySystemConfiguration.Builder(it).build()
-                        )
-                    }
-                    drm.playreadyLicenseURL?.let {
-                        playready(
-                            KeySystemConfiguration.Builder(it).build()
-                        )
-                    }
+                    drm.widevineLicenseURL?.let { widevine(KeySystemConfiguration.Builder(it).build()) }
+                    drm.playreadyLicenseURL?.let { playready(KeySystemConfiguration.Builder(it).build()) }
                 }
                 newUplynkSource = newUplynkSource.replaceDrm(drmBuilder.build())
             }
@@ -263,10 +255,7 @@ internal class UplynkAdIntegration(
                 try {
                     val response = it.parseExternalResponse()
                     eventDispatcher.dispatchPreplayLiveEvents(response)
-                    adScheduler = UplynkAdScheduler(
-                        listOf(),
-                        AdHandler(controller, uplynkConfiguration.defaultSkipOffset)
-                    )
+                    adScheduler = UplynkAdScheduler(listOf(), AdHandler(controller, uplynkConfiguration.defaultSkipOffset))
                 } catch (e: Exception) {
                     eventDispatcher.dispatchPreplayFailure(e)
                     controller.error(e)
@@ -282,10 +271,7 @@ internal class UplynkAdIntegration(
                 try {
                     val response = it.parseExternalResponse()
                     eventDispatcher.dispatchPreplayEvents(response)
-                    adScheduler = UplynkAdScheduler(
-                        response.ads.breaks,
-                        AdHandler(controller, uplynkConfiguration.defaultSkipOffset)
-                    )
+                    adScheduler = UplynkAdScheduler(response.ads.breaks, AdHandler(controller, uplynkConfiguration.defaultSkipOffset))
                 } catch (e: Exception) {
                     eventDispatcher.dispatchPreplayFailure(e)
                     controller.error(e)
