@@ -40,7 +40,7 @@ class AdHandlerTest {
         MockitoAnnotations.openMocks(this)
         whenever(controller.createAdBreak(any())).thenReturn(mockAdBreak)
         whenever(controller.createAd(any(), any())).thenReturn(mockAd)
-        adHandler = AdHandler(controller)
+        adHandler = AdHandler(controller, 0)
     }
 
     @Test
