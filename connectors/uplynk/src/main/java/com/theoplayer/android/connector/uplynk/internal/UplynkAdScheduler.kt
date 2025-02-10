@@ -1,6 +1,6 @@
 package com.theoplayer.android.connector.uplynk.internal
 
-import android.util.Log
+import com.theoplayer.android.api.ads.Ad
 import com.theoplayer.android.connector.uplynk.network.UplynkAd
 import com.theoplayer.android.connector.uplynk.network.UplynkAdBreak
 import com.theoplayer.android.connector.uplynk.network.UplynkAds
@@ -35,7 +35,6 @@ internal class UplynkAdScheduler(
     private val adHandler: AdHandler
 ) {
 
-    // TODO Test for empty
     private val adBreaks = CopyOnWriteArrayList(uplynkAdBreaks.map {
         adHandler.createAdBreak(it)
         UplynkAdBreakState(it, AdBreakState.NOT_PLAYED)
@@ -63,7 +62,6 @@ internal class UplynkAdScheduler(
             endAllAdBreaksExcept(currentAdBreak)
         } else {
             endAllAdBreaks()
-            //Log.d("AdScheduler", "adBreak is null $time")
         }
     }
 
@@ -78,7 +76,6 @@ internal class UplynkAdScheduler(
         when (currentAd.state) {
             AdState.COMPLETED,
             AdState.NOT_PLAYED -> {
-                Log.d("AdScheduler", "beginCurrentAd $time")
                 moveAdToState(currentAd, AdState.STARTED)
             }
 
@@ -103,10 +100,6 @@ internal class UplynkAdScheduler(
         .filter { it.state == AdState.STARTED && it != currentAd }
         .forEach {
             moveAdToState(it, AdState.COMPLETED)
-            Log.d(
-                "AdScheduler",
-                "endAllStartedAds ${currentAdBreak.adBreak.timeOffset} ${it.state}"
-            )
         }
 
     private fun endAllAdBreaks() = adBreaks
@@ -115,7 +108,9 @@ internal class UplynkAdScheduler(
 
     private fun endAllAdBreaksExcept(currentAdBreak: UplynkAdBreakState?) = adBreaks
         .filter { it.state == AdBreakState.STARTED && it != currentAdBreak }
-        .forEach { moveToState(it, AdBreakState.FINISHED) }
+        .forEach {
+            moveToState(it, AdBreakState.FINISHED)
+        }
 
     private fun beginCurrentAdBreak(
         currentAdBreak: UplynkAdBreakState,
@@ -124,10 +119,6 @@ internal class UplynkAdScheduler(
         val currentAd = findCurrentAd(currentAdBreak, time)
         if (currentAdBreak.state != AdBreakState.STARTED) {
             moveToState(currentAdBreak, AdBreakState.STARTED)
-            Log.d(
-                "AdScheduler",
-                "beginCurrentAdBreak time $time offset ${currentAdBreak.adBreak.timeOffset} ${currentAdBreak.state} size ${currentAdBreak.adBreak.ads.size} dur ${currentAdBreak.adBreak.duration}"
-            )
         }
         return currentAd
     }
@@ -154,21 +145,8 @@ internal class UplynkAdScheduler(
         return adBreaks.firstOrNull { it.state == AdBreakState.STARTED } != null
     }
 
-    fun skipAd(ad: UplynkAd) {
-        //findAd(ad)?.let { moveAdToState(it, AdState.SKIPPED) }
-        adHandler.onAdSkip(ad)
-    }
-
-    private fun findAd(ad: UplynkAd): UplynkAdState? {
-        for (adBreak in adBreaks) {
-            for (adState in adBreak.ads) {
-                if (adState.ad == ad && adState.state == AdState.STARTED) {
-                    return adState
-                }
-            }
-        }
-
-        return null
+    fun skipAd(ad: Ad) {
+        adHandler.onAdSkip(ad.customData as UplynkAd)
     }
 
     fun getUnWatchedAdBreakOffset(time: Duration): Duration? {
@@ -176,28 +154,36 @@ internal class UplynkAdScheduler(
     }
 
     fun getLastUnWatchedAdBreakOffset(time: Duration): Duration? {
-         return adBreaks.lastOrNull { it.adBreak.timeOffset <= time}?.let {
-             if(it.state == AdBreakState.NOT_PLAYED)
-                 return it.adBreak.timeOffset
-             else return null
+        return adBreaks.lastOrNull { it.adBreak.timeOffset <= time }?.let {
+            if (it.state == AdBreakState.NOT_PLAYED)
+                return it.adBreak.timeOffset
+            else return null
         }
     }
 
-    fun getLastUnWatchedAdBreakEndTime(time: Duration): Duration? {
+    fun getAdBreakOffset(time: Duration): Duration? {
+        return adBreaks.firstOrNull { (time in it.adBreak.timeOffset..(it.adBreak.timeOffset + it.adBreak.duration)) && it.state == AdBreakState.NOT_PLAYED }?.adBreak?.timeOffset
+    }
+
+    fun getAdBreakEndTime(time: Duration): Duration? {
         return adBreaks.firstOrNull { (time in it.adBreak.timeOffset..(it.adBreak.timeOffset + it.adBreak.duration)) && it.state == AdBreakState.NOT_PLAYED }?.adBreak?.let {
             it.timeOffset + it.duration
         }
     }
 
-    fun getCurrentAdBreakEndTime(currentAd: UplynkAd): Duration? {
+    fun getSkipToTime(currentAd: Ad, currentTime: Duration, skipOffset: Duration): Duration? {
+        val currentUplynkAd = currentAd.customData as UplynkAd
         for (adBreak in adBreaks) {
             for (ad in adBreak.ads) {
-                if (ad.ad == currentAd && ad.state == AdState.STARTED) {
-                    return adBreak.adBreak.timeOffset + adBreak.adBreak.duration
+                if (ad.ad == currentUplynkAd && ad.state == AdState.STARTED) {
+                    return if (currentTime >= adBreak.adBreak.timeOffset + skipOffset) {
+                        adBreak.adBreak.timeOffset + adBreak.adBreak.duration
+                    } else {
+                        null
+                    }
                 }
             }
         }
-
         return null
     }
 }

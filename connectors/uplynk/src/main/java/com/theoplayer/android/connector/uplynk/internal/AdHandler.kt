@@ -1,6 +1,5 @@
 package com.theoplayer.android.connector.uplynk.internal
 
-import android.util.Log
 import com.theoplayer.android.api.ads.Ad
 import com.theoplayer.android.api.ads.AdBreakInit
 import com.theoplayer.android.api.ads.AdInit
@@ -11,7 +10,10 @@ import java.util.WeakHashMap
 import kotlin.time.Duration
 
 @Suppress("UnstableApiUsage")
-internal class AdHandler(private val controller: ServerSideAdIntegrationController, private val skipOffset : Int) {
+internal class AdHandler(
+    private val controller: ServerSideAdIntegrationController,
+    private val skipOffset: Int
+) {
     private val scheduledAds = WeakHashMap<UplynkAd, Ad>()
 
     fun createAdBreak(adBreak: UplynkAdBreak) {
@@ -63,7 +65,6 @@ internal class AdHandler(private val controller: ServerSideAdIntegrationControll
         val startTime = adBreak.timeOffset + playedDuration
         val progress = ((time - startTime) / currentAd.ad.duration).coerceIn(0.0, 1.0)
 
-        Log.d("AdScheduler", "onAdProgressUpdate time $time startTime $startTime")
         controller.updateAdProgress(ad, progress)
     }
 }

@@ -36,8 +36,8 @@ internal val UplynkSsaiDescription.urlAssetType
 
 internal val UplynkSsaiDescription.urlAssetId
     get() = when {
-        assetIds.isEmpty() && externalIds.size == 1 -> "$userId/${externalIds.first()}.json"
-        assetIds.isEmpty() && externalIds.size > 1 -> "$userId/${externalIds.joinToString(",")}/multiple.json"
+        assetIds.isEmpty() && externalIds.size == 1 -> "ext/$userId/${externalIds.first()}.json"
+        assetIds.isEmpty() && externalIds.size > 1 -> "ext/$userId/${externalIds.joinToString(",")}/multiple.json"
         assetIds.size == 1 -> "${assetIds.first()}.json"
         else -> assetIds.joinToString(separator = ",") + "/multiple.json"
     }
