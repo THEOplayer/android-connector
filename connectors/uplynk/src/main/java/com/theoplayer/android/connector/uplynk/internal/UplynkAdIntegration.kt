@@ -37,10 +37,6 @@ internal class UplynkAdIntegration(
     private val uplynkApi: UplynkApi,
     private val uplynkConfiguration: UplynkConfiguration
 ) : ServerSideAdIntegrationHandler {
-    companion object {
-        private const val TAG = "UplynkAdIntegration"
-    }
-
     private var pingScheduler: PingScheduler? = null
     private var adScheduler: UplynkAdScheduler? = null
     private val player: Player
