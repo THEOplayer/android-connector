@@ -126,7 +126,8 @@ class AdHandlerTest {
                 AdInit(
                     type = adBreak.type,
                     duration = 100,
-                    customData = adBreak.ads[0]
+                    customData = adBreak.ads[0],
+                    skipOffset = 0
                 )
             ), eq(mockAdBreak)
         )
@@ -135,7 +136,8 @@ class AdHandlerTest {
                 AdInit(
                     type = adBreak.type,
                     duration = 200,
-                    customData = adBreak.ads[1]
+                    customData = adBreak.ads[1],
+                    skipOffset = 0
                 )
             ), eq(mockAdBreak)
         )
@@ -144,7 +146,8 @@ class AdHandlerTest {
                 AdInit(
                     type = adBreak.type,
                     duration = 300,
-                    customData = adBreak.ads[2]
+                    customData = adBreak.ads[2],
+                    skipOffset = 0
                 )
             ), eq(mockAdBreak)
         )
