@@ -74,7 +74,7 @@ internal class UplynkAdScheduler(
         }
         when (currentAd.state) {
             AdState.COMPLETED,
-            AdState.NOT_PLAYED -> { moveAdToState(currentAd, AdState.STARTED) }
+            AdState.NOT_PLAYED -> moveAdToState(currentAd, AdState.STARTED)
 
             AdState.STARTED -> adHandler.onAdProgressUpdate(currentAd, currentAdBreak.adBreak, time)
         }
