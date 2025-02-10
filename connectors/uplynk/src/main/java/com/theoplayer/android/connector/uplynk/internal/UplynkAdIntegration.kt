@@ -1,6 +1,5 @@
 package com.theoplayer.android.connector.uplynk.internal
 
-import android.util.Log
 import com.theoplayer.android.api.THEOplayerView
 import com.theoplayer.android.api.ads.Ad
 import com.theoplayer.android.api.ads.ServerSideAdIntegrationController
@@ -95,11 +94,7 @@ internal class UplynkAdIntegration(
     private fun handleEndOfAdBreak() {
         when (uplynkConfiguration.onSeekOverAd) {
             SkippedAdStrategy.PLAY_NONE -> {
-                // Shouldn't come here
-                Log.w(
-                    TAG,
-                    "Invalid state $state for SkippedAdStrategy ${SkippedAdStrategy.PLAY_NONE}"
-                )
+                // Nothing to do
             }
 
             SkippedAdStrategy.PLAY_ALL -> {
