@@ -34,11 +34,11 @@ android {
 }
 
 dependencies {
-    implementation "androidx.lifecycle:lifecycle-process:$lifecycleVersion"
+    implementation libs.androidx.lifecycle.process
 
     compileOnly "com.theoplayer.theoplayer-sdk-android:core:$sdkVersion"
     compileOnly "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:$sdkVersion"
-    compileOnly "com.nielsenappsdk.global:ad:9.2.0.0"
+    compileOnly libs.nielsen
 }
 
 tasks.withType(AbstractDokkaLeafTask.class).configureEach {

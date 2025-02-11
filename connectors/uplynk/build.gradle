@@ -38,16 +38,16 @@ android {
 
 dependencies {
     compileOnly "com.theoplayer.theoplayer-sdk-android:core:$sdkVersion"
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
+    implementation libs.kotlinx.serialization.json
+    implementation libs.kotlinx.coroutines.android
 
-    testImplementation 'junit:junit:4.13.2'
+    testImplementation libs.junit
     testImplementation "com.theoplayer.theoplayer-sdk-android:core:$sdkVersion"
-    testImplementation "org.mockito:mockito-inline:$mockitoVersion"
-    testImplementation "org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion"
-    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:1.9.25"
-    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
+    testImplementation libs.mockito.inline
+    testImplementation libs.mockito.kotlin
+    testImplementation libs.kotlin.test.junit
+    androidTestImplementation libs.androidx.test.ext.junit
+    androidTestImplementation libs.androidx.test.espresso.core
 }
 
 tasks.withType(AbstractDokkaLeafTask.class).configureEach {

@@ -33,26 +33,26 @@ android {
 }
 
 dependencies {
-    implementation "androidx.core:core-ktx:1.15.0"
-    implementation "androidx.appcompat:appcompat:1.7.0"
-    implementation "com.google.android.material:material:1.12.0"
-    implementation "androidx.constraintlayout:constraintlayout:2.2.0"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1"
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.appcompat
+    implementation libs.android.material
+    implementation libs.androidx.constraintlayout
+    implementation libs.kotlinx.coroutines.android
 
     implementation "com.theoplayer.theoplayer-sdk-android:core:$sdkVersion"
     implementation "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:$sdkVersion"
 
     implementation project(":connectors:analytics:conviva")
-    implementation "com.conviva.sdk:conviva-core-sdk:$convivaVersion"
+    implementation libs.conviva
 
     implementation project(":connectors:analytics:nielsen")
-    implementation "com.nielsenappsdk.global:ad:$nielsenVersion"
+    implementation libs.nielsen
 
     implementation project(':connectors:analytics:comscore')
-    implementation "com.comscore:android-analytics:$comscoreVersion"
+    implementation libs.comscore
 
     implementation project(':connectors:yospace')
-    implementation "com.yospace:admanagement-sdk:$yospaceVersion"
+    implementation libs.yospace
 
     implementation project(':connectors:uplynk')
 }

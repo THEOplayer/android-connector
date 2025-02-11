@@ -36,9 +36,9 @@ android {
 dependencies {
     compileOnly "com.theoplayer.theoplayer-sdk-android:core:$sdkVersion"
     compileOnly "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:$sdkVersion"
-    compileOnly "com.conviva.sdk:conviva-core-sdk:$convivaVersion"
+    compileOnly libs.conviva
 
-    implementation "androidx.lifecycle:lifecycle-process:$lifecycleVersion"
+    implementation libs.androidx.lifecycle.process
 }
 
 tasks.withType(AbstractDokkaLeafTask.class).configureEach {
