@@ -1,10 +1,10 @@
 import org.jetbrains.dokka.gradle.AbstractDokkaLeafTask
 
 plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
-    id 'org.jetbrains.kotlin.plugin.serialization'
-    id 'org.jetbrains.dokka'
+    alias libs.plugins.android.library
+    alias libs.plugins.kotlin.android
+    alias libs.plugins.kotlinx.serialization
+    alias libs.plugins.dokka
 }
 apply from: "$rootDir/connectors/publish.gradle"
 
