@@ -80,7 +80,7 @@ internal class UplynkAdIntegration(
         }
 
         player.addEventListener(PlayerEventTypes.SEEKED) {
-            handleSeeked(timeDurationSeconds(it.currentTime))
+            handleSeeked(it, timeDurationSeconds(it.currentTime))
         }
 
         player.addEventListener(PlayerEventTypes.PLAY) {
@@ -170,11 +170,11 @@ internal class UplynkAdIntegration(
         }
     }
 
-    private fun handleSeeked(time: Duration) {
+    private fun handleSeeked(seekedEvent: SeekedEvent, time: Duration) {
         if (time <= seekTime.seekFromTime) {
             handleBackwardSeeked(time)
         } else {
-            handleForwardSeeked(time)
+            handleForwardSeeked(seekedEvent, time)
         }
     }
 
@@ -189,54 +189,8 @@ internal class UplynkAdIntegration(
         seekTime.reset()
     }
 
-    private fun handleForwardSeeked(time: Duration) {
-        when (state) {
-            State.PLAYING_CONTENT -> {
-                when (uplynkConfiguration.onSeekOverAd) {
-                    SkippedAdStrategy.PLAY_NONE -> {
-                        // If the seek point is on an Ad break, jump to the end of the Ad break
-                        seekTime.seekToTime = adScheduler?.getAdBreakEndTime(time) ?: time
-                        if (seekTime.seekToTime != time) {
-                            // Seek point was on an Ad break
-                            state = State.FINISHED_PLAYING_SKIPPED_AD_BREAK
-                            seek(seekTime.seekToTime)
-                        }
-                    }
-
-                    SkippedAdStrategy.PLAY_ALL -> {
-                        // If the seek point is on an Ad break, jump to the end of the Ad break after playing all ads
-                        seekTime.seekToTime = adScheduler?.getAdBreakEndTime(time) ?: time
-
-                        adScheduler?.getUnWatchedAdBreakOffset(time)?.let { startOffset ->
-                            snapback(startOffset)
-                        } ?: goBackToContent()
-                    }
-
-                    SkippedAdStrategy.PLAY_LAST -> {
-                        // If the seek point is on an Ad break, jump to the end of the Ad break after playing last ad
-                        seekTime.seekToTime = adScheduler?.getAdBreakEndTime(time) ?: time
-
-                        adScheduler?.getLastUnWatchedAdBreakOffset(time)?.let { startOffset ->
-                            snapback(startOffset)
-                        } ?: goBackToContent()
-                    }
-                }
-            }
-
-            State.SKIPPING_TO_AD_BREAK -> {
-                state = State.SKIPPED_TO_AD_BREAK
-            }
-
-            State.FINISHED_PLAYING_SKIPPED_AD_BREAK -> {
-                state = State.PLAYING_CONTENT
-                seekTime.reset()
-                pingScheduler?.onSeeked(time)
-            }
-
-            State.SKIPPED_TO_AD_BREAK, State.PLAYING_SKIPPED_AD_BREAK -> {
-                // Nothing to do
-            }
-        }
+    private fun handleForwardSeeked(seekedEvent: SeekedEvent, time: Duration) {
+        updateState(seekedEvent, time)
     }
 
     private fun seek(seekTime: Duration) {
