@@ -179,7 +179,7 @@ data class UplynkSsaiDescription(
 }
 
 /**
- * Describes the configuration of Verizon Media Ping features.
+ * Describes the configuration of Uplynk Media Ping features.
  *
  */
 @Serializable
