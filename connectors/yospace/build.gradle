@@ -10,7 +10,7 @@ apply from: "$rootDir/connectors/publish.gradle"
 
 android {
     namespace 'com.theoplayer.android.connector.yospace'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         minSdk 21
