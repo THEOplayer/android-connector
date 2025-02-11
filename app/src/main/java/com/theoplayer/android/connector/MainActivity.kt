@@ -180,6 +180,26 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
+        theoplayerView.player.ads.addEventListener(AdsEventTypes.AD_BREAK_BEGIN) {
+            Log.d("UplynkConnectorEvents", "AD_BREAK_BEGIN ")
+        }
+
+        theoplayerView.player.ads.addEventListener(AdsEventTypes.AD_BREAK_END) {
+            Log.d("UplynkConnectorEvents", "AD_BREAK_END ")
+        }
+
+        theoplayerView.player.ads.addEventListener(AdsEventTypes.AD_BEGIN) {
+            Log.d("UplynkConnectorEvents", "AD_BEGIN ")
+        }
+
+        theoplayerView.player.ads.addEventListener(AdsEventTypes.AD_END) {
+            Log.d("UplynkConnectorEvents", "AD_END ")
+        }
+
+        theoplayerView.player.ads.addEventListener(AdsEventTypes.AD_SKIP) {
+            Log.d("UplynkConnectorEvents", "AD_SKIP ")
+        }
+
         theoplayerView.player.ads.addEventListener(AdsEventTypes.AD_ERROR) {
             Log.d("UplynkConnectorEvents", "AD_ERROR " + it.error)
         }
