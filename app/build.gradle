@@ -43,8 +43,6 @@ android {
 dependencies {
     implementation libs.androidx.core.ktx
     implementation libs.androidx.appcompat
-    implementation libs.android.material
-    implementation libs.androidx.constraintlayout
     implementation libs.kotlinx.coroutines.android
     implementation libs.theoplayer.android.ui
 
