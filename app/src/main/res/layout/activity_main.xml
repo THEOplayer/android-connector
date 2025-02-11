@@ -86,10 +86,11 @@
             </LinearLayout>
         </LinearLayout>
 
-        <FrameLayout
-            android:id="@+id/tpv_container"
+        <androidx.compose.ui.platform.ComposeView
+            android:id="@+id/ui_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
     </com.google.android.material.appbar.AppBarLayout>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

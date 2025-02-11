@@ -6,9 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.Button
-import android.widget.FrameLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
 import com.theoplayer.android.api.THEOplayerConfig
 import com.theoplayer.android.api.THEOplayerView
 import com.theoplayer.android.api.ads.LinearAd
@@ -34,12 +37,16 @@ import com.theoplayer.android.connector.uplynk.network.PingResponse
 import com.theoplayer.android.connector.uplynk.network.PreplayLiveResponse
 import com.theoplayer.android.connector.uplynk.network.PreplayVodResponse
 import com.theoplayer.android.connector.yospace.YospaceConnector
+import com.theoplayer.android.ui.DefaultUI
+import com.theoplayer.android.ui.rememberPlayer
+import com.theoplayer.android.ui.theme.THEOplayerTheme
 
 const val TAG = "MainActivity"
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var theoplayerView: THEOplayerView
+    private lateinit var uiContainer: ComposeView
     private lateinit var convivaConnector: ConvivaConnector
     private lateinit var nielsenConnector: NielsenConnector
     private lateinit var comscoreConnector: ComscoreConnector
@@ -70,8 +77,17 @@ class MainActivity : AppCompatActivity() {
             .build()
         theoplayerView = THEOplayerView(this, theoplayerConfig)
         theoplayerView.layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-        val tpvContainer = findViewById<FrameLayout>(R.id.tpv_container)
-        tpvContainer.addView(theoplayerView)
+
+        uiContainer = findViewById(R.id.ui_container)
+        uiContainer.setContent {
+            THEOplayerTheme(useDarkTheme = true) {
+                Surface(modifier = Modifier.fillMaxSize()) {
+                    DefaultUI(
+                        player = rememberPlayer(theoplayerView = theoplayerView)
+                    )
+                }
+            }
+        }
     }
 
     private fun setupGoogleImaIntegration() {
