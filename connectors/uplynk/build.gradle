@@ -45,9 +45,9 @@ dependencies {
     testImplementation "com.theoplayer.theoplayer-sdk-android:core:$sdkVersion"
     testImplementation "org.mockito:mockito-inline:$mockitoVersion"
     testImplementation "org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion"
-    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:1.8.10"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:1.9.25"
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
 }
 
 tasks.withType(AbstractDokkaLeafTask.class).configureEach {
