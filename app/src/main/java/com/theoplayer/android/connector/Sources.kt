@@ -1,5 +1,7 @@
 package com.theoplayer.android.connector
 
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.SaverScope
 import com.theoplayer.android.api.source.SourceDescription
 import com.theoplayer.android.api.source.SourceType
 import com.theoplayer.android.api.source.TypedSource
@@ -16,10 +18,6 @@ data class Source(
     val sourceDescription: SourceDescription,
     val nielsenMetadata: HashMap<String, Any> = hashMapOf()
 )
-
-val backend: List<String> by lazy {
-    listOf("Default", "Media3")
-}
 
 val sources: List<Source> by lazy {
     listOf(
@@ -194,4 +192,9 @@ val sources: List<Source> by lazy {
                 .build()
         )
     )
+}
+
+object SourceSaver : Saver<Source, Int> {
+    override fun restore(value: Int): Source? = sources.getOrNull(value)
+    override fun SaverScope.save(value: Source): Int = sources.indexOf(value)
 }
