@@ -4,7 +4,10 @@ import com.theoplayer.android.api.THEOplayerView
 import com.theoplayer.android.api.ads.Ad
 import com.theoplayer.android.api.ads.ServerSideAdIntegrationController
 import com.theoplayer.android.api.ads.ServerSideAdIntegrationHandler
+import com.theoplayer.android.api.event.player.PlayerEvent
 import com.theoplayer.android.api.event.player.PlayerEventTypes
+import com.theoplayer.android.api.event.player.SeekedEvent
+import com.theoplayer.android.api.event.player.TimeUpdateEvent
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.api.source.SourceDescription
 import com.theoplayer.android.api.source.drm.DRMConfiguration
@@ -20,12 +23,28 @@ import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
-enum class State {
+private enum class State {
     PLAYING_CONTENT,
     SKIPPING_TO_AD_BREAK,
     SKIPPED_TO_AD_BREAK,
     PLAYING_SKIPPED_AD_BREAK,
     FINISHED_PLAYING_SKIPPED_AD_BREAK,
+}
+
+private class SeekTime {
+    companion object {
+        private val DEFAULT_VALUE = 0.0.toDuration(DurationUnit.SECONDS)
+    }
+
+    var seekFromTime: Duration = DEFAULT_VALUE
+    var seekToTime: Duration = DEFAULT_VALUE
+
+    fun isSeekFromSet() = seekFromTime > DEFAULT_VALUE
+
+    fun reset() {
+        seekFromTime = DEFAULT_VALUE
+        seekToTime = DEFAULT_VALUE
+    }
 }
 
 @Suppress("UnstableApiUsage")
@@ -42,8 +61,8 @@ internal class UplynkAdIntegration(
     private val player: Player
         get() = theoplayerView.player
 
-    private var seekToTime: Duration = initSeekToTime()
     private var state = State.PLAYING_CONTENT
+    private val seekTime = SeekTime()
 
     init {
         player.addEventListener(PlayerEventTypes.TIMEUPDATE) {
@@ -51,28 +70,12 @@ internal class UplynkAdIntegration(
             adScheduler?.onTimeUpdate(time)
             pingScheduler?.onTimeUpdate(time)
 
-            when (state) {
-                State.PLAYING_CONTENT,
-                State.SKIPPING_TO_AD_BREAK, State.FINISHED_PLAYING_SKIPPED_AD_BREAK -> {
-                    // Nothing to do
-                }
-
-                State.SKIPPED_TO_AD_BREAK -> {
-                    // Sometimes time is slightly less that the ad break offset after seek, so wait for next TIMEUPDATE
-                    state = State.PLAYING_SKIPPED_AD_BREAK
-                }
-
-                State.PLAYING_SKIPPED_AD_BREAK -> {
-                    if (adScheduler?.isPlayingAd() == false) {
-                        handleEndOfAdBreak()
-                    }
-                }
-            }
+            updateState(it, time)
         }
 
         player.addEventListener(PlayerEventTypes.SEEKING) {
-            if (state == State.PLAYING_CONTENT) {
-                pingScheduler?.onSeeking(timeDurationSeconds(it.currentTime))
+            if (state == State.PLAYING_CONTENT && !seekTime.isSeekFromSet()) {
+                seekTime.seekFromTime = timeDurationSeconds(it.currentTime)
             }
         }
 
@@ -85,7 +88,67 @@ internal class UplynkAdIntegration(
         }
     }
 
-    private fun initSeekToTime() = 0.0.toDuration(DurationUnit.SECONDS)
+    private fun updateState(event: PlayerEvent<*>, time: Duration) {
+        when (state) {
+            State.PLAYING_CONTENT -> {
+                if (event is SeekedEvent) {
+                    // If the seek point is on an Ad break, jump to the end of the Ad break
+                    seekTime.seekToTime = adScheduler?.getAdBreakEndTime(time) ?: time
+
+                    when (uplynkConfiguration.onSeekOverAd) {
+                        SkippedAdStrategy.PLAY_NONE -> {
+                            if (seekTime.seekToTime != time) {
+                                // Seek point was on an Ad break
+                                state = State.FINISHED_PLAYING_SKIPPED_AD_BREAK
+                                seek(seekTime.seekToTime)
+                            }
+                        }
+
+                        SkippedAdStrategy.PLAY_ALL -> {
+                            adScheduler?.getUnWatchedAdBreakOffset(time)?.let { startOffset ->
+                                snapback(startOffset)
+                            } ?: goBackToContent()
+                        }
+
+                        SkippedAdStrategy.PLAY_LAST -> {
+                            adScheduler?.getLastUnWatchedAdBreakOffset(time)?.let { startOffset ->
+                                snapback(startOffset)
+                            } ?: goBackToContent()
+                        }
+                    }
+                }
+            }
+
+            State.SKIPPING_TO_AD_BREAK -> {
+                if (event is SeekedEvent) {
+                    state = State.SKIPPED_TO_AD_BREAK
+                }
+            }
+
+            State.SKIPPED_TO_AD_BREAK -> {
+                if (event is TimeUpdateEvent) {
+                    // Sometimes time is slightly less that the ad break offset after seek, so wait for next TIMEUPDATE
+                    state = State.PLAYING_SKIPPED_AD_BREAK
+                }
+            }
+
+            State.PLAYING_SKIPPED_AD_BREAK -> {
+                if (event is TimeUpdateEvent) {
+                    if (adScheduler?.isPlayingAd() == false) {
+                        handleEndOfAdBreak()
+                    }
+                }
+            }
+
+            State.FINISHED_PLAYING_SKIPPED_AD_BREAK -> {
+                if (event is SeekedEvent) {
+                    state = State.PLAYING_CONTENT
+                    seekTime.reset()
+                    pingScheduler?.onSeeked(time)
+                }
+            }
+        }
+    }
 
     private fun handleEndOfAdBreak() {
         when (uplynkConfiguration.onSeekOverAd) {
@@ -95,7 +158,7 @@ internal class UplynkAdIntegration(
 
             SkippedAdStrategy.PLAY_ALL -> {
                 // If there are more ad breaks, play them else go to content
-                adScheduler?.getUnWatchedAdBreakOffset(seekToTime)
+                adScheduler?.getUnWatchedAdBreakOffset(seekTime.seekToTime)
                     ?.let { startOffset ->
                         snapback(startOffset)
                     } ?: goBackToContent()
@@ -108,36 +171,54 @@ internal class UplynkAdIntegration(
     }
 
     private fun handleSeeked(time: Duration) {
+        if (time <= seekTime.seekFromTime) {
+            handleBackwardSeeked(time)
+        } else {
+            handleForwardSeeked(time)
+        }
+    }
+
+    private fun handleBackwardSeeked(time: Duration) {
+        seekTime.seekToTime = adScheduler?.getAdBreakOffset(time) ?: time
+
+        // If the seek point is on an Ad break, jump to the start of the Ad break
+        if (seekTime.seekToTime != time) {
+            // We don't have to skip again, so pretend we are playing content
+            goBackToContent()
+        }
+        seekTime.reset()
+    }
+
+    private fun handleForwardSeeked(time: Duration) {
         when (state) {
             State.PLAYING_CONTENT -> {
                 when (uplynkConfiguration.onSeekOverAd) {
                     SkippedAdStrategy.PLAY_NONE -> {
-                        // If the seek point is on an Ad break, jump to the start of the Ad break
-                        seekToTime = adScheduler?.getAdBreakOffset(time) ?: time
-
-                        if (seekToTime != time) {
+                        // If the seek point is on an Ad break, jump to the end of the Ad break
+                        seekTime.seekToTime = adScheduler?.getAdBreakEndTime(time) ?: time
+                        if (seekTime.seekToTime != time) {
                             // Seek point was on an Ad break
                             state = State.FINISHED_PLAYING_SKIPPED_AD_BREAK
-                            seek(seekToTime)
+                            seek(seekTime.seekToTime)
                         }
                     }
 
                     SkippedAdStrategy.PLAY_ALL -> {
                         // If the seek point is on an Ad break, jump to the end of the Ad break after playing all ads
-                        seekToTime = adScheduler?.getAdBreakEndTime(time) ?: time
+                        seekTime.seekToTime = adScheduler?.getAdBreakEndTime(time) ?: time
 
                         adScheduler?.getUnWatchedAdBreakOffset(time)?.let { startOffset ->
                             snapback(startOffset)
-                        }
+                        } ?: goBackToContent()
                     }
 
                     SkippedAdStrategy.PLAY_LAST -> {
                         // If the seek point is on an Ad break, jump to the end of the Ad break after playing last ad
-                        seekToTime = adScheduler?.getAdBreakEndTime(time) ?: time
+                        seekTime.seekToTime = adScheduler?.getAdBreakEndTime(time) ?: time
 
                         adScheduler?.getLastUnWatchedAdBreakOffset(time)?.let { startOffset ->
                             snapback(startOffset)
-                        }
+                        } ?: goBackToContent()
                     }
                 }
             }
@@ -148,6 +229,7 @@ internal class UplynkAdIntegration(
 
             State.FINISHED_PLAYING_SKIPPED_AD_BREAK -> {
                 state = State.PLAYING_CONTENT
+                seekTime.reset()
                 pingScheduler?.onSeeked(time)
             }
 
@@ -163,8 +245,8 @@ internal class UplynkAdIntegration(
 
     private fun goBackToContent() {
         state = State.FINISHED_PLAYING_SKIPPED_AD_BREAK
-        seek(seekToTime)
-        seekToTime = initSeekToTime()
+        seek(seekTime.seekToTime)
+        pingScheduler?.onSeeking(seekTime.seekFromTime)
     }
 
     private fun snapback(startOffset: Duration) {
@@ -176,12 +258,11 @@ internal class UplynkAdIntegration(
     override suspend fun resetSource() {
         adScheduler = null
         pingScheduler?.destroy()
+        seekTime.reset()
     }
 
     override suspend fun setSource(source: SourceDescription): SourceDescription {
-        adScheduler = null
-        pingScheduler?.destroy()
-        seekToTime = initSeekToTime()
+        resetSource()
 
         val uplynkSource = source.sources.singleOrNull { it.ssai is UplynkSsaiDescription }
         val ssaiDescription = uplynkSource?.ssai as? UplynkSsaiDescription ?: return source
@@ -271,17 +352,17 @@ internal class UplynkAdIntegration(
     }
 
     override fun skipAd(ad: Ad) {
-        adScheduler?.getSkipToTime(
-            ad,
-            player.currentTimeDurationSeconds(),
-            uplynkConfiguration.defaultSkipOffset.toDuration(DurationUnit.SECONDS)
-        )?.let {
-            seek(it)
-            adScheduler?.skipAd(ad)
+        if (isAdSkippable(ad)) {
+            adScheduler?.getSkipToTime(ad, player.currentTimeDurationSeconds())?.let {
+                seek(it)
+                adScheduler?.skipAd(ad)
+            }
         }
     }
+
+    private fun isAdSkippable(ad: Ad): Boolean = ad.skipOffset != -1
 }
 
-fun timeDurationSeconds(time: Double) = time.toDuration(DurationUnit.SECONDS)
+private fun timeDurationSeconds(time: Double) = time.toDuration(DurationUnit.SECONDS)
 
-fun Player.currentTimeDurationSeconds() = timeDurationSeconds(this.currentTime)
+private fun Player.currentTimeDurationSeconds() = timeDurationSeconds(this.currentTime)
