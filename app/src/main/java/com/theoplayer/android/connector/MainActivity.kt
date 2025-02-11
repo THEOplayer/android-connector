@@ -2,15 +2,39 @@ package com.theoplayer.android.connector
 
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import com.theoplayer.android.api.THEOplayerConfig
 import com.theoplayer.android.api.THEOplayerView
 import com.theoplayer.android.api.ads.LinearAd
@@ -39,20 +63,17 @@ import com.theoplayer.android.ui.theme.THEOplayerTheme
 
 const val TAG = "MainActivity"
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : ComponentActivity() {
 
     private lateinit var theoplayerView: THEOplayerView
-    private lateinit var uiContainer: ComposeView
     private lateinit var convivaConnector: ConvivaConnector
     private lateinit var nielsenConnector: NielsenConnector
     private lateinit var comscoreConnector: ComscoreConnector
     private lateinit var yospaceConnector: YospaceConnector
     private lateinit var uplynkConnector: UplynkConnector
-    private var selectedSource: Source = sources.first()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
         setupTHEOplayer()
         setupGoogleImaIntegration()
@@ -62,6 +83,12 @@ class MainActivity : AppCompatActivity() {
         setupYospace()
         setupUplynk()
         setupAdListeners()
+
+        setContent {
+            THEOplayerTheme(useDarkTheme = true) {
+                MainContent(theoplayerView, nielsenConnector)
+            }
+        }
     }
 
     private fun setupTHEOplayer() {
@@ -69,21 +96,11 @@ class MainActivity : AppCompatActivity() {
             .build()
         theoplayerView = THEOplayerView(this, theoplayerConfig)
         theoplayerView.layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-
-        uiContainer = findViewById(R.id.ui_container)
-        uiContainer.setContent {
-            THEOplayerTheme(useDarkTheme = true) {
-                Surface(modifier = Modifier.fillMaxSize()) {
-                    DefaultUI(
-                        player = rememberPlayer(theoplayerView = theoplayerView)
-                    )
-                }
-            }
-        }
     }
 
     private fun setupGoogleImaIntegration() {
-        val googleImaIntegration = GoogleImaIntegrationFactory.createGoogleImaIntegration(theoplayerView)
+        val googleImaIntegration =
+            GoogleImaIntegrationFactory.createGoogleImaIntegration(theoplayerView)
         theoplayerView.player.addIntegration(googleImaIntegration)
     }
 
@@ -101,7 +118,8 @@ class MainActivity : AppCompatActivity() {
             true,
             gatewayUrl,
         )
-        convivaConnector = ConvivaConnector(applicationContext, theoplayerView.player, metadata, config)
+        convivaConnector =
+            ConvivaConnector(applicationContext, theoplayerView.player, metadata, config)
     }
 
     private fun setupComscore() {
@@ -155,7 +173,12 @@ class MainActivity : AppCompatActivity() {
             videoDimension = null,
             customLabels = emptyMap(),
         )
-        comscoreConnector = ComscoreConnector(applicationContext, theoplayerView.player, comscoreConfiguration, metadata)
+        comscoreConnector = ComscoreConnector(
+            applicationContext,
+            theoplayerView.player,
+            comscoreConfiguration,
+            metadata
+        )
     }
 
     private fun setupNielsen() {
@@ -169,7 +192,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupUplynk() {
         uplynkConnector = UplynkConnector(theoplayerView)
-        uplynkConnector.addListener(object: UplynkListener {
+        uplynkConnector.addListener(object : UplynkListener {
             override fun onPreplayVodResponse(response: PreplayVodResponse) {
                 Log.d("UplynkConnectorEvents", "PREPLAY_VOD_RESPONSE $response")
             }
@@ -222,72 +245,137 @@ class MainActivity : AppCompatActivity() {
 
     private fun onAdBreakEvent(event: AdBreakEvent<*>) {
         val adBreak = event.adBreak
-        Log.d(TAG, "${event.type} - " +
-            "timeOffset=${adBreak.timeOffset}, " +
-            "ads=${adBreak.ads.size}, " +
-            "maxDuration=${adBreak.maxDuration}, " +
-            "currentTime=${theoplayerView.player.currentTime}"
+        Log.d(
+            TAG, "${event.type} - " +
+                    "timeOffset=${adBreak.timeOffset}, " +
+                    "ads=${adBreak.ads.size}, " +
+                    "maxDuration=${adBreak.maxDuration}, " +
+                    "currentTime=${theoplayerView.player.currentTime}"
         )
     }
 
     private fun onAdEvent(event: SingleAdEvent<*>) {
         val ad = event.ad ?: return
-        Log.d(TAG, "${event.type} - " +
-            "id=${ad.id}, " +
-            "type=${ad.type}, " +
-            "adBreak.timeOffset=${ad.adBreak?.timeOffset}, " +
-            (if (ad is LinearAd) "duration=${ad.duration}, " else "") +
-            "currentTime=${theoplayerView.player.currentTime}"
+        Log.d(
+            TAG, "${event.type} - " +
+                    "id=${ad.id}, " +
+                    "type=${ad.type}, " +
+                    "adBreak.timeOffset=${ad.adBreak?.timeOffset}, " +
+                    (if (ad is LinearAd) "duration=${ad.duration}, " else "") +
+                    "currentTime=${theoplayerView.player.currentTime}"
         )
     }
+}
 
-    fun selectSource(view: View) {
-        val sourceNames = sources.map { it.name }.toTypedArray()
-        val selectedIndex = sources.indexOf(selectedSource)
-        AlertDialog.Builder(this)
-            .setTitle("Select source")
-            .setSingleChoiceItems(sourceNames, selectedIndex) { dialog, which ->
-                setSource(sources[which])
-                dialog.dismiss()
-            }
-            .create()
-            .show()
-    }
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MainContent(
+    theoplayerView: THEOplayerView,
+    nielsenConnector: NielsenConnector
+) {
+    val player = rememberPlayer(theoplayerView)
+    var source by rememberSaveable(stateSaver = SourceSaver) { mutableStateOf(sources.first()) }
+    var sourceMenuOpen by remember { mutableStateOf(false) }
 
-    private fun setSource(source: Source) {
-        selectedSource = source
-        theoplayerView.player.source = source.sourceDescription
+    LaunchedEffect(player, source) {
+        player.source = source.sourceDescription
         nielsenConnector.updateMetadata(source.nielsenMetadata)
     }
 
-    fun playPause(view: View) {
-        if (theoplayerView.player.isPaused) {
-            theoplayerView.player.play()
-        } else {
-            theoplayerView.player.pause()
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        Scaffold(topBar = {
+            Column {
+                TopAppBar(
+                    title = {
+                        Text(text = stringResource(R.string.app_name))
+                    }
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    TextButton(onClick = {
+                        player.player?.let { it.currentTime -= 10 }
+                    }) {
+                        Text("-10")
+                    }
+                    TextButton(onClick = { sourceMenuOpen = true }) {
+                        Text("set source")
+                    }
+                    TextButton(onClick = {
+                        if (player.paused) player.play() else player.pause()
+                    }) {
+                        Text("play/pause")
+                    }
+                    TextButton(onClick = {
+                        player.player?.let { it.currentTime += 10 }
+                    }) {
+                        Text("+10")
+                    }
+                }
+            }
+        }) { padding ->
+            DefaultUI(
+                modifier = Modifier
+                    .padding(padding)
+                    .fillMaxSize(1f),
+                player = player
+            )
+
+            if (sourceMenuOpen) {
+                SelectSourceDialog(
+                    sources = sources,
+                    currentSource = source,
+                    onSelectSource = {
+                        source = it
+                        sourceMenuOpen = false
+                    },
+                    onDismissRequest = { sourceMenuOpen = false }
+                )
+            }
         }
     }
+}
 
-    fun seekBackward(view: View) {
-        theoplayerView.player.currentTime -= 10
-    }
 
-    fun seekForward(view: View) {
-        theoplayerView.player.currentTime += 10
-    }
-
-    override fun onPause() {
-        super.onPause()
-        theoplayerView.onPause()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        theoplayerView.onResume()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        theoplayerView.onDestroy()
+@Composable
+fun SelectSourceDialog(
+    sources: List<Source>,
+    currentSource: Source,
+    onSelectSource: (Source) -> Unit,
+    onDismissRequest: () -> Unit,
+) {
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = "Select a stream",
+                    style = MaterialTheme.typography.headlineSmall
+                )
+                LazyColumn {
+                    items(count = sources.size) { index ->
+                        val source = sources[index]
+                        ListItem(
+                            headlineContent = { Text(text = source.name) },
+                            leadingContent = {
+                                RadioButton(
+                                    selected = (source == currentSource),
+                                    onClick = null
+                                )
+                            },
+                            modifier = Modifier.clickable(onClick = {
+                                onSelectSource(source)
+                            })
+                        )
+                    }
+                }
+            }
+        }
     }
 }
