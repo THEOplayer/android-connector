@@ -1,17 +1,19 @@
 [versions]
 androidGradlePlugin = "8.8.0"
 kotlin = "1.8.10"
-kotlinxSerialization = "1.9.22"
+kotlinxSerialization = "1.9.25"
 kotlinxSerializationJson = "1.6.3"
 dokka = "1.9.20"
 androidxAppCompat = "1.7.0"
 androidxCore = "1.15.0"
+androidxComposeBom = "2024.12.01"
 androidxConstraintLayout = "2.2.0"
 # NOTE: upgrading beyond 2.5.1 requires targetSdk 33
 androidxLifecycle = "2.5.1"
 androidxMedia = "1.7.0"
 material = "1.12.0"
 kotlinxCoroutines = "1.8.1"
+theoplayerAndroidUi = "1.9.4"
 junit = "4.13.2"
 kotlinTestJunit = "1.9.25"
 mockito = "4.11.0"
@@ -27,6 +29,10 @@ yospace = "3.6.7"
 [libraries]
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidxAppCompat" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCore" }
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "androidxComposeBom" }
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "androidxConstraintLayout" }
 androidx-lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "androidxLifecycle" }
 androidx-media = { group = "androidx.media", name = "media", version.ref = "androidxMedia" }
@@ -41,6 +47,7 @@ kotlin-test-junit = { group = "org.jetbrains.kotlin", name = "kotlin-test-junit"
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 mockito-inline = { group = "org.mockito", name = "mockito-inline", version.ref = "mockito" }
 mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockitoKotlin" }
+theoplayer-android-ui = { group = "com.theoplayer.android-ui", name = "android-ui", version.ref = "theoplayerAndroidUi" }
 conviva = { group = "com.conviva.sdk", name = "conviva-core-sdk", version.ref = "conviva" }
 nielsen = { group = "com.nielsenappsdk.global", name = "ad", version.ref = "nielsen" }
 comscore = { group = "com.comscore", name = "android-analytics", version.ref = "comscore" }
