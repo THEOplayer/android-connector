@@ -1,7 +1,12 @@
 package com.theoplayer.android.connector.yospace.internal
 
 import com.yospace.admanagement.Session
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import java.util.UUID
 
 internal fun Session.SessionProperties.copy(
@@ -78,5 +83,21 @@ internal fun SerializedSessionProperties.deserialize(): Session.SessionPropertie
         consecutiveBreakTolerance = serialized.consecutiveBreakTolerance
         token = UUID.fromString(serialized.token)
         customHttpHeaders = serialized.customHttpHeaders
+    }
+}
+
+internal object YospaceSessionPropertiesKSerializer : KSerializer<Session.SessionProperties> {
+    private val delegateSerializer = SerializedSessionProperties.serializer()
+
+    @OptIn(ExperimentalSerializationApi::class)
+    override val descriptor =
+        SerialDescriptor("YospaceSessionProperties", delegateSerializer.descriptor)
+
+    override fun serialize(encoder: Encoder, value: Session.SessionProperties) {
+        encoder.encodeSerializableValue(delegateSerializer, value.serialize())
+    }
+
+    override fun deserialize(decoder: Decoder): Session.SessionProperties {
+        return decoder.decodeSerializableValue(delegateSerializer).deserialize()
     }
 }
