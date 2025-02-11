@@ -1,59 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
+        android:theme="@style/Theme.THEOplayerConnector.AppBarOverlay">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:minHeight="?actionBarSize"
+            android:padding="@dimen/appbar_padding"
+            android:text="@string/app_name"
+            android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Title" />
+
     <LinearLayout
         android:id="@+id/layout_buttons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_alignParentTop="true"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="-10"
-            android:onClick="seekBackward"/>
+            android:onClick="seekBackward"
+            android:text="-10" />
+
         <Space
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:layout_weight="1" >
-        </Space>
+            android:layout_weight="1" />
+
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="set source"
-            android:onClick="selectSource"/>
+            android:onClick="selectSource"
+            android:text="set source" />
+
         <Space
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:layout_weight="1" >
-        </Space>
+            android:layout_weight="1" />
+
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="play/pause"
-            android:onClick="playPause"/>
+            android:onClick="playPause"
+            android:text="play/pause" />
+
         <Space
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:layout_weight="1" >
-        </Space>
+            android:layout_weight="1" />
+
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="+10"
-            android:onClick="seekForward"/>
+            android:onClick="seekForward"
+            android:text="+10" />
+
     </LinearLayout>
 
     <FrameLayout
         android:id="@+id/tpv_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/layout_buttons"/>
+        android:layout_height="match_parent" />
 
-</RelativeLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
