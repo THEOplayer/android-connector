@@ -400,5 +400,5 @@ class MediaMetadataProvider(private val connector: MediaSessionConnector) {
 
 fun makeSafeBitmapCopy(bitmap: Bitmap?): Bitmap? {
     // Never pass a recycled bitmap, and make a copy so the original can be recycled.
-    return bitmap?.takeIf { !it.isRecycled }?.copy(bitmap.config, false)
+    return bitmap?.takeIf { !it.isRecycled }?.copy(checkNotNull(bitmap.config), false)
 }
