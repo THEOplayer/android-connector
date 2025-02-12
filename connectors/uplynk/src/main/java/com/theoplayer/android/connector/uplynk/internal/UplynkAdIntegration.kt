@@ -20,8 +20,8 @@ import com.theoplayer.android.connector.uplynk.internal.network.PreplayInternalL
 import com.theoplayer.android.connector.uplynk.internal.network.PreplayInternalVodResponse
 import com.theoplayer.android.connector.uplynk.internal.network.UplynkApi
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
-import kotlin.time.toDuration
 
 private enum class State {
     PLAYING_CONTENT,
@@ -32,18 +32,14 @@ private enum class State {
 }
 
 private class SeekTime {
-    companion object {
-        private val DEFAULT_VALUE = 0.0.toDuration(DurationUnit.SECONDS)
-    }
+    var seekFromTime: Duration = Duration.ZERO
+    var seekToTime: Duration = Duration.ZERO
 
-    var seekFromTime: Duration = DEFAULT_VALUE
-    var seekToTime: Duration = DEFAULT_VALUE
-
-    fun isSeekFromSet() = seekFromTime > DEFAULT_VALUE
+    fun isSeekFromSet() = seekFromTime > Duration.ZERO
 
     fun reset() {
-        seekFromTime = DEFAULT_VALUE
-        seekToTime = DEFAULT_VALUE
+        seekFromTime = Duration.ZERO
+        seekToTime = Duration.ZERO
     }
 }
 
@@ -66,7 +62,7 @@ internal class UplynkAdIntegration(
 
     init {
         player.addEventListener(PlayerEventTypes.TIMEUPDATE) {
-            val time = timeDurationSeconds(it.currentTime)
+            val time = it.currentTime.seconds
             adScheduler?.onTimeUpdate(time)
             pingScheduler?.onTimeUpdate(time)
 
@@ -75,16 +71,16 @@ internal class UplynkAdIntegration(
 
         player.addEventListener(PlayerEventTypes.SEEKING) {
             if (state == State.PLAYING_CONTENT && !seekTime.isSeekFromSet()) {
-                seekTime.seekFromTime = timeDurationSeconds(it.currentTime)
+                seekTime.seekFromTime = it.currentTime.seconds
             }
         }
 
         player.addEventListener(PlayerEventTypes.SEEKED) {
-            handleSeeked(it, timeDurationSeconds(it.currentTime))
+            handleSeeked(it, it.currentTime.seconds)
         }
 
         player.addEventListener(PlayerEventTypes.PLAY) {
-            pingScheduler?.onStart(timeDurationSeconds(it.currentTime))
+            pingScheduler?.onStart(it.currentTime.seconds)
         }
     }
 
@@ -306,7 +302,7 @@ internal class UplynkAdIntegration(
 
     override fun skipAd(ad: Ad) {
         if (isAdSkippable(ad)) {
-            adScheduler?.getSkipToTime(ad, player.currentTimeDurationSeconds())?.let {
+            adScheduler?.getSkipToTime(ad, player.currentTime.seconds)?.let {
                 seek(it)
                 adScheduler?.skipAd(ad)
             }
@@ -315,7 +311,3 @@ internal class UplynkAdIntegration(
 
     private fun isAdSkippable(ad: Ad): Boolean = ad.skipOffset != -1
 }
-
-private fun timeDurationSeconds(time: Double) = time.toDuration(DurationUnit.SECONDS)
-
-private fun Player.currentTimeDurationSeconds() = timeDurationSeconds(this.currentTime)

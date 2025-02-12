@@ -6,8 +6,7 @@ import com.theoplayer.android.connector.uplynk.network.UplynkAdBreak
 import com.theoplayer.android.connector.uplynk.network.UplynkAds
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.time.Duration
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
+import kotlin.time.Duration.Companion.seconds
 
 data class UplynkAdBreakState(
     val adBreak: UplynkAdBreak,
@@ -172,8 +171,8 @@ internal class UplynkAdScheduler(
         val currentUplynkAd = currentAd.customData as UplynkAd
         for (adBreak in adBreaks) {
             for (ad in adBreak.ads) {
-                if (ad.ad == currentUplynkAd && ad.state == AdState.STARTED) {
-                    return if (currentTime >= adBreak.adBreak.timeOffset + currentAd.skipOffset.toDuration(DurationUnit.SECONDS)) {
+                if (ad.ad == currentUplynkAd) {
+                    return if (ad.state == AdState.STARTED && currentTime >= adBreak.adBreak.timeOffset + currentAd.skipOffset.seconds) {
                         adBreak.adBreak.timeOffset + adBreak.adBreak.duration
                     } else {
                         null
