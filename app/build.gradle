@@ -1,16 +1,16 @@
 plugins {
-    id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
+    alias libs.plugins.android.application
+    alias libs.plugins.kotlin.android
 }
 
 android {
     namespace 'com.theoplayer.android.connector'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.theoplayer.android.connector"
         minSdk 21
-        targetSdk 34
+        targetSdk 35
         versionCode 1
         versionName "1.0"
     }
@@ -33,27 +33,27 @@ android {
 }
 
 dependencies {
-    implementation "androidx.core:core-ktx:1.7.0"
-    implementation "androidx.appcompat:appcompat:1.4.2"
-    implementation "com.google.android.material:material:1.6.1"
-    implementation "androidx.constraintlayout:constraintlayout:2.1.4"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.appcompat
+    implementation libs.android.material
+    implementation libs.androidx.constraintlayout
+    implementation libs.kotlinx.coroutines.android
 
     implementation "com.theoplayer.theoplayer-sdk-android:core:$sdkVersion"
     implementation "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:$sdkVersion"
     implementation "com.theoplayer.theoplayer-sdk-android:integration-media3:$sdkVersion"
 
     implementation project(":connectors:analytics:conviva")
-    implementation "com.conviva.sdk:conviva-core-sdk:$convivaVersion"
+    implementation libs.conviva
 
     implementation project(":connectors:analytics:nielsen")
-    implementation "com.nielsenappsdk.global:ad:$nielsenVersion"
+    implementation libs.nielsen
 
     implementation project(':connectors:analytics:comscore')
-    implementation "com.comscore:android-analytics:$comscoreVersion"
+    implementation libs.comscore
 
     implementation project(':connectors:yospace')
-    implementation "com.yospace:admanagement-sdk:$yospaceVersion"
+    implementation libs.yospace
 
     implementation project(':connectors:uplynk')
 }

@@ -1,16 +1,16 @@
 import org.jetbrains.dokka.gradle.AbstractDokkaLeafTask
 
 plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
-    id 'org.jetbrains.kotlin.plugin.serialization'
-    id 'org.jetbrains.dokka'
+    alias libs.plugins.android.library
+    alias libs.plugins.kotlin.android
+    alias libs.plugins.kotlinx.serialization
+    alias libs.plugins.dokka
 }
 apply from: "$rootDir/connectors/publish.gradle"
 
 android {
     namespace 'com.theoplayer.android.connector.yospace'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         minSdk 21
@@ -37,21 +37,21 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation libs.androidx.core.ktx
     compileOnly "com.theoplayer.theoplayer-sdk-android:core:$sdkVersion"
-    compileOnly("com.yospace:admanagement-sdk") {
+    compileOnly(libs.yospace) {
         version {
             strictly("[3.6, 4.0)")
-            prefer(yospaceVersion)
+            prefer(libs.yospace.get().version)
         }
     }
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3"
+    implementation libs.kotlinx.serialization.json
 
     // Tests
-    testImplementation "androidx.test:core:1.5.0"
-    testImplementation "androidx.test.ext:junit:1.1.5"
+    testImplementation libs.androidx.test.core
+    testImplementation libs.androidx.test.ext.junit
     testImplementation "com.theoplayer.theoplayer-sdk-android:core:$sdkVersion"
-    testImplementation "com.yospace:admanagement-sdk:$yospaceVersion"
+    testImplementation libs.yospace
 }
 
 tasks.withType(AbstractDokkaLeafTask.class).configureEach {
