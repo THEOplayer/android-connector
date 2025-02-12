@@ -7,6 +7,7 @@ import com.theoplayer.android.api.source.ssai.CustomSsaiDescriptionRegistry
 import com.theoplayer.android.connector.uplynk.internal.UplynkAdIntegration
 import com.theoplayer.android.connector.uplynk.internal.UplynkSsaiDescriptionConverter
 import com.theoplayer.android.connector.uplynk.internal.UplynkEventDispatcher
+import com.theoplayer.android.connector.uplynk.internal.UplynkSsaiDescriptionDeserializer
 import com.theoplayer.android.connector.uplynk.internal.network.UplynkApi
 
 internal const val TAG = "UplynkConnector"
@@ -55,7 +56,7 @@ class UplynkConnector(
         const val INTEGRATION_ID = "uplynk"
 
         init {
-            CustomSsaiDescriptionRegistry.register(INTEGRATION_ID, UplynkSsaiDeserializer())
+            CustomSsaiDescriptionRegistry.register(INTEGRATION_ID, UplynkSsaiDescriptionDeserializer)
         }
     }
 }

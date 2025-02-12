@@ -134,7 +134,7 @@ class YospaceConnector @JvmOverloads constructor(
         const val INTEGRATION_ID = "yospace"
 
         init {
-            CustomSsaiDescriptionRegistry.register(INTEGRATION_ID, YospaceSsaiDescriptionSerializer())
+            CustomSsaiDescriptionRegistry.register(INTEGRATION_ID, YospaceSsaiDescriptionSerializer)
         }
     }
 }
