@@ -1,15 +1,15 @@
 import org.jetbrains.dokka.gradle.AbstractDokkaLeafTask
 
 plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
-    id 'org.jetbrains.dokka'
+    alias libs.plugins.android.library
+    alias libs.plugins.kotlin.android
+    alias libs.plugins.dokka
 }
 apply from: "$rootDir/connectors/publish.gradle"
 
 android {
     namespace 'com.theoplayer.android.connector.mediasession'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         minSdk 21
@@ -34,7 +34,7 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.media:media:1.7.0'
+    implementation libs.androidx.media
     compileOnly "com.theoplayer.theoplayer-sdk-android:core:$sdkVersion"
 }
 
