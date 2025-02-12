@@ -183,7 +183,6 @@ internal class UplynkAdIntegration(
 
         // If the seek point is on an Ad break, jump to the start of the Ad break
         if (seekTime.seekToTime != time) {
-            // We don't have to skip again, so pretend we are playing content
             goBackToContent()
         }
         seekTime.reset()
