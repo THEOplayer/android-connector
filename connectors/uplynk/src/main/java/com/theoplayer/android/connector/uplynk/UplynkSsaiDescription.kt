@@ -9,25 +9,25 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class UplynkSsaiDescription(
     /**
-     * Sets the prefix to use for Uplynk Media Platform Preplay API and Asset Info API requests.
+     * Sets the prefix to use for Uplynk Platform Preplay API and Asset Info API requests.
      *
      * - If no prefix is set the default origin is used: https://content.uplynk.com
      */
     val prefix: String? = null,
 
     /**
-     * Sets a list of asset IDs for Uplynk Media Platform Preplay API.
+     * Sets a list of asset IDs for Uplynk Platform Preplay API.
      */
     val assetIds: List<String> = listOf(),
 
     /**
-     * Sets a list of external IDs for Uplynk Media Platform Preplay API.
+     * Sets a list of external IDs for Uplynk Platform Preplay API.
      * If [assetIds] have at least one value this property is ignored and could be empty
      */
     val externalIds: List<String> = listOf(),
 
     /**
-     * Sets a User ID for Uplynk Media Platform Preplay API.
+     * Sets a User ID for Uplynk Platform Preplay API.
      * If [assetIds] have at least one value this property is ignored and could be empty
      */
     val userId: String? = null,
@@ -73,18 +73,18 @@ data class UplynkSsaiDescription(
         private var prefix: String? = null
 
         /**
-         * Sets the prefix to use for Uplynk Media Platform Preplay API and Asset Info API requests.
+         * Sets the prefix to use for Uplynk Platform Preplay API and Asset Info API requests.
          *
          * - If no prefix is set the default origin is used: https://content.uplynk.com
          *
-         * @param prefix The origin prefix to be used for Uplynk Media Platform requests.
+         * @param prefix The origin prefix to be used for Uplynk Platform requests.
          */
         fun prefix(prefix: String) = apply { this.prefix = prefix }
 
         private var assetIds = emptyList<String>()
 
         /**
-         * Sets a list of asset IDs for Uplynk Media Platform Preplay API.
+         * Sets a list of asset IDs for Uplynk Platform Preplay API.
          *
          * @param ids List of assets identifiers. (<b>NonNull</b>)
          */
@@ -93,7 +93,7 @@ data class UplynkSsaiDescription(
         private var externalIds: List<String> = emptyList<String>()
 
         /**
-         * Sets a list of external IDs for Uplynk Media Platform Preplay API.
+         * Sets a list of external IDs for Uplynk Platform Preplay API.
          * If [assetIds] have at least one value this property is ignored and could be empty
          *
          * @param ids External identifiers. (<b>NonNull</b>)
@@ -103,7 +103,7 @@ data class UplynkSsaiDescription(
         private var userId: String? = null
 
         /**
-         * Sets a User ID for Uplynk Media Platform Preplay API.
+         * Sets a User ID for Uplynk Platform Preplay API.
          * If [assetIds] have at least one value this property is ignored and could be empty
          *
          * @param id A user identifier. (<b>NonNull</b>)
@@ -126,7 +126,7 @@ data class UplynkSsaiDescription(
          * - Each entry of the map contains the parameter name with associated value.
          * - The parameters keep their order as it's maintained by LinkedHashMap.
          *
-         * @param parameters The parameters set for the Uplynk Media Platform API configuration.
+         * @param parameters The parameters set for the Uplynk Platform API configuration.
          * Example:
          * ```
          * linkedMapOf("ad" to "exampleAdServer")
@@ -149,7 +149,7 @@ data class UplynkSsaiDescription(
          *
          *   - For all possibilities, see {@link UplynkAssetType}.
          *
-         *   @param value The Uplynk Media asset type. (<b>NonNull</b>)
+         *   @param value The Uplynk asset type. (<b>NonNull</b>)
          *
          */
         fun assetType(value: UplynkAssetType) = apply { this.assetType = value }
@@ -179,7 +179,7 @@ data class UplynkSsaiDescription(
 }
 
 /**
- * Describes the configuration of Uplynk Media Ping features.
+ * Describes the configuration of Uplynk Ping features.
  *
  */
 @Serializable

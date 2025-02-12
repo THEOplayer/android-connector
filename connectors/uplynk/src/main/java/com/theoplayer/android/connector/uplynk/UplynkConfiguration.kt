@@ -1,7 +1,7 @@
 package com.theoplayer.android.connector.uplynk
 
 /**
- * Describes the configuration of the Uplynk Media integration.
+ * The action to take when the user seeks over one or more unplayed ads.
  */
 enum class SkippedAdStrategy {
     /**
@@ -21,7 +21,7 @@ enum class SkippedAdStrategy {
 }
 
 /**
- * Describes the configuration of the Uplynk Media integration.
+ * Describes the configuration of the Uplynk integration.
  */
 data class UplynkConfiguration(
     /**
