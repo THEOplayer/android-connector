@@ -149,7 +149,7 @@ internal class UplynkAdScheduler(
         return adBreaks.firstOrNull { it.adBreak.timeOffset <= time && it.state == AdBreakState.NOT_PLAYED }?.adBreak?.timeOffset
     }
 
-    fun getLastUnWatchedAdBreakOffset(time: Duration): Duration? {
+    fun getLastAdBreakOffset(time: Duration): Duration? {
         return adBreaks.lastOrNull { it.adBreak.timeOffset <= time }?.let {
             if (it.state == AdBreakState.NOT_PLAYED)
                 return it.adBreak.timeOffset
