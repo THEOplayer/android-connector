@@ -17,6 +17,13 @@ internal val UplynkSsaiDescription.urlParameters
         ""
     }
 
+internal val UplynkSsaiDescription.playUrlParameters
+    get() = if (playbackUrlParameters.isNotEmpty()) {
+        playbackUrlParameters.map { "${it.key}=${it.value}" }.joinToString("&", prefix = "?")
+    } else {
+        ""
+    }
+
 internal val UplynkSsaiDescription.pingParameters: String
     get() {
         val feature = UplynkPingFeatures.from(this)

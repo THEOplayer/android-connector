@@ -1,15 +1,14 @@
 package com.theoplayer.android.connector
 
+import android.net.Uri
 import com.theoplayer.android.api.source.SourceDescription
-import com.theoplayer.android.api.source.SourceType
 import com.theoplayer.android.api.source.TypedSource
 import com.theoplayer.android.api.source.addescription.GoogleImaAdDescription
 import com.theoplayer.android.api.source.metadata.MetadataDescription
 import com.theoplayer.android.connector.uplynk.UplynkAssetType
 import com.theoplayer.android.connector.uplynk.UplynkPingConfiguration
 import com.theoplayer.android.connector.uplynk.UplynkSsaiDescription
-import com.theoplayer.android.connector.yospace.YospaceSsaiDescription
-import com.theoplayer.android.connector.yospace.YospaceStreamType
+import java.net.URL
 
 data class Source(
     val name: String,
@@ -41,71 +40,6 @@ val sources: List<Source> by lazy {
                 "assetid" to "C112233",
                 "program" to "BigBuckBunny with Google IMA ads"
             )
-        ),
-        Source(
-            name = "Yospace HLS VOD",
-            sourceDescription = SourceDescription
-                .Builder(
-                    TypedSource.Builder(
-                        "https://csm-e-sdk-validation.bln1.yospace.com/csm/access/156611618/c2FtcGxlL21hc3Rlci5tM3U4?yo.av=4"
-                    )
-                        .type(SourceType.HLS)
-                        .ssai(YospaceSsaiDescription(streamType = YospaceStreamType.VOD))
-                        .build()
-                )
-                .build()
-        ),
-        Source(
-            name = "Yospace HLS Live",
-            sourceDescription = SourceDescription
-                .Builder(
-                    TypedSource.Builder(
-                        "https://csm-e-sdk-validation.bln1.yospace.com/csm/extlive/yospace02,hlssample42.m3u8?yo.br=true&yo.av=4"
-                    )
-                        .type(SourceType.HLS)
-                        .ssai(YospaceSsaiDescription(streamType = YospaceStreamType.LIVE))
-                        .build()
-                )
-                .build()
-        ),
-        Source(
-            name = "Yospace HLS DVRLive",
-            sourceDescription = SourceDescription
-                .Builder(
-                    TypedSource.Builder(
-                        "https://csm-e-sdk-validation.bln1.yospace.com/csm/extlive/yospace02,hlssample42.m3u8?yo.br=true&yo.lp=true&yo.av=4"
-                    )
-                        .type(SourceType.HLS)
-                        .ssai(YospaceSsaiDescription(streamType = YospaceStreamType.LIVEPAUSE))
-                        .build()
-                )
-                .build()
-        ),
-        Source(
-            name = "Yospace DASH Live",
-            sourceDescription = SourceDescription
-                .Builder(
-                    TypedSource.Builder(
-                        "https://csm-e-sdk-validation.bln1.yospace.com/csm/extlive/yosdk01,t2-dash.mpd?yo.br=true&yo.av=4"
-                    )
-                        .type(SourceType.DASH)
-                        .ssai(YospaceSsaiDescription(streamType = YospaceStreamType.LIVE))
-                        .build()
-                )
-                .build()
-        ),
-        Source(
-            name = "Yospace DASH DVRLive",
-            sourceDescription = SourceDescription
-                .Builder(
-                    TypedSource.Builder(
-                        "https://csm-e-sdk-validation.bln1.yospace.com/csm/extlive/yosdk01,dash.mpd?yo.br=true&yo.lp=true&yo.jt=1000&yo.av=4"
-                    )
-                        .type(SourceType.DASH)
-                        .ssai(YospaceSsaiDescription(streamType = YospaceStreamType.LIVEPAUSE))
-                        .build()
-                )
-                .build()
         ),
         Source(
             name = "Uplynk Ads",
@@ -163,10 +97,11 @@ val sources: List<Source> by lazy {
                                 )
                                 .pingConfiguration(
                                     UplynkPingConfiguration.Builder()
-                                    .linearAdData(true)
-                                    .adImpressions(false)
-                                    .freeWheelVideoViews(false)
-                                    .build())
+                                        .linearAdData(true)
+                                        .adImpressions(false)
+                                        .freeWheelVideoViews(false)
+                                        .build()
+                                )
                                 .build()
                         )
                         .build()
@@ -183,15 +118,159 @@ val sources: List<Source> by lazy {
                                 .Builder()
                                 .prefix("https://content.uplynk.com")
                                 .assetInfo(true)
-                                .assetIds(listOf(
-                                    "e973a509e67241e3aa368730130a104d",
-                                    "e70a708265b94a3fa6716666994d877d",
-                                ))
+                                .assetIds(
+                                    listOf(
+                                        "e973a509e67241e3aa368730130a104d",
+                                        "e70a708265b94a3fa6716666994d877d",
+                                    )
+                                )
                                 .contentProtected(true)
-                                .build())
+                                .build()
+                        )
                         .build()
                 )
                 .build()
-        )
+        ),
+        Source(
+            name = "Uplynk Dynamic",
+            sourceDescription = SourceDescription
+                .Builder(
+                    TypedSource.Builder("no source")
+                        .ssai(
+                            UplynkSsaiDescription
+                                .Builder()
+                                .prefix("https://content.uplynk.com")
+                                .assetInfo(true)
+                                .assetIds(listOf("e86b14f27785468f97c46cf3ef162164"))
+                                .build()
+                        )
+                        .build()
+                )
+                .build()
+        ),
     )
+}
+
+data class WebSources(
+    val name: String,
+    val url: URL,
+    val assetID: String,
+    val externalID: String?,
+    val userID: String?,
+    val tokenRequired: Boolean
+) {
+    companion object {
+        // VOD sources:
+
+        // Token required
+        val source1 = WebSources(
+            name = "Web VOD1 - token required",
+            url = URL("https://content.uplynk.com/player5/3D0PYRlstKHws59xA190jfsa.html"),
+            assetID = "a96defe30d7543c2bc52097ceb224384",
+            externalID = "0x3lzrXaqky_t3qwa9F66w",
+            userID = "5d8e9ef63a204d0b8cb71b50093bde7d",
+            tokenRequired = true
+        )
+
+        val source2 = WebSources(
+            name = "Web VOD2 - token required",
+            url = URL("https://content.uplynk.com/player5/9cEt0pA4TRvcbBqZyQrgJsa.html"),
+            assetID = "d4df519c558341748ad0b36e5f67f906",
+            externalID = "QWhv8yi7M0ywkwKW2ehaCA",
+            userID = "5d8e9ef63a204d0b8cb71b50093bde7d",
+            tokenRequired = true
+        )
+
+        val source3 = WebSources(
+            name = "Web VOD3 - token required",
+            url = URL("https://content.uplynk.com/player5/wGiZcf4hmYRbbrNwfj1Nksa.html"),
+            assetID = "e3a379ba6ac04bc897af37fe94db6321",
+            externalID = "ux4ELy_Kuk2UldEDJVjI6w",
+            userID = "5d8e9ef63a204d0b8cb71b50093bde7d",
+            tokenRequired = true
+        )
+
+        // Token required + ads
+        val source4 = WebSources(
+            name = "Web VOD4 - token + Ads",
+            url = URL("https://content.uplynk.com/player5/61VhTlJSFS8n48FVANrHzJsa.html"),
+            assetID = "4acdbbc618564ae7a6748f23af6f7a3c",
+            externalID = null,
+            userID = null,
+            tokenRequired = true
+        )
+
+        // Token is not required
+        val source5 = WebSources(
+            name = "Web5 - token not required",
+            url = URL("https://content.uplynk.com/player5/1W8JSQrGnsk7YtzALXCUPzsa.html"),
+            assetID = "e86b14f27785468f97c46cf3ef162164",
+            externalID = null,
+            userID = null,
+            tokenRequired = false
+        )
+
+        // LIVE sources:
+        val source6 = WebSources(
+            name = "Web Live",
+            url = URL("https://content.uplynk.com/player5/607exUNBJDf260nEJrrxtRsa.html"),
+            assetID = "cbf7d83f86d14a64b1df75386d5c4536",
+            externalID = null,
+            userID = null,
+            tokenRequired = true
+        )
+
+        fun build(): List<Source> {
+            val sourceList = listOf(source1, source2, source3, source4, source5, source6)
+            val sources = sourceList.map {
+                val parameters = LinkedHashMap<String, String>()
+
+                if (it.tokenRequired) {
+                    val response = requestStreams(it.url.toString())
+                    val regex = """let playbackUrl = "(.+?)";""".toRegex()
+
+                    val playbackURLString = regex.find(response)?.groupValues?.get(1)
+
+                    val uri = Uri.parse(playbackURLString)
+
+                    uri.queryParameterNames.map {
+                        parameters.put(it, uri.getQueryParameter(it)!!)
+                    }
+                }
+
+                val ssai = if (it.externalID == null) {
+                    UplynkSsaiDescription
+                        .Builder()
+                        .prefix("https://content.uplynk.com")
+                        .assetInfo(true)
+                        .assetIds(listOf(it.assetID))
+                        .contentProtected(false)
+                        .playbackUrlParameters(parameters)
+                        .build()
+                } else {
+                    UplynkSsaiDescription
+                        .Builder()
+                        .prefix("https://content.uplynk.com")
+                        .assetInfo(true)
+                        .externalIds(listOf(it.externalID))
+                        .userId(it.userID!!)
+                        .contentProtected(false)
+                        .playbackUrlParameters(parameters)
+                        .build()
+                }
+
+                Source(
+                    name = it.name,
+                    sourceDescription = SourceDescription
+                        .Builder(
+                            TypedSource.Builder("no source")
+                                .ssai(ssai)
+                                .build()
+                        )
+                        .build()
+                )
+            }
+            return sources
+        }
+    }
 }

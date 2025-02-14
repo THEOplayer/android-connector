@@ -38,6 +38,14 @@ data class UplynkSsaiDescription(
     val contentProtected: Boolean = false,
 
     /**
+     * The query string parameters added to Uplynk playback URL requests.
+     *
+     * - Each entry of the map contains the parameter name with associated value.
+     * - The parameters keep their order as it's maintained by LinkedHashMap.
+     */
+    val playbackUrlParameters: LinkedHashMap<String, String> = linkedMapOf(),
+
+    /**
      * Sets the parameters.
      *
      * - Each entry of the map contains the parameter name with associated value.
@@ -118,6 +126,23 @@ data class UplynkSsaiDescription(
          */
         fun contentProtected(contentProtected: Boolean) = apply { this.contentProtected = contentProtected }
 
+        private var playbackUrlParameters: LinkedHashMap<String, String> = LinkedHashMap()
+
+        /**
+         * Sets the parameters.
+         *
+         * - Each entry of the map contains the parameter name with associated value.
+         * - The parameters keep their order as it's maintained by LinkedHashMap.
+         *
+         * @param parameters The parameters set for the Uplynk Platform API configuration.
+         * Example:
+         * ```
+         * linkedMapOf("ad" to "exampleAdServer")
+         * ```
+         */
+        fun playbackUrlParameters(parameters: LinkedHashMap<String, String>) =
+            apply { this.playbackUrlParameters = parameters }
+
         private var preplayParameters: LinkedHashMap<String, String> = LinkedHashMap()
 
         /**
@@ -170,6 +195,7 @@ data class UplynkSsaiDescription(
             externalIds = externalIds,
             userId = userId,
             contentProtected = contentProtected,
+            playbackUrlParameters = playbackUrlParameters,
             preplayParameters = preplayParameters,
             assetInfo = assetInfo,
             assetType = assetType,

@@ -16,7 +16,6 @@ import com.theoplayer.android.api.ads.ima.GoogleImaIntegrationFactory
 import com.theoplayer.android.api.event.ads.AdBreakEvent
 import com.theoplayer.android.api.event.ads.AdsEventTypes
 import com.theoplayer.android.api.event.ads.SingleAdEvent
-import com.theoplayer.android.api.event.player.PlayerEventTypes
 import com.theoplayer.android.api.media3.Media3PlayerIntegration
 import com.theoplayer.android.api.media3.Media3PlayerIntegrationFactory.createMedia3PlayerIntegration
 import com.theoplayer.android.connector.analytics.comscore.ComscoreConfiguration
@@ -33,7 +32,9 @@ import com.theoplayer.android.connector.uplynk.network.AssetInfoResponse
 import com.theoplayer.android.connector.uplynk.network.PingResponse
 import com.theoplayer.android.connector.uplynk.network.PreplayLiveResponse
 import com.theoplayer.android.connector.uplynk.network.PreplayVodResponse
-import com.theoplayer.android.connector.yospace.YospaceConnector
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 const val TAG = "MainActivity"
 
@@ -43,27 +44,43 @@ class MainActivity : AppCompatActivity() {
     private lateinit var convivaConnector: ConvivaConnector
     private lateinit var nielsenConnector: NielsenConnector
     private lateinit var comscoreConnector: ComscoreConnector
-    private lateinit var yospaceConnector: YospaceConnector
     private lateinit var uplynkConnector: UplynkConnector
     private var media3PlayerIntegration: Media3PlayerIntegration? = null
     private var selectedSource: Source = sources.first()
     private var useMedia3 = false
     private var btn_backend: Button? = null
+    private var btn_source: Button? = null
+    private val ioScope = CoroutineScope(Dispatchers.IO)
+    private val mainScope = CoroutineScope(Dispatchers.Main)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         btn_backend = findViewById(R.id.button_backend)
+        btn_source = findViewById(R.id.select_source)
 
         setupTHEOplayer()
         setupGoogleImaIntegration()
         setupConviva()
         setupComscore()
         setupNielsen()
-        setupYospace()
         setupUplynk()
         setupAdListeners()
+        setupWebSources()
+    }
+
+    private fun setupWebSources() {
+        ioScope.launch {
+            mainScope.launch {
+                btn_source?.isEnabled = false
+            }
+            val webSources = WebSources.build()
+            sources + webSources
+            mainScope.launch {
+                btn_source?.isEnabled = true
+            }
+        }
     }
 
     private fun setupTHEOplayer() {
@@ -156,10 +173,6 @@ class MainActivity : AppCompatActivity() {
         nielsenConnector = NielsenConnector(applicationContext, theoplayerView.player, appId, true)
     }
 
-    private fun setupYospace() {
-        yospaceConnector = YospaceConnector(theoplayerView)
-    }
-
     private fun setupUplynk() {
         uplynkConnector = UplynkConnector(theoplayerView, UplynkConfiguration())
         uplynkConnector.addListener(object: UplynkListener {
@@ -237,6 +250,9 @@ class MainActivity : AppCompatActivity() {
             }
             .create()
             .show()
+
+//        selectedSource = WebSources.sources?.get(1)!!
+//        theoplayerView.player.source = selectedSource.sourceDescription
     }
 
     private fun setSource(source: Source) {

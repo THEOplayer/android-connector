@@ -6,7 +6,10 @@ import kotlinx.serialization.json.Json
 
 
 internal class UplynkApi {
-    private val json = Json { ignoreUnknownKeys = true }
+    private val json = Json {
+        ignoreUnknownKeys = true
+        isLenient = true
+    }
     private val network = HttpsConnection()
 
     suspend fun preplayVod(srcURL: String): PreplayInternalVodResponse {
