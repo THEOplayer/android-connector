@@ -10,18 +10,27 @@ import com.theoplayer.android.connector.uplynk.UplynkPingConfiguration
 import com.theoplayer.android.connector.uplynk.UplynkSsaiDescription
 import java.net.URL
 
+val backend: List<String> by lazy {
+    listOf("Default", "Media3")
+}
+
 data class Source(
     val name: String,
     val sourceDescription: SourceDescription,
     val nielsenMetadata: HashMap<String, Any> = hashMapOf()
 )
 
-val backend: List<String> by lazy {
-    listOf("Default", "Media3")
+object SourceManager {
+    private val _sources = demoSources.toMutableList()
+    val sources : List<Source>
+    get() = _sources.toList()
+
+    fun addSources(sources: List<Source>) {
+        _sources.addAll(sources)
+    }
 }
 
-val sources: List<Source> by lazy {
-    listOf(
+private val demoSources=listOf(
         Source(
             name = "BigBuckBunny with Google IMA ads",
             sourceDescription = SourceDescription
@@ -149,7 +158,6 @@ val sources: List<Source> by lazy {
                 .build()
         ),
     )
-}
 
 data class WebSources(
     val name: String,
@@ -211,18 +219,18 @@ data class WebSources(
         )
 
         // LIVE sources:
-        val source6 = WebSources(
-            name = "Web Live",
-            url = URL("https://content.uplynk.com/player5/607exUNBJDf260nEJrrxtRsa.html"),
-            assetID = "cbf7d83f86d14a64b1df75386d5c4536",
-            externalID = null,
-            userID = null,
-            tokenRequired = true
-        )
+//        val source6 = WebSources(
+//            name = "Web Live",
+//            url = URL("https://content.uplynk.com/player5/607exUNBJDf260nEJrrxtRsa.html"),
+//            assetID = "cbf7d83f86d14a64b1df75386d5c4536",
+//            externalID = null,
+//            userID = null,
+//            tokenRequired = true
+//        )
 
-        fun build(): List<Source> {
-            val sourceList = listOf(source1, source2, source3, source4, source5, source6)
-            val sources = sourceList.map {
+        fun build() {
+            val sourceList = listOf(source1, source2, source3, source4, source5)
+            val webSources = sourceList.map {
                 val parameters = LinkedHashMap<String, String>()
 
                 if (it.tokenRequired) {
@@ -270,7 +278,8 @@ data class WebSources(
                         .build()
                 )
             }
-            return sources
+
+            SourceManager.addSources(webSources)
         }
     }
 }

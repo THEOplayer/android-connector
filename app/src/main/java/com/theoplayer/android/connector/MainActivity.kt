@@ -35,6 +35,7 @@ import com.theoplayer.android.connector.uplynk.network.PreplayVodResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 const val TAG = "MainActivity"
 
@@ -46,12 +47,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var comscoreConnector: ComscoreConnector
     private lateinit var uplynkConnector: UplynkConnector
     private var media3PlayerIntegration: Media3PlayerIntegration? = null
-    private var selectedSource: Source = sources.first()
+    private var selectedSource: Source = SourceManager.sources.first()
     private var useMedia3 = false
     private var btn_backend: Button? = null
     private var btn_source: Button? = null
     private val ioScope = CoroutineScope(Dispatchers.IO)
-    private val mainScope = CoroutineScope(Dispatchers.Main)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,12 +72,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupWebSources() {
         ioScope.launch {
-            mainScope.launch {
+            withContext(Dispatchers.Main) {
                 btn_source?.isEnabled = false
             }
-            val webSources = WebSources.build()
-            sources + webSources
-            mainScope.launch {
+            WebSources.build()
+            withContext(Dispatchers.Main) {
                 btn_source?.isEnabled = true
             }
         }
@@ -175,7 +174,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupUplynk() {
         uplynkConnector = UplynkConnector(theoplayerView, UplynkConfiguration())
-        uplynkConnector.addListener(object: UplynkListener {
+        uplynkConnector.addListener(object : UplynkListener {
             override fun onPreplayVodResponse(response: PreplayVodResponse) {
                 Log.d("UplynkConnectorEvents", "PREPLAY_VOD_RESPONSE $response")
             }
@@ -240,6 +239,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun selectSource(view: View) {
+        val sources = SourceManager.sources
         val sourceNames = sources.map { it.name }.toTypedArray()
         val selectedIndex = sources.indexOf(selectedSource)
         AlertDialog.Builder(this)
@@ -250,9 +250,6 @@ class MainActivity : AppCompatActivity() {
             }
             .create()
             .show()
-
-//        selectedSource = WebSources.sources?.get(1)!!
-//        theoplayerView.player.source = selectedSource.sourceDescription
     }
 
     private fun setSource(source: Source) {
