@@ -16,7 +16,6 @@ import com.theoplayer.android.api.ads.ima.GoogleImaIntegrationFactory
 import com.theoplayer.android.api.event.ads.AdBreakEvent
 import com.theoplayer.android.api.event.ads.AdsEventTypes
 import com.theoplayer.android.api.event.ads.SingleAdEvent
-import com.theoplayer.android.api.event.player.PlayerEventTypes
 import com.theoplayer.android.api.media3.Media3PlayerIntegration
 import com.theoplayer.android.api.media3.Media3PlayerIntegrationFactory.createMedia3PlayerIntegration
 import com.theoplayer.android.connector.analytics.comscore.ComscoreConfiguration
@@ -26,7 +25,6 @@ import com.theoplayer.android.connector.analytics.comscore.ComscoreMetaData
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConfiguration
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConnector
 import com.theoplayer.android.connector.analytics.nielsen.NielsenConnector
-import com.theoplayer.android.connector.uplynk.UplynkConfiguration
 import com.theoplayer.android.connector.uplynk.UplynkConnector
 import com.theoplayer.android.connector.uplynk.UplynkListener
 import com.theoplayer.android.connector.uplynk.network.AssetInfoResponse
@@ -161,7 +159,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupUplynk() {
-        uplynkConnector = UplynkConnector(theoplayerView, UplynkConfiguration())
+        uplynkConnector = UplynkConnector(theoplayerView)
         uplynkConnector.addListener(object: UplynkListener {
             override fun onPreplayVodResponse(response: PreplayVodResponse) {
                 Log.d("UplynkConnectorEvents", "PREPLAY_VOD_RESPONSE $response")
