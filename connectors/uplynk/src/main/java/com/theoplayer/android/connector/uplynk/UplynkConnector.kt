@@ -22,7 +22,7 @@ internal const val TAG = "UplynkConnector"
  */
 class UplynkConnector(
     private val theoplayerView: THEOplayerView,
-    private val uplynkConfiguration: UplynkConfiguration
+    private val uplynkConfiguration: UplynkConfiguration = UplynkConfiguration()
 ) {
     private lateinit var integration: UplynkAdIntegration
     private val eventDispatcher = UplynkEventDispatcher()
