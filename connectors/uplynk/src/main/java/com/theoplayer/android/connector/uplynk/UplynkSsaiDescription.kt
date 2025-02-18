@@ -129,7 +129,7 @@ data class UplynkSsaiDescription(
         private var playbackUrlParameters: LinkedHashMap<String, String> = LinkedHashMap()
 
         /**
-         * Sets the parameters.
+         * Sets the playback parameters.
          *
          * - Each entry of the map contains the parameter name with associated value.
          * - The parameters keep their order as it's maintained by LinkedHashMap.
@@ -137,7 +137,7 @@ data class UplynkSsaiDescription(
          * @param parameters The parameters set for the Uplynk Platform API configuration.
          * Example:
          * ```
-         * linkedMapOf("ad" to "exampleAdServer")
+         * linkedMapOf("tc" to "1")
          * ```
          */
         fun playbackUrlParameters(parameters: LinkedHashMap<String, String>) =
@@ -146,7 +146,7 @@ data class UplynkSsaiDescription(
         private var preplayParameters: LinkedHashMap<String, String> = LinkedHashMap()
 
         /**
-         * Sets the parameters.
+         * Sets the preplay parameters.
          *
          * - Each entry of the map contains the parameter name with associated value.
          * - The parameters keep their order as it's maintained by LinkedHashMap.
