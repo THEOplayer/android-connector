@@ -222,7 +222,8 @@ internal class UplynkAdIntegration(
             requestLive(ssaiDescription).parseMinimalResponse()
         }
 
-        var newUplynkSource = uplynkSource.replaceSrc(minimalResponse.playURL)
+        val playUrl = uplynkDescriptionConverter.buildPlaybackUrl(minimalResponse.playURL, ssaiDescription)
+        var newUplynkSource = uplynkSource.replaceSrc(playUrl)
 
         minimalResponse.drm?.let { drm ->
             if (drm.required) {
