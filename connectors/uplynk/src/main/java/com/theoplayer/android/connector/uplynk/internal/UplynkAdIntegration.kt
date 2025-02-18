@@ -107,7 +107,7 @@ internal class UplynkAdIntegration(
                         }
 
                         SkippedAdStrategy.PLAY_LAST -> {
-                            adScheduler?.getLastAdBreakOffset(time)?.let { startOffset ->
+                            adScheduler?.getLastUnwatchedAdBreakOffset(seekTime.seekFromTime, seekTime.seekToTime)?.let { startOffset ->
                                 snapback(startOffset)
                             } ?: playFromSeekToTime()
                         }
