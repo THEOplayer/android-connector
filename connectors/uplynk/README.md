@@ -36,15 +36,6 @@ import com.theoplayer.android.connector.uplynk.UplynkConnector
 val theoPlayerView = findViewById(R.id.theoplayer)
 val uplynkConnector = UplynkConnector(theoPlayerView)
 ```
-Optionally, `UplynkConfiguration` for handling ad playback behavior in the `UplynkConnector` can be set:
-
-```kotlin
-val customConfig = UplynkConfiguration(
-    defaultSkipOffset = 5,
-    onSeekOverAd = SkippedAdStrategy.PLAY_LAST
-)
-val uplynkConnector = UplynkConnector(theoPlayerView, customConfig)
-```
 
 Finally, set the THEOplayer source to a `SourceDescription` with a `UplynkSsaiDescription` as its `ssai` description:
 ```kotlin
