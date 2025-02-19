@@ -25,6 +25,8 @@ import com.theoplayer.android.connector.analytics.comscore.ComscoreMetaData
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConfiguration
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConnector
 import com.theoplayer.android.connector.analytics.nielsen.NielsenConnector
+import com.theoplayer.android.connector.uplynk.SkippedAdStrategy
+import com.theoplayer.android.connector.uplynk.UplynkConfiguration
 import com.theoplayer.android.connector.uplynk.UplynkConnector
 import com.theoplayer.android.connector.uplynk.UplynkListener
 import com.theoplayer.android.connector.uplynk.network.AssetInfoResponse
@@ -159,7 +161,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupUplynk() {
-        uplynkConnector = UplynkConnector(theoplayerView)
+        uplynkConnector = UplynkConnector(theoplayerView, UplynkConfiguration(defaultSkipOffset = 5, SkippedAdStrategy.PLAY_LAST))
         uplynkConnector.addListener(object: UplynkListener {
             override fun onPreplayVodResponse(response: PreplayVodResponse) {
                 Log.d("UplynkConnectorEvents", "PREPLAY_VOD_RESPONSE $response")
