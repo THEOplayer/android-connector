@@ -59,10 +59,12 @@ internal class UplynkAdIntegration(
 
     private var state = State.PLAYING_CONTENT
     private val seekTime = SeekTime()
+    private var lastTimeUpdate: Duration = Duration.ZERO
 
     init {
         player.addEventListener(PlayerEventTypes.TIMEUPDATE) {
             val time = it.currentTime.seconds
+            lastTimeUpdate = time
             adScheduler?.onTimeUpdate(time)
             pingScheduler?.onTimeUpdate(time)
 
@@ -71,7 +73,7 @@ internal class UplynkAdIntegration(
 
         player.addEventListener(PlayerEventTypes.SEEKING) {
             if (state == State.PLAYING_CONTENT && !seekTime.isSeekFromSet()) {
-                seekTime.seekFromTime = it.currentTime.seconds
+                seekTime.seekFromTime = lastTimeUpdate
             }
         }
 
