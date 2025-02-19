@@ -72,7 +72,7 @@ data class UplynkSsaiDescription(
 ) : CustomSsaiDescription() {
 
     init {
-        check(externalIds.isEmpty() || userId != null) { "userId must be provided with external Ids" }
+        require(!(externalIds.isNotEmpty() && userId == null)) { "userId must be provided with external Ids" }
     }
 
     override val customIntegration: String
