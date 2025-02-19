@@ -71,6 +71,10 @@ data class UplynkSsaiDescription(
     val pingConfiguration: UplynkPingConfiguration = UplynkPingConfiguration()
 ) : CustomSsaiDescription() {
 
+    init {
+        check(externalIds.isEmpty() || userId != null) { "userId must be provided with external Ids" }
+    }
+
     override val customIntegration: String
         get() = UplynkConnector.INTEGRATION_ID
 
