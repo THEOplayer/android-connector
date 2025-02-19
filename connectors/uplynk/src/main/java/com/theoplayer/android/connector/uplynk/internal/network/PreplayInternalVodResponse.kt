@@ -28,7 +28,7 @@ internal data class MinimalPreplayResponse(
     /*
     * The content protection information. (**Nullable**)
     */
-    val drm: DrmResponse?
+    val drm: DrmResponse? = null
 )
 
 

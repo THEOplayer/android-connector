@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.widget.Button
 import android.widget.FrameLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -15,7 +16,8 @@ import com.theoplayer.android.api.ads.ima.GoogleImaIntegrationFactory
 import com.theoplayer.android.api.event.ads.AdBreakEvent
 import com.theoplayer.android.api.event.ads.AdsEventTypes
 import com.theoplayer.android.api.event.ads.SingleAdEvent
-import com.theoplayer.android.api.event.player.PlayerEventTypes
+import com.theoplayer.android.api.media3.Media3PlayerIntegration
+import com.theoplayer.android.api.media3.Media3PlayerIntegrationFactory.createMedia3PlayerIntegration
 import com.theoplayer.android.connector.analytics.comscore.ComscoreConfiguration
 import com.theoplayer.android.connector.analytics.comscore.ComscoreConnector
 import com.theoplayer.android.connector.analytics.comscore.ComscoreMediaType
@@ -23,6 +25,8 @@ import com.theoplayer.android.connector.analytics.comscore.ComscoreMetaData
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConfiguration
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConnector
 import com.theoplayer.android.connector.analytics.nielsen.NielsenConnector
+import com.theoplayer.android.connector.uplynk.SkippedAdStrategy
+import com.theoplayer.android.connector.uplynk.UplynkConfiguration
 import com.theoplayer.android.connector.uplynk.UplynkConnector
 import com.theoplayer.android.connector.uplynk.UplynkListener
 import com.theoplayer.android.connector.uplynk.network.AssetInfoResponse
@@ -41,11 +45,16 @@ class MainActivity : AppCompatActivity() {
     private lateinit var comscoreConnector: ComscoreConnector
     private lateinit var yospaceConnector: YospaceConnector
     private lateinit var uplynkConnector: UplynkConnector
+    private var media3PlayerIntegration: Media3PlayerIntegration? = null
     private var selectedSource: Source = sources.first()
+    private var useMedia3 = false
+    private var btn_backend: Button? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        btn_backend = findViewById(R.id.button_backend)
 
         setupTHEOplayer()
         setupGoogleImaIntegration()
@@ -152,7 +161,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupUplynk() {
-        uplynkConnector = UplynkConnector(theoplayerView)
+        uplynkConnector = UplynkConnector(theoplayerView, UplynkConfiguration(defaultSkipOffset = 5, SkippedAdStrategy.PLAY_LAST))
         uplynkConnector.addListener(object: UplynkListener {
             override fun onPreplayVodResponse(response: PreplayVodResponse) {
                 Log.d("UplynkConnectorEvents", "PREPLAY_VOD_RESPONSE $response")
@@ -178,14 +187,6 @@ class MainActivity : AppCompatActivity() {
                 Log.d("UplynkConnectorEvents", "PING_RESPONSE $pingResponse")
             }
         })
-
-        theoplayerView.player.ads.addEventListener(AdsEventTypes.AD_ERROR) {
-            Log.d("UplynkConnectorEvents", "AD_ERROR " + it.error)
-        }
-
-        theoplayerView.player.addEventListener(PlayerEventTypes.ERROR) {
-            Log.d("UplynkConnectorEvents", "ERROR " + it.errorObject)
-        }
     }
 
     private fun setupAdListeners() {
@@ -239,9 +240,36 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setSource(source: Source) {
+        if (useMedia3) {
+            if (media3PlayerIntegration == null) {
+                media3PlayerIntegration = createMedia3PlayerIntegration()
+                theoplayerView.player.addIntegration(media3PlayerIntegration)
+            }
+        } else {
+            media3PlayerIntegration?.let {
+                theoplayerView.player.removeIntegration(it)
+                media3PlayerIntegration = null
+            }
+        }
+
         selectedSource = source
         theoplayerView.player.source = source.sourceDescription
         nielsenConnector.updateMetadata(source.nielsenMetadata)
+    }
+
+    fun selectBackend(view: View) {
+        val backendList = backend.map { it }.toTypedArray()
+        val currentBackend = if (useMedia3) 1 else 0
+        AlertDialog.Builder(this)
+            .setTitle("Select backend")
+            .setSingleChoiceItems(backendList, currentBackend) { dialog, position ->
+                useMedia3 = position == 1
+                btn_backend?.text = "B/E: " + backendList[position]
+                setSource(selectedSource)
+                dialog.dismiss()
+            }
+            .create()
+            .show()
     }
 
     fun playPause(view: View) {

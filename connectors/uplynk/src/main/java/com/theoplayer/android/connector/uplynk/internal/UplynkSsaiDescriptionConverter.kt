@@ -18,6 +18,10 @@ internal class UplynkSsaiDescriptionConverter {
         return "$prefix/preplay/$urlAssetType/$urlAssetId?v=2$drmParameters$pingParameters$urlParameters"
     }
 
+    fun buildPlaybackUrl(playUrl: String, ssaiDescription: UplynkSsaiDescription): String = with(ssaiDescription) {
+        return "$playUrl$playUrlParameters"
+    }
+
     fun buildAssetInfoUrls(
         ssaiDescription: UplynkSsaiDescription,
         sessionId: String,

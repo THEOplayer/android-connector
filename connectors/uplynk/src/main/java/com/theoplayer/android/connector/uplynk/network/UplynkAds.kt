@@ -20,10 +20,10 @@ data class UplynkAds(
     /**
      * A list of objects that contain the ad break's timeOffset and the index for the ads.breaks object.
      */
-    val breakOffsets: List<UplynkBreakOffsets>,
+    val breakOffsets: List<UplynkBreakOffsets> = emptyList(),
 
     /**
      * A list of objects with start and end times for every non-video ad that has been replaced with a short blank video (i.e., placeholder ad).
      */
-    val placeholderOffsets: List<UplynkPlaceholderAds>
+    val placeholderOffsets: List<UplynkPlaceholderAds> = emptyList()
 )

@@ -8,10 +8,12 @@ import com.theoplayer.android.connector.uplynk.network.UplynkAd
 import com.theoplayer.android.connector.uplynk.network.UplynkAdBreak
 import java.util.WeakHashMap
 import kotlin.time.Duration
-import kotlin.time.DurationUnit
 
 @Suppress("UnstableApiUsage")
-internal class AdHandler(private val controller: ServerSideAdIntegrationController) {
+internal class AdHandler(
+    private val controller: ServerSideAdIntegrationController,
+    private val skipOffset: Int
+) {
     private val scheduledAds = WeakHashMap<UplynkAd, Ad>()
 
     fun createAdBreak(adBreak: UplynkAdBreak) {
@@ -25,7 +27,8 @@ internal class AdHandler(private val controller: ServerSideAdIntegrationControll
             val adInit = AdInit(
                 type = adBreak.type,
                 duration = it.duration.inWholeSeconds.toInt(),
-                customData = it
+                customData = it,
+                skipOffset = skipOffset
             )
             scheduledAds[it] = controller.createAd(adInit, currentAdBreak)
         }
@@ -35,6 +38,12 @@ internal class AdHandler(private val controller: ServerSideAdIntegrationControll
         val ad = scheduledAds[uplynkAd]
         checkNotNull(ad) { "Cannot find an ad $uplynkAd" }
         controller.beginAd(ad)
+    }
+
+    fun onAdSkip(uplynkAd: UplynkAd) {
+        val ad = scheduledAds[uplynkAd]
+        checkNotNull(ad) { "Cannot find an ad $uplynkAd" }
+        controller.skipAd(ad)
     }
 
     fun onAdEnd(uplynkAd: UplynkAd) {
