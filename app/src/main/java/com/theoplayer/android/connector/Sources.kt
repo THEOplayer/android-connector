@@ -17,6 +17,10 @@ data class Source(
     val nielsenMetadata: HashMap<String, Any> = hashMapOf()
 )
 
+val backend: List<String> by lazy {
+    listOf("Default", "Media3")
+}
+
 val sources: List<Source> by lazy {
     listOf(
         Source(

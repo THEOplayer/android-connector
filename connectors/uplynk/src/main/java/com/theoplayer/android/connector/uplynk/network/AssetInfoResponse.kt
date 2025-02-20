@@ -58,8 +58,6 @@ data class AssetInfoResponse(
      *      <li>6: TV-MA
      *      <li>7: Not Rated
      * </ul>
-     *
-     * @return The {@link VerizonMediaAssetTvRating}. (<b>NonNull</b>)
      */
     @SerialName("tv_rating")
     val tvRating: Int,
