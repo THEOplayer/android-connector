@@ -56,16 +56,20 @@ theoplayerView.player.source =
     .build()
 ```
 
-Alternatively, the asset name can be passed to the connector at any time along with additional metadata
-through an open key-value map, for example:
+Alternatively, the asset name can be passed to the connector at any time during playback along with additional metadata
+through an open key-value map. An important note is that the `setContentInfo` call needs to happen after the `sourcechange` event is dispatched, for example:
 
 ```kotlin
 theoplayerView.player.source = sourceDescription
-convivaConnector?.setContentInfo(hashMapOf(
-    "Conviva.assetName" to "Big Buck Bunny",
-    "customTag1" to "customValue1",
-    "customTag2" to "customValue2"
-))
+
+theoplayerView.player.addEventListener(PlayerEventTypes.SOURCECHANGE) {
+    convivaConnector.setContentInfo(hashMapOf(
+        "Conviva.assetName" to "Big Buck Bunny",
+        "customTag1" to "customValue1",
+        "customTag2" to "customValue2"
+    ))
+}
+
 ```
 
 ### Starting a new session on program boundaries
