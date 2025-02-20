@@ -97,8 +97,7 @@ internal class UplynkAdIntegration(
                         SkippedAdStrategy.PLAY_NONE -> {
                             if (seekTime.seekToTime != time) {
                                 // Seek point was on an Ad break
-                                state = State.FINISHED_PLAYING_SKIPPED_AD_BREAK
-                                seek(seekTime.seekToTime)
+                                playFromSeekToTime()
                             }
                         }
 
