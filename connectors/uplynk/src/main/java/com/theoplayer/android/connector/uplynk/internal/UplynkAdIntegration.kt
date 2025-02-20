@@ -98,6 +98,9 @@ internal class UplynkAdIntegration(
                             if (seekTime.seekToTime != time) {
                                 // Seek point was on an Ad break
                                 playFromSeekToTime()
+                            } else {
+                                pingScheduler?.onSeeking(seekTime.seekFromTime)
+                                pingScheduler?.onSeeked(seekTime.seekToTime)
                             }
                         }
 
