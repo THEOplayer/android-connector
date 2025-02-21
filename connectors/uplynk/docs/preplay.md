@@ -76,7 +76,7 @@ Ad specific parameters can be passed in the `preplayParameters` argument of the 
 
 ## Preplay Response
 
-THEOplayer automatically interprets the response returned by the Preplay service. However, if a developer wants to perform their own logic with the Preplay API response, then they can register their implementation of the `UplynkListener` interface through the `UplynkConnector` `addListener`. There, you can get access to the `PrePlayLiveResponse` or `PrePlayVODResponse` objects through:
+THEOplayer automatically interprets the response returned by the Preplay service. However, if a developer wants to perform their own logic with the Preplay API response, then they can register their implementation of the `UplynkListener` interface through the `UplynkConnector` `addListener`. There, you can get access to the `PreplayLiveResponse` or `PreplayVodResponse` objects through:
 
 ```kotlin
     uplynkConnector.addListener(object : UplynkListener {

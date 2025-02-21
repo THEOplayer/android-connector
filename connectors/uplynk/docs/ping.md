@@ -72,7 +72,7 @@ Where:
 - `{event}`: Is the current Ping event. An event should only be passed when playback starts or when a viewer seeks to a new position.
   Valid values are:
 
-  - **start**: Pass this event, along `withpt=0`, when the player starts playback. This lets the server know where playback starts and allows the server to fire start events as needed.
+  - **start**: Pass this event, along with `pt=0`, when the player starts playback. This lets the server know where playback starts and allows the server to fire start events as needed.
   - **seek**: Pass this event when a viewer seeks. This resets the timeline to prevent inadvertently firing events for skipped ads.
 
 - `{freeWheelTime}`: Indicates the playback position, in seconds, right before a viewer seeks to a different position in the timeline. This property is mandatory when the freeWheelVideoViews is used.
