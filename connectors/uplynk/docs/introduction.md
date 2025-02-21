@@ -39,7 +39,7 @@ We can now instantiate the `UplynkConnector` provided that you have an available
 val uplynkConnector = UplynkConnector(theoplayerView = yourTHEOplayer, uplynkConfiguration = uplynkConfiguration)
 ```
 
-For more information on the connector and available APIs, continue your read on the pages below.
+For more information on the connector and available APIs, continue to read on the pages below.
 
 - [Preplay](preplay.md): this article provides information on how to configure a Uplynk source.
 - [Ads](ads.md): this article provides information on which APIs can be leveraged to track and enhance the ad-viewing experience.
