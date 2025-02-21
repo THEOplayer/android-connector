@@ -17,6 +17,13 @@ internal val UplynkSsaiDescription.urlParameters
         ""
     }
 
+internal val UplynkSsaiDescription.playUrlParameters
+    get() = if (playbackUrlParameters.isNotEmpty()) {
+        playbackUrlParameters.map { "${it.key}=${it.value}" }.joinToString("&", prefix = "?")
+    } else {
+        ""
+    }
+
 internal val UplynkSsaiDescription.pingParameters: String
     get() {
         val feature = UplynkPingFeatures.from(this)
@@ -36,8 +43,8 @@ internal val UplynkSsaiDescription.urlAssetType
 
 internal val UplynkSsaiDescription.urlAssetId
     get() = when {
-        assetIds.isEmpty() && externalIds.size == 1 -> "$userId/${externalIds.first()}.json"
-        assetIds.isEmpty() && externalIds.size > 1 -> "$userId/${externalIds.joinToString(",")}/multiple.json"
+        assetIds.isEmpty() && externalIds.size == 1 -> "ext/$userId/${externalIds.first()}.json"
+        assetIds.isEmpty() && externalIds.size > 1 -> "ext/$userId/${externalIds.joinToString(",")}/multiple.json"
         assetIds.size == 1 -> "${assetIds.first()}.json"
         else -> assetIds.joinToString(separator = ",") + "/multiple.json"
     }

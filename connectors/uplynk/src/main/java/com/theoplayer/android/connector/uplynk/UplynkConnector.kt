@@ -13,15 +13,16 @@ import com.theoplayer.android.connector.uplynk.internal.network.UplynkApi
 internal const val TAG = "UplynkConnector"
 
 /**
- * A connector for the Uplynk Media Platform.
+ * A connector for the Uplynk Platform.
  *
  * @param theoplayerView
  *   The THEOplayer view, which will be connected to the created connector.
  *
- * @see [Uplynk Media Platform](https://docs.edgecast.com/video/index.html)
+ * @see [Uplynk Platform](https://docs.edgecast.com/video/index.html)
  */
 class UplynkConnector(
     private val theoplayerView: THEOplayerView,
+    private val uplynkConfiguration: UplynkConfiguration = UplynkConfiguration()
 ) {
     private lateinit var integration: UplynkAdIntegration
     private val eventDispatcher = UplynkEventDispatcher()
@@ -36,7 +37,8 @@ class UplynkConnector(
             controller,
             eventDispatcher,
             UplynkSsaiDescriptionConverter(),
-            UplynkApi()
+            UplynkApi(),
+            uplynkConfiguration
         )
         this.integration = integration
         return integration

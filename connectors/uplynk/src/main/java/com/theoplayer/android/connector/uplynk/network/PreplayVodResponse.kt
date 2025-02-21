@@ -24,7 +24,7 @@ data class PreplayVodResponse(
     /*
     * The content protection information. (**Nullable**)
     */
-    val drm: DrmResponse?,
+    val drm: DrmResponse? = null,
 
     /**
      * The zone prefix for the viewer's session. (**NonNull**)
