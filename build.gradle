@@ -51,7 +51,7 @@ tasks.dokkaHtmlMultiModule.configure {
 }
 
 subprojects {
-    version = connectorVersion
+    version = sdkVersion
 
     tasks.withType(AbstractDokkaLeafTask.class).configureEach {
         suppressObviousFunctions.set(true)
