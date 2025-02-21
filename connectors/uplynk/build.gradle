@@ -16,7 +16,7 @@ android {
         minSdk 21
         consumerProguardFiles "consumer-rules.pro"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "LIBRARY_VERSION", "\"${sdkVersion}\"")
+        buildConfigField("String", "LIBRARY_VERSION", "\"${connectorVersion}\"")
     }
 
     buildTypes {

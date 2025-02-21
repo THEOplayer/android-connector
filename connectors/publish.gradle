@@ -42,7 +42,7 @@ afterEvaluate {
             release(MavenPublication) {
                 groupId project.ext.groupId
                 artifactId project.name
-                version project.ext.sdkVersion
+                version project.ext.connectorVersion
                 artifact(tasks.dokkaJavadocJar)
                 from components.release
             }
