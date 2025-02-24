@@ -25,6 +25,7 @@ plugins {
 tasks.register('updateVersion') {
     def sdkVersion = project.ext.sdkVersion
     ant.replaceregexp(file: 'gradle.properties', match: 'sdkVersion=.*', replace: "sdkVersion=$sdkVersion", flags: 'g', byline: true)
+    ant.replaceregexp(file: 'gradle.properties', match: 'connectorVersion=.*', replace: "connectorVersion=$sdkVersion", flags: 'g', byline: true)
 }
 
 tasks.register('clean', Delete) {
