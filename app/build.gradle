@@ -41,7 +41,6 @@ dependencies {
 
     implementation "com.theoplayer.theoplayer-sdk-android:core:$sdkVersion"
     implementation "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:$sdkVersion"
-    implementation "com.theoplayer.theoplayer-sdk-android:integration-media3:$sdkVersion"
 
     implementation project(":connectors:analytics:conviva")
     implementation libs.conviva
