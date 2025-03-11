@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var yospaceConnector: YospaceConnector
     private lateinit var uplynkConnector: UplynkConnector
     private var selectedSource: Source = sources.first()
-    private var useMedia3 = false
+    private var useMedia3 = true
     private var btn_backend: Button? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
