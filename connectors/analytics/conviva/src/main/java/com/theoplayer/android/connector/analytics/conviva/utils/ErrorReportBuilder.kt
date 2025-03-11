@@ -14,7 +14,7 @@ class ErrorReportBuilder(private val maxHTTPResponses: Int = 10) : HTTPIntercept
 
     override suspend fun onResponse(response: InterceptableHTTPResponse) {
         // Keep info on the last X HTTP responses
-        if (_responses.size == maxHTTPResponses) {
+        while (_responses.size >= maxHTTPResponses) {
             _responses.remove(_responses.keys.first())
         }
         // Create an entry with the path & http response status

@@ -18,6 +18,7 @@ import com.theoplayer.android.api.event.EventListener
 import com.theoplayer.android.api.event.ads.AdEvent
 import com.theoplayer.android.api.event.player.*
 import com.theoplayer.android.api.player.Player
+import com.theoplayer.android.api.source.PlaybackPipeline
 import com.theoplayer.android.api.source.SourceDescription
 import com.theoplayer.android.connector.analytics.conviva.ads.AdReporter
 import com.theoplayer.android.connector.analytics.conviva.utils.ErrorReportBuilder
@@ -165,13 +166,19 @@ class ConvivaHandler(
             )
         }
 
-        onSourceChange = EventListener<SourceChangeEvent> {
+        onSourceChange = EventListener<SourceChangeEvent> { event ->
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "onSourceChange")
             }
             maybeReportPlaybackEnded()
             currentSource = player.source
-            customMetadata = mapOf()
+            customMetadata = mapOf("playbackPipeline" to
+                when(event.playbackPipeline) {
+                    PlaybackPipeline.LEGACY -> "legacy"
+                    PlaybackPipeline.MEDIA3 -> "media3"
+                    else -> "NA"
+                }
+            )
         }
 
         onEnded = EventListener<EndedEvent> {
