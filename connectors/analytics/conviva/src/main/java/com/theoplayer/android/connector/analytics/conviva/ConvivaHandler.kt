@@ -356,6 +356,13 @@ class ConvivaHandler(
     // Update API will be called by Conviva SDK at regular intervals to compute playback
     // metrics. This update callback will be called at the frequency of 1sec
     override fun update() {
+        mainHandler.post {
+            // The player should be accessed from the main thread only.
+            onUpdate()
+        }
+    }
+
+    private fun onUpdate() {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "convivaCallback.update() ${(1e3 * player.currentTime).toLong()}")
         }
