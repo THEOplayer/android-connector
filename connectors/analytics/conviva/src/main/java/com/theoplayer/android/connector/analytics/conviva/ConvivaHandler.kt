@@ -468,7 +468,7 @@ class ConvivaHandler(
         } else {
             ConvivaSdkConstants.StreamType.LIVE
         }
-        val playerName = customMetadata[ConvivaSdkConstants.PLAYER_NAME] ?: "THEOplayer"
+        val playerName = customMetadata[ConvivaSdkConstants.PLAYER_NAME] ?: convivaMetadata[ConvivaSdkConstants.PLAYER_NAME] ?: "THEOplayer"
         setContentInfo(
             mapOf(
                 ConvivaSdkConstants.STREAM_URL to src,
