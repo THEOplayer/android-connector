@@ -102,7 +102,8 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun setupGoogleImaIntegration() {
-        val googleImaIntegration = GoogleImaIntegrationFactory.createGoogleImaIntegration(theoplayerView)
+        val googleImaIntegration =
+            GoogleImaIntegrationFactory.createGoogleImaIntegration(theoplayerView)
         theoplayerView.player.addIntegration(googleImaIntegration)
     }
 
@@ -120,7 +121,8 @@ class MainActivity : ComponentActivity() {
             true,
             gatewayUrl,
         )
-        convivaConnector = ConvivaConnector(applicationContext, theoplayerView.player, metadata, config)
+        convivaConnector =
+            ConvivaConnector(applicationContext, theoplayerView.player, metadata, config)
     }
 
     private fun setupComscore() {
@@ -174,7 +176,12 @@ class MainActivity : ComponentActivity() {
             videoDimension = null,
             customLabels = emptyMap(),
         )
-        comscoreConnector = ComscoreConnector(applicationContext, theoplayerView.player, comscoreConfiguration, metadata)
+        comscoreConnector = ComscoreConnector(
+            applicationContext,
+            theoplayerView.player,
+            comscoreConfiguration,
+            metadata
+        )
     }
 
     private fun setupNielsen() {
@@ -187,8 +194,11 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun setupUplynk() {
-        uplynkConnector = UplynkConnector(theoplayerView, UplynkConfiguration(defaultSkipOffset = 5, SkippedAdStrategy.PLAY_LAST))
-        uplynkConnector.addListener(object: UplynkListener {
+        uplynkConnector = UplynkConnector(
+            theoplayerView,
+            UplynkConfiguration(defaultSkipOffset = 5, SkippedAdStrategy.PLAY_LAST)
+        )
+        uplynkConnector.addListener(object : UplynkListener {
             override fun onPreplayVodResponse(response: PreplayVodResponse) {
                 Log.d("UplynkConnectorEvents", "PREPLAY_VOD_RESPONSE $response")
             }
@@ -233,22 +243,24 @@ class MainActivity : ComponentActivity() {
 
     private fun onAdBreakEvent(event: AdBreakEvent<*>) {
         val adBreak = event.adBreak
-        Log.d(TAG, "${event.type} - " +
-            "timeOffset=${adBreak.timeOffset}, " +
-            "ads=${adBreak.ads.size}, " +
-            "maxDuration=${adBreak.maxDuration}, " +
-            "currentTime=${theoplayerView.player.currentTime}"
+        Log.d(
+            TAG, "${event.type} - " +
+                    "timeOffset=${adBreak.timeOffset}, " +
+                    "ads=${adBreak.ads.size}, " +
+                    "maxDuration=${adBreak.maxDuration}, " +
+                    "currentTime=${theoplayerView.player.currentTime}"
         )
     }
 
     private fun onAdEvent(event: SingleAdEvent<*>) {
         val ad = event.ad ?: return
-        Log.d(TAG, "${event.type} - " +
-            "id=${ad.id}, " +
-            "type=${ad.type}, " +
-            "adBreak.timeOffset=${ad.adBreak?.timeOffset}, " +
-            (if (ad is LinearAd) "duration=${ad.duration}, " else "") +
-            "currentTime=${theoplayerView.player.currentTime}"
+        Log.d(
+            TAG, "${event.type} - " +
+                    "id=${ad.id}, " +
+                    "type=${ad.type}, " +
+                    "adBreak.timeOffset=${ad.adBreak?.timeOffset}, " +
+                    (if (ad is LinearAd) "duration=${ad.duration}, " else "") +
+                    "currentTime=${theoplayerView.player.currentTime}"
         )
     }
 }
