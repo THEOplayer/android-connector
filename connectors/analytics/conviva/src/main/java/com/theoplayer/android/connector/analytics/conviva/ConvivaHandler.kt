@@ -13,11 +13,13 @@ import com.conviva.sdk.ConvivaAnalytics
 import com.conviva.sdk.ConvivaExperienceAnalytics
 import com.conviva.sdk.ConvivaSdkConstants
 import com.conviva.sdk.ConvivaVideoAnalytics
+import com.theoplayer.android.api.ads.theoads.TheoAdDescription
 import com.theoplayer.android.api.event.EventDispatcher
 import com.theoplayer.android.api.event.EventListener
 import com.theoplayer.android.api.event.ads.AdEvent
 import com.theoplayer.android.api.event.player.*
 import com.theoplayer.android.api.player.Player
+import com.theoplayer.android.api.source.AdIntegration
 import com.theoplayer.android.api.source.PlaybackPipeline
 import com.theoplayer.android.api.source.SourceDescription
 import com.theoplayer.android.connector.analytics.conviva.ads.AdReporter
@@ -471,10 +473,16 @@ class ConvivaHandler(
             ConvivaSdkConstants.StreamType.LIVE
         }
         val playerName = customMetadata[ConvivaSdkConstants.PLAYER_NAME] ?: convivaMetadata[ConvivaSdkConstants.PLAYER_NAME] ?: "THEOplayer"
+        // THEOads adTagParameters
+        val adTagParameters = player.source?.ads
+            ?.filter { it.integration == AdIntegration.THEO_ADS }
+            ?.map { (it as TheoAdDescription).adTagParameters }
+            ?.fold(mutableMapOf<String, String>()) { acc, obj -> acc.apply { putAll(obj) } }
         setContentInfo(mutableMapOf<String, Any>().apply {
             put(ConvivaSdkConstants.STREAM_URL, src)
             put(ConvivaSdkConstants.ASSET_NAME, contentAssetName)
             put(ConvivaSdkConstants.PLAYER_NAME, playerName)
+            adTagParameters?.let { putAll(it) }
             if (hasDuration) put(ConvivaSdkConstants.IS_LIVE, streamType)
         })
     }
