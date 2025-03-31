@@ -32,6 +32,7 @@ import java.lang.Double.isFinite
 import java.lang.Double.isNaN
 
 private const val TAG = "ConvivaHandler"
+private const val THEOADS_TAG_PREFIX = "theoAdsTag_"
 
 interface ConvivaHandlerBase {
     val contentAssetName: String
@@ -477,7 +478,10 @@ class ConvivaHandler(
         val adTagParameters = player.source?.ads
             ?.filter { it.integration == AdIntegration.THEO_ADS }
             ?.map { (it as TheoAdDescription).adTagParameters }
-            ?.fold(mutableMapOf<String, String>()) { acc, obj -> acc.apply { putAll(obj) } }
+            ?.fold(mutableMapOf<String, String>()) { acc, obj ->
+                acc.apply { obj.mapKeys { "${THEOADS_TAG_PREFIX}${it.key}" } }
+            }
+
         setContentInfo(mutableMapOf<String, Any>().apply {
             put(ConvivaSdkConstants.STREAM_URL, src)
             put(ConvivaSdkConstants.ASSET_NAME, contentAssetName)
