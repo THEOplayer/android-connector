@@ -27,6 +27,7 @@ import com.theoplayer.android.connector.analytics.conviva.utils.calculateConviva
 import com.theoplayer.android.connector.analytics.conviva.utils.collectContentMetadata
 import com.theoplayer.android.connector.analytics.conviva.utils.collectPlayerInfo
 import java.lang.Double.isFinite
+import java.lang.Double.isNaN
 
 private const val TAG = "ConvivaHandler"
 
@@ -463,20 +464,19 @@ class ConvivaHandler(
             Log.d(TAG, "reportMetadata")
         }
         val src = player.src ?: ""
+        val hasDuration = !isNaN(player.duration)
         val streamType = if (isFinite(player.duration)) {
             ConvivaSdkConstants.StreamType.VOD
         } else {
             ConvivaSdkConstants.StreamType.LIVE
         }
         val playerName = customMetadata[ConvivaSdkConstants.PLAYER_NAME] ?: convivaMetadata[ConvivaSdkConstants.PLAYER_NAME] ?: "THEOplayer"
-        setContentInfo(
-            mapOf(
-                ConvivaSdkConstants.STREAM_URL to src,
-                ConvivaSdkConstants.IS_LIVE to streamType,
-                ConvivaSdkConstants.ASSET_NAME to contentAssetName,
-                ConvivaSdkConstants.PLAYER_NAME to playerName
-            )
-        )
+        setContentInfo(mutableMapOf<String, Any>().apply {
+            put(ConvivaSdkConstants.STREAM_URL, src)
+            put(ConvivaSdkConstants.ASSET_NAME, contentAssetName)
+            put(ConvivaSdkConstants.PLAYER_NAME, playerName)
+            if (hasDuration) put(ConvivaSdkConstants.IS_LIVE, streamType)
+        })
     }
 
     /**
