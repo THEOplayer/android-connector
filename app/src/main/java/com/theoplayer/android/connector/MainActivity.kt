@@ -16,8 +16,8 @@ import com.theoplayer.android.api.ads.ima.GoogleImaIntegrationFactory
 import com.theoplayer.android.api.event.ads.AdBreakEvent
 import com.theoplayer.android.api.event.ads.AdsEventTypes
 import com.theoplayer.android.api.event.ads.SingleAdEvent
-import com.theoplayer.android.api.media3.Media3PlayerIntegration
-import com.theoplayer.android.api.media3.Media3PlayerIntegrationFactory.createMedia3PlayerIntegration
+import com.theoplayer.android.api.source.PlaybackPipeline
+import com.theoplayer.android.api.source.SourceDescription
 import com.theoplayer.android.connector.analytics.comscore.ComscoreConfiguration
 import com.theoplayer.android.connector.analytics.comscore.ComscoreConnector
 import com.theoplayer.android.connector.analytics.comscore.ComscoreMediaType
@@ -45,9 +45,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var comscoreConnector: ComscoreConnector
     private lateinit var yospaceConnector: YospaceConnector
     private lateinit var uplynkConnector: UplynkConnector
-    private var media3PlayerIntegration: Media3PlayerIntegration? = null
     private var selectedSource: Source = sources.first()
-    private var useMedia3 = false
+    private var useMedia3 = true
     private var btn_backend: Button? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -240,20 +239,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setSource(source: Source) {
-        if (useMedia3) {
-            if (media3PlayerIntegration == null) {
-                media3PlayerIntegration = createMedia3PlayerIntegration()
-                theoplayerView.player.addIntegration(media3PlayerIntegration)
-            }
-        } else {
-            media3PlayerIntegration?.let {
-                theoplayerView.player.removeIntegration(it)
-                media3PlayerIntegration = null
-            }
-        }
+        val playbackPipeline = if (useMedia3) PlaybackPipeline.MEDIA3 else PlaybackPipeline.LEGACY
+
+        // Clone source description with selected playback pipeline
+        var sourceDescription = source.sourceDescription
+        sourceDescription = SourceDescription.Builder(
+            *sourceDescription.sources
+                .map { it.copy(playbackPipeline = playbackPipeline) }
+                .toTypedArray()
+        ).apply {
+            ads(*sourceDescription.ads.toTypedArray())
+            textTracks(*sourceDescription.textTracks.toTypedArray())
+            sourceDescription.poster?.let { poster(it) }
+            sourceDescription.metadata?.let { metadata(it) }
+            sourceDescription.timeServer?.let { timeServer(it) }
+        }.build()
 
         selectedSource = source
-        theoplayerView.player.source = source.sourceDescription
+        theoplayerView.player.source = sourceDescription
         nielsenConnector.updateMetadata(source.nielsenMetadata)
     }
 
