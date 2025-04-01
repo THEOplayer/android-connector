@@ -19,9 +19,9 @@ internal fun TypedSource.replaceSrc(src: String): TypedSource {
         type?.let { type(it) }
         liveOffset?.let { liveOffset(it) }
         ssai?.let { ssai(it) }
-        isHlsDateRange?.let { hlsDateRange(it) }
+        hlsDateRange?.let { hlsDateRange(it) }
         timeServer?.let { timeServer(it) }
-        isLowLatency?.let { lowLatency(it) }
+        lowLatency?.let { lowLatency(it) }
         hls?.let { hls(it) }
         dash?.let { dash(it) }
     }.build()
