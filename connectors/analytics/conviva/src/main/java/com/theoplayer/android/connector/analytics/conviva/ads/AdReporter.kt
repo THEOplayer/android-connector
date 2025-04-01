@@ -7,7 +7,7 @@ import com.conviva.sdk.ConvivaSdkConstants
 import com.conviva.sdk.ConvivaVideoAnalytics
 import com.theoplayer.android.api.ads.Ad
 import com.theoplayer.android.api.ads.AdBreak
-import com.theoplayer.android.api.ads.GoogleImaAd
+import com.theoplayer.android.api.ads.ima.GoogleImaAd
 import com.theoplayer.android.api.ads.ima.GoogleImaAdEvent
 import com.theoplayer.android.api.ads.ima.GoogleImaAdEventType
 import com.theoplayer.android.api.event.EventDispatcher

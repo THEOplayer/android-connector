@@ -4,7 +4,7 @@ import com.conviva.sdk.ConvivaSdkConstants
 import com.theoplayer.android.api.THEOplayerGlobal
 import com.theoplayer.android.api.ads.AdBreak
 import com.theoplayer.android.api.ads.Ad
-import com.theoplayer.android.api.ads.GoogleImaAd
+import com.theoplayer.android.api.ads.ima.GoogleImaAd
 import com.theoplayer.android.api.ads.LinearAd
 import com.theoplayer.android.api.event.ads.AdIntegrationKind
 import com.theoplayer.android.api.player.Player
