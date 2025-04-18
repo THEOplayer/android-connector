@@ -9,22 +9,25 @@ import com.theoplayer.android.api.player.Player
  * ErrorReportBuilder provides extra error details that can be send when reporting an error.
  */
 class ErrorReportBuilder(private val maxHTTPResponses: Int = 10) : HTTPInterceptor {
-    private val _responses = LinkedHashMap<String, String>(maxHTTPResponses, 0.75f, true)
+    private val _responses = object : LinkedHashMap<String, String>(maxHTTPResponses, 0.75f, true) {
+        override fun removeEldestEntry(eldest: Map.Entry<String, String>): Boolean {
+            return size > maxHTTPResponses
+        }
+    }
+
     private val _report = mutableMapOf<String, String>()
 
     override suspend fun onResponse(response: InterceptableHTTPResponse) {
-        // Keep info on the last X HTTP responses
-        while (_responses.size >= maxHTTPResponses) {
-            _responses.remove(_responses.keys.first())
+        synchronized(_responses) {
+            // Create an entry with the path & http response status
+            var respDesc =
+                "${response.url.path},status: ${response.status} ${response.statusText},"
+            // Add interesting header values
+            respDesc += listOf("content-length").joinToString(",") { key ->
+                "$key: ${getHeaderValue(response.headers, key)}"
+            }
+            _responses[System.currentTimeMillis().toString()] = respDesc
         }
-        // Create an entry with the path & http response status
-        var respDesc =
-            "${response.url.path},status: ${response.status} ${response.statusText},"
-        // Add interesting header values
-        respDesc += listOf("content-length").joinToString(",") { key ->
-            "$key: ${getHeaderValue(response.headers, key)}"
-        }
-        _responses[System.currentTimeMillis().toString()] = respDesc
         super.onResponse(response)
     }
 
@@ -42,7 +45,9 @@ class ErrorReportBuilder(private val maxHTTPResponses: Int = 10) : HTTPIntercept
     fun build(): Map<String, String> {
         // Merge report and a list of the latest http responses in separate entries as event
         // payloads are truncated in the Pulse dashboard.
-        return _report + _responses
+        synchronized(_responses) {
+            return _report + _responses
+        }
     }
 }
 
