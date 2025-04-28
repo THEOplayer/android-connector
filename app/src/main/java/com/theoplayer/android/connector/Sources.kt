@@ -1,5 +1,7 @@
 package com.theoplayer.android.connector
 
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.SaverScope
 import com.theoplayer.android.api.source.SourceDescription
 import com.theoplayer.android.api.source.SourceType
 import com.theoplayer.android.api.source.TypedSource
@@ -16,10 +18,6 @@ data class Source(
     val sourceDescription: SourceDescription,
     val nielsenMetadata: HashMap<String, Any> = hashMapOf()
 )
-
-val backend: List<String> by lazy {
-    listOf("Default", "Media3")
-}
 
 val sources: List<Source> by lazy {
     listOf(
@@ -163,10 +161,11 @@ val sources: List<Source> by lazy {
                                 )
                                 .pingConfiguration(
                                     UplynkPingConfiguration.Builder()
-                                    .linearAdData(true)
-                                    .adImpressions(false)
-                                    .freeWheelVideoViews(false)
-                                    .build())
+                                        .linearAdData(true)
+                                        .adImpressions(false)
+                                        .freeWheelVideoViews(false)
+                                        .build()
+                                )
                                 .build()
                         )
                         .build()
@@ -183,15 +182,23 @@ val sources: List<Source> by lazy {
                                 .Builder()
                                 .prefix("https://content.uplynk.com")
                                 .assetInfo(true)
-                                .assetIds(listOf(
-                                    "e973a509e67241e3aa368730130a104d",
-                                    "e70a708265b94a3fa6716666994d877d",
-                                ))
+                                .assetIds(
+                                    listOf(
+                                        "e973a509e67241e3aa368730130a104d",
+                                        "e70a708265b94a3fa6716666994d877d",
+                                    )
+                                )
                                 .contentProtected(true)
-                                .build())
+                                .build()
+                        )
                         .build()
                 )
                 .build()
         )
     )
+}
+
+object SourceSaver : Saver<Source, Int> {
+    override fun restore(value: Int): Source? = sources.getOrNull(value)
+    override fun SaverScope.save(value: Source): Int = sources.indexOf(value)
 }
