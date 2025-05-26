@@ -44,9 +44,8 @@ class MediaMetadataProvider(private val connector: MediaSessionConnector) {
      * Update metadata from [SourceDescription].
      */
     fun setMediaSessionMetadata(sourceDescription: SourceDescription?) {
-        clearMediaSessionMetadataDescription()
+        updateMetaDataDescription(sourceDescription)
         if (sourceDescription != null) {
-            updateMetaDataDescription(sourceDescription)
             invalidateMediaSessionMetadata()
         }
     }
@@ -76,7 +75,7 @@ class MediaMetadataProvider(private val connector: MediaSessionConnector) {
         }
         try {
             connector.mediaSession.setMetadata(getMediaSessionMetadata())
-        } catch(e: IllegalStateException) {
+        } catch (e: IllegalStateException) {
             Log.e(TAG, "Failed to set metadata: ${e.message}")
         }
     }
@@ -88,8 +87,7 @@ class MediaMetadataProvider(private val connector: MediaSessionConnector) {
         if (connector.debug) {
             Log.d(TAG, "MediaMetadataProvider::clearMediaSessionMetadataDescription")
         }
-        builder = MediaMetadataCompat.Builder()
-        connector.mediaSession.setMetadata(METADATA_EMPTY)
+        updateMetaDataDescription(null)
     }
 
     /**
@@ -308,6 +306,7 @@ class MediaMetadataProvider(private val connector: MediaSessionConnector) {
     }
 
     private fun updateMetaDataDescription(sourceDescription: SourceDescription?) {
+        builder = MediaMetadataCompat.Builder()
         if (sourceDescription == null) {
             connector.mediaSession.setMetadata(METADATA_EMPTY)
             return
