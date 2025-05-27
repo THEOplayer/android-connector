@@ -5,6 +5,7 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.text.TextUtils
 import android.util.Log
+import com.theoplayer.android.api.event.EventListener
 import com.theoplayer.android.api.event.player.*
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.api.player.ReadyState
@@ -25,6 +26,18 @@ class PlaybackStateProvider(private val connector: MediaSessionConnector) {
     private var player: Player? = null
     private val builder = PlaybackStateCompat.Builder()
 
+    private val timeUpdateListener = EventListener<TimeUpdateEvent> { e -> onTimeUpdate(e) }
+    private val sourceChangeListener = EventListener<SourceChangeEvent> { e -> onSourceChange(e) }
+    private val loadedMetadataListener = EventListener<LoadedMetadataEvent> { e -> onLoadedMetadata(e) }
+    private val playListener = EventListener<PlayEvent> { e -> onPlay(e) }
+    private val playingListener = EventListener<PlayingEvent> { e -> onPlaying(e) }
+    private val pauseListener = EventListener<PauseEvent> { e -> onPause(e) }
+    private val errorListener = EventListener<ErrorEvent> { e -> onError(e) }
+    private val waitingListener = EventListener<WaitingEvent> { e -> onWaiting(e) }
+    private val endedListener = EventListener<EndedEvent> { e -> onEnded(e) }
+    private val seekedListener = EventListener<SeekedEvent> { e -> onSeeked(e) }
+    private val durationChangeListener = EventListener<DurationChangeEvent> { e -> onDurationChange(e) }
+
     @PlaybackStateCompat.State
     private var playbackState = PlaybackStateCompat.STATE_NONE
 
@@ -43,33 +56,33 @@ class PlaybackStateProvider(private val connector: MediaSessionConnector) {
 
     private fun registerListeners() {
         player?.apply {
-            addEventListener(PlayerEventTypes.TIMEUPDATE, onTimeUpdate)
-            addEventListener(PlayerEventTypes.SOURCECHANGE, onSourceChange)
-            addEventListener(PlayerEventTypes.LOADEDMETADATA, onLoadedMetadata)
-            addEventListener(PlayerEventTypes.PLAY, onPlay)
-            addEventListener(PlayerEventTypes.PLAYING, onPlaying)
-            addEventListener(PlayerEventTypes.PAUSE, onPause)
-            addEventListener(PlayerEventTypes.ERROR, onError)
-            addEventListener(PlayerEventTypes.WAITING, onWaiting)
-            addEventListener(PlayerEventTypes.ENDED, onEnded)
-            addEventListener(PlayerEventTypes.SEEKED, onSeeked)
-            addEventListener(PlayerEventTypes.DURATIONCHANGE, onDurationChange)
+            addEventListener(PlayerEventTypes.TIMEUPDATE, timeUpdateListener)
+            addEventListener(PlayerEventTypes.SOURCECHANGE, sourceChangeListener)
+            addEventListener(PlayerEventTypes.LOADEDMETADATA, loadedMetadataListener)
+            addEventListener(PlayerEventTypes.PLAY, playListener)
+            addEventListener(PlayerEventTypes.PLAYING, playingListener)
+            addEventListener(PlayerEventTypes.PAUSE, pauseListener)
+            addEventListener(PlayerEventTypes.ERROR, errorListener)
+            addEventListener(PlayerEventTypes.WAITING, waitingListener)
+            addEventListener(PlayerEventTypes.ENDED, endedListener)
+            addEventListener(PlayerEventTypes.SEEKED, seekedListener)
+            addEventListener(PlayerEventTypes.DURATIONCHANGE, durationChangeListener)
         }
     }
 
     private fun unregisterListeners() {
         player?.apply {
-            removeEventListener(PlayerEventTypes.TIMEUPDATE, onTimeUpdate)
-            removeEventListener(PlayerEventTypes.SOURCECHANGE, onSourceChange)
-            removeEventListener(PlayerEventTypes.LOADEDMETADATA, onLoadedMetadata)
-            removeEventListener(PlayerEventTypes.PLAY, onPlay)
-            removeEventListener(PlayerEventTypes.PLAYING, onPlaying)
-            removeEventListener(PlayerEventTypes.PAUSE, onPause)
-            removeEventListener(PlayerEventTypes.ERROR, onError)
-            removeEventListener(PlayerEventTypes.WAITING, onWaiting)
-            removeEventListener(PlayerEventTypes.ENDED, onEnded)
-            removeEventListener(PlayerEventTypes.SEEKED, onSeeked)
-            removeEventListener(PlayerEventTypes.DURATIONCHANGE, onDurationChange)
+            removeEventListener(PlayerEventTypes.TIMEUPDATE, timeUpdateListener)
+            removeEventListener(PlayerEventTypes.SOURCECHANGE, sourceChangeListener)
+            removeEventListener(PlayerEventTypes.LOADEDMETADATA, loadedMetadataListener)
+            removeEventListener(PlayerEventTypes.PLAY, playListener)
+            removeEventListener(PlayerEventTypes.PLAYING, playingListener)
+            removeEventListener(PlayerEventTypes.PAUSE, pauseListener)
+            removeEventListener(PlayerEventTypes.ERROR, errorListener)
+            removeEventListener(PlayerEventTypes.WAITING, waitingListener)
+            removeEventListener(PlayerEventTypes.ENDED, endedListener)
+            removeEventListener(PlayerEventTypes.SEEKED, seekedListener)
+            removeEventListener(PlayerEventTypes.DURATIONCHANGE, durationChangeListener)
         }
     }
 
