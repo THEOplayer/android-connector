@@ -33,7 +33,7 @@ val sources: List<Source> by lazy {
                         .timeOffset("5")
                         .build()
                 )
-                .metadata(MetadataDescription(mapOf("title" to "BigBuckBunny with Google IMA ads")))
+                .metadata(MetadataDescription(mutableMapOf("title" to "BigBuckBunny with Google IMA ads")))
                 .build(),
             nielsenMetadata = hashMapOf(
                 "assetid" to "C112233",
