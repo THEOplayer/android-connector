@@ -26,18 +26,6 @@ class PlaybackStateProvider(private val connector: MediaSessionConnector) {
     private var player: Player? = null
     private val builder = PlaybackStateCompat.Builder()
 
-    private val timeUpdateListener = EventListener<TimeUpdateEvent> { e -> onTimeUpdate(e) }
-    private val sourceChangeListener = EventListener<SourceChangeEvent> { e -> onSourceChange(e) }
-    private val loadedMetadataListener = EventListener<LoadedMetadataEvent> { e -> onLoadedMetadata(e) }
-    private val playListener = EventListener<PlayEvent> { e -> onPlay(e) }
-    private val playingListener = EventListener<PlayingEvent> { e -> onPlaying(e) }
-    private val pauseListener = EventListener<PauseEvent> { e -> onPause(e) }
-    private val errorListener = EventListener<ErrorEvent> { e -> onError(e) }
-    private val waitingListener = EventListener<WaitingEvent> { e -> onWaiting(e) }
-    private val endedListener = EventListener<EndedEvent> { e -> onEnded(e) }
-    private val seekedListener = EventListener<SeekedEvent> { e -> onSeeked(e) }
-    private val durationChangeListener = EventListener<DurationChangeEvent> { e -> onDurationChange(e) }
-
     @PlaybackStateCompat.State
     private var playbackState = PlaybackStateCompat.STATE_NONE
 
@@ -56,43 +44,43 @@ class PlaybackStateProvider(private val connector: MediaSessionConnector) {
 
     private fun registerListeners() {
         player?.apply {
-            addEventListener(PlayerEventTypes.TIMEUPDATE, timeUpdateListener)
-            addEventListener(PlayerEventTypes.SOURCECHANGE, sourceChangeListener)
-            addEventListener(PlayerEventTypes.LOADEDMETADATA, loadedMetadataListener)
-            addEventListener(PlayerEventTypes.PLAY, playListener)
-            addEventListener(PlayerEventTypes.PLAYING, playingListener)
-            addEventListener(PlayerEventTypes.PAUSE, pauseListener)
-            addEventListener(PlayerEventTypes.ERROR, errorListener)
-            addEventListener(PlayerEventTypes.WAITING, waitingListener)
-            addEventListener(PlayerEventTypes.ENDED, endedListener)
-            addEventListener(PlayerEventTypes.SEEKED, seekedListener)
-            addEventListener(PlayerEventTypes.DURATIONCHANGE, durationChangeListener)
+            addEventListener(PlayerEventTypes.TIMEUPDATE, onTimeUpdate)
+            addEventListener(PlayerEventTypes.SOURCECHANGE, onSourceChange)
+            addEventListener(PlayerEventTypes.LOADEDMETADATA, onLoadedMetadata)
+            addEventListener(PlayerEventTypes.PLAY, onPlay)
+            addEventListener(PlayerEventTypes.PLAYING, onPlaying)
+            addEventListener(PlayerEventTypes.PAUSE, onPause)
+            addEventListener(PlayerEventTypes.ERROR, onError)
+            addEventListener(PlayerEventTypes.WAITING, onWaiting)
+            addEventListener(PlayerEventTypes.ENDED, onEnded)
+            addEventListener(PlayerEventTypes.SEEKED, onSeeked)
+            addEventListener(PlayerEventTypes.DURATIONCHANGE, onDurationChange)
         }
     }
 
     private fun unregisterListeners() {
         player?.apply {
-            removeEventListener(PlayerEventTypes.TIMEUPDATE, timeUpdateListener)
-            removeEventListener(PlayerEventTypes.SOURCECHANGE, sourceChangeListener)
-            removeEventListener(PlayerEventTypes.LOADEDMETADATA, loadedMetadataListener)
-            removeEventListener(PlayerEventTypes.PLAY, playListener)
-            removeEventListener(PlayerEventTypes.PLAYING, playingListener)
-            removeEventListener(PlayerEventTypes.PAUSE, pauseListener)
-            removeEventListener(PlayerEventTypes.ERROR, errorListener)
-            removeEventListener(PlayerEventTypes.WAITING, waitingListener)
-            removeEventListener(PlayerEventTypes.ENDED, endedListener)
-            removeEventListener(PlayerEventTypes.SEEKED, seekedListener)
-            removeEventListener(PlayerEventTypes.DURATIONCHANGE, durationChangeListener)
+            removeEventListener(PlayerEventTypes.TIMEUPDATE, onTimeUpdate)
+            removeEventListener(PlayerEventTypes.SOURCECHANGE, onSourceChange)
+            removeEventListener(PlayerEventTypes.LOADEDMETADATA, onLoadedMetadata)
+            removeEventListener(PlayerEventTypes.PLAY, onPlay)
+            removeEventListener(PlayerEventTypes.PLAYING, onPlaying)
+            removeEventListener(PlayerEventTypes.PAUSE, onPause)
+            removeEventListener(PlayerEventTypes.ERROR, onError)
+            removeEventListener(PlayerEventTypes.WAITING, onWaiting)
+            removeEventListener(PlayerEventTypes.ENDED, onEnded)
+            removeEventListener(PlayerEventTypes.SEEKED, onSeeked)
+            removeEventListener(PlayerEventTypes.DURATIONCHANGE, onDurationChange)
         }
     }
 
-    private val onTimeUpdate = { _: TimeUpdateEvent ->
+    private val onTimeUpdate = EventListener<TimeUpdateEvent> { _ ->
         if (connector.shouldDispatchTimeUpdateEvents) {
             invalidatePlaybackState()
         }
     }
 
-    private val onSourceChange = { _: SourceChangeEvent ->
+    private val onSourceChange = EventListener<SourceChangeEvent> { _ ->
         if (player?.source != null) {
             updatePlaybackState(PlaybackStateCompat.STATE_PAUSED)
         } else {
@@ -101,37 +89,37 @@ class PlaybackStateProvider(private val connector: MediaSessionConnector) {
         connector.setMediaSessionMetadata(player?.source)
     }
 
-    private val onLoadedMetadata = { _: LoadedMetadataEvent ->
+    private val onLoadedMetadata = EventListener<LoadedMetadataEvent> { _ ->
         connector.invalidateMediaSessionMetadata()
     }
 
-    private val onPlay = { _: PlayEvent ->
+    private val onPlay = EventListener<PlayEvent> { _ ->
         if (player!!.readyState.ordinal < ReadyState.HAVE_CURRENT_DATA.ordinal) {
             updatePlaybackState(PlaybackStateCompat.STATE_BUFFERING)
         }
     }
 
-    private val onPlaying = { _: PlayingEvent ->
+    private val onPlaying = EventListener<PlayingEvent> { _ ->
         updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
     }
 
-    private val onPause = { _: PauseEvent ->
+    private val onPause = EventListener<PauseEvent> { _ ->
         updatePlaybackState(PlaybackStateCompat.STATE_PAUSED)
     }
 
-    private val onError = { _: ErrorEvent ->
+    private val onError = EventListener<ErrorEvent> { _ ->
         updatePlaybackState(PlaybackStateCompat.STATE_ERROR)
     }
 
-    private val onWaiting = { _: WaitingEvent ->
+    private val onWaiting = EventListener<WaitingEvent> { _ ->
         updatePlaybackState(PlaybackStateCompat.STATE_BUFFERING)
     }
 
-    private val onEnded = { _: EndedEvent ->
+    private val onEnded = EventListener<EndedEvent> { _ ->
         updatePlaybackState(PlaybackStateCompat.STATE_PAUSED)
     }
 
-    private val onSeeked = { _: SeekedEvent ->
+    private val onSeeked = EventListener<SeekedEvent> { _ ->
         // Some clients listening to the mediaSession, such as Notifications, do not update the
         // currentTime until playbackState becomes PLAYING, so force it.
         val oldPlaybackState = playbackState
@@ -141,7 +129,7 @@ class PlaybackStateProvider(private val connector: MediaSessionConnector) {
         invalidatePlaybackState()
     }
 
-    private val onDurationChange = { _: DurationChangeEvent ->
+    private val onDurationChange = EventListener<DurationChangeEvent> { _ ->
         connector.invalidateMediaSessionMetadata()
     }
 
