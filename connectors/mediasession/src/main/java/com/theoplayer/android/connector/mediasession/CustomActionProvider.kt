@@ -21,7 +21,7 @@ interface CustomActionProvider {
     /**
      * Get the custom action this provider can handle.
      *
-     * @param The THEOplayer instance currently attached to the connector.
+     * @param player The THEOplayer instance currently attached to the connector.
      * @return A [PlaybackStateCompat.CustomAction] instance.
      */
     fun getCustomAction(player: Player): PlaybackStateCompat.CustomAction?

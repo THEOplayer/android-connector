@@ -3,7 +3,6 @@ package com.theoplayer.android.connector.mediasession
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.media.session.PlaybackStateCompat
-import com.theoplayer.android.connector.mediasession.QueueNavigator.Companion.AVAILABLE_ACTIONS
 
 /**
  * PlaybackPreparer allows handling media prepare actions when sent by a media controller.
