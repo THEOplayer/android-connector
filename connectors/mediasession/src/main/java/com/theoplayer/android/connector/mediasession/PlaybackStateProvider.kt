@@ -5,6 +5,7 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.text.TextUtils
 import android.util.Log
+import com.theoplayer.android.api.event.EventListener
 import com.theoplayer.android.api.event.player.*
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.api.player.ReadyState
@@ -73,13 +74,13 @@ class PlaybackStateProvider(private val connector: MediaSessionConnector) {
         }
     }
 
-    private val onTimeUpdate = { _: TimeUpdateEvent ->
+    private val onTimeUpdate = EventListener<TimeUpdateEvent> { _ ->
         if (connector.shouldDispatchTimeUpdateEvents) {
             invalidatePlaybackState()
         }
     }
 
-    private val onSourceChange = { _: SourceChangeEvent ->
+    private val onSourceChange = EventListener<SourceChangeEvent> { _ ->
         if (player?.source != null) {
             updatePlaybackState(PlaybackStateCompat.STATE_PAUSED)
         } else {
@@ -88,37 +89,37 @@ class PlaybackStateProvider(private val connector: MediaSessionConnector) {
         connector.setMediaSessionMetadata(player?.source)
     }
 
-    private val onLoadedMetadata = { _: LoadedMetadataEvent ->
+    private val onLoadedMetadata = EventListener<LoadedMetadataEvent> { _ ->
         connector.invalidateMediaSessionMetadata()
     }
 
-    private val onPlay = { _: PlayEvent ->
+    private val onPlay = EventListener<PlayEvent> { _ ->
         if (player!!.readyState.ordinal < ReadyState.HAVE_CURRENT_DATA.ordinal) {
             updatePlaybackState(PlaybackStateCompat.STATE_BUFFERING)
         }
     }
 
-    private val onPlaying = { _: PlayingEvent ->
+    private val onPlaying = EventListener<PlayingEvent> { _ ->
         updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
     }
 
-    private val onPause = { _: PauseEvent ->
+    private val onPause = EventListener<PauseEvent> { _ ->
         updatePlaybackState(PlaybackStateCompat.STATE_PAUSED)
     }
 
-    private val onError = { _: ErrorEvent ->
+    private val onError = EventListener<ErrorEvent> { _ ->
         updatePlaybackState(PlaybackStateCompat.STATE_ERROR)
     }
 
-    private val onWaiting = { _: WaitingEvent ->
+    private val onWaiting = EventListener<WaitingEvent> { _ ->
         updatePlaybackState(PlaybackStateCompat.STATE_BUFFERING)
     }
 
-    private val onEnded = { _: EndedEvent ->
+    private val onEnded = EventListener<EndedEvent> { _ ->
         updatePlaybackState(PlaybackStateCompat.STATE_PAUSED)
     }
 
-    private val onSeeked = { _: SeekedEvent ->
+    private val onSeeked = EventListener<SeekedEvent> { _ ->
         // Some clients listening to the mediaSession, such as Notifications, do not update the
         // currentTime until playbackState becomes PLAYING, so force it.
         val oldPlaybackState = playbackState
@@ -128,7 +129,7 @@ class PlaybackStateProvider(private val connector: MediaSessionConnector) {
         invalidatePlaybackState()
     }
 
-    private val onDurationChange = { _: DurationChangeEvent ->
+    private val onDurationChange = EventListener<DurationChangeEvent> { _ ->
         connector.invalidateMediaSessionMetadata()
     }
 

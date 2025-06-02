@@ -194,6 +194,7 @@ class MediaSessionConnector(val mediaSession: MediaSessionCompat) {
             return
         }
         destroyed = true
+        playbackStateProvider.destroy()
         mediaSession.release()
         listeners.clear()
         if (debug) {
