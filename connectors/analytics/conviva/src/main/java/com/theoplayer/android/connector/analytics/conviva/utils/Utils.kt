@@ -1,6 +1,7 @@
 package com.theoplayer.android.connector.analytics.conviva.utils
 
 import com.conviva.sdk.ConvivaSdkConstants
+import com.conviva.sdk.ConvivaSdkConstants.StreamType
 import com.theoplayer.android.api.THEOplayerGlobal
 import com.theoplayer.android.api.ads.AdBreak
 import com.theoplayer.android.api.ads.Ad
@@ -11,6 +12,7 @@ import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.api.timerange.TimeRanges
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConfiguration
 import com.theoplayer.android.connector.analytics.conviva.ConvivaMetadata
+import java.lang.Double.isFinite
 
 fun calculateAdType(ad: Ad): ConvivaSdkConstants.AdType {
     return when(ad.integration) {
@@ -68,6 +70,18 @@ fun calculateConvivaOptions(config: ConvivaConfiguration): Map<String, Any> {
         options[ConvivaSdkConstants.GATEWAY_URL] = config.gatewayUrl
     }
     return options
+}
+
+fun calculateStreamType(player: Player): StreamType? {
+    return if (!player.duration.isNaN()) {
+        if (isFinite(player.duration)) {
+            StreamType.VOD
+        } else {
+            StreamType.LIVE
+        }
+    } else {
+        null
+    }
 }
 
 fun collectPlayerInfo(): Map<String, Any> {
