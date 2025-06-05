@@ -198,8 +198,12 @@ class ConvivaHandler(
                 Log.d(TAG, "onDurationChange")
             }
             val contentInfo = HashMap<String, Any>()
-            calculateStreamType(player)?.let { isLive ->
-                contentInfo[ConvivaSdkConstants.IS_LIVE] = isLive
+            // Do not override the `isLive` value if already set by the consumer, as the value
+            // is read-only for a given session.
+            if (!convivaVideoAnalytics.metadataInfo.containsKey(ConvivaSdkConstants.IS_LIVE)) {
+                calculateStreamType(player)?.let { isLive ->
+                    contentInfo[ConvivaSdkConstants.IS_LIVE] = isLive
+                }
             }
             // Only pass a finite duration value, never NaN or Infinite.
             if (player.duration.isFinite()) {
@@ -470,9 +474,13 @@ class ConvivaHandler(
                 ConvivaSdkConstants.ASSET_NAME to contentAssetName,
                 ConvivaSdkConstants.PLAYER_NAME to playerName
             ).apply {
-                // Only pass `isLive` property if we have a valid duration
-                calculateStreamType(player)?.let { isLive ->
-                    this.put(ConvivaSdkConstants.IS_LIVE, isLive)
+                // Do not override the `isLive` value if already set by the consumer, as the value
+                // is read-only for a given session.
+                if (!convivaVideoAnalytics.metadataInfo.containsKey(ConvivaSdkConstants.IS_LIVE)) {
+                    // Only pass `isLive` property if we have a valid duration
+                    calculateStreamType(player)?.let { isLive ->
+                        this.put(ConvivaSdkConstants.IS_LIVE, isLive)
+                    }
                 }
             }
         )
