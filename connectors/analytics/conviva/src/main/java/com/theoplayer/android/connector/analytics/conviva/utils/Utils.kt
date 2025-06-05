@@ -94,7 +94,7 @@ fun collectPlayerInfo(): Map<String, Any> {
 fun collectPlaybackConfigMetadata(player: Player): ConvivaMetadata {
     return mutableMapOf<String, Any>(
         "targetBuffer" to player.abr.targetBuffer,
-        "abrStrategy" to player.abr.abrStrategy.type,
+        "abrStrategy" to player.abr.abrStrategy.type.name.lowercase(),
     ).apply {
         player.abr.abrStrategy.metadata?.bitrate?.let { abrMetadata ->
             put("abrMetadata", abrMetadata)
