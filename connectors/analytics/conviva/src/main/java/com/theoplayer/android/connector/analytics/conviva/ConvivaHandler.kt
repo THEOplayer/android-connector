@@ -25,9 +25,8 @@ import com.theoplayer.android.connector.analytics.conviva.utils.ErrorReportBuild
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateBufferLength
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateConvivaOptions
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateStreamType
-import com.theoplayer.android.connector.analytics.conviva.utils.collectContentMetadata
+import com.theoplayer.android.connector.analytics.conviva.utils.collectPlaybackConfigMetadata
 import com.theoplayer.android.connector.analytics.conviva.utils.collectPlayerInfo
-import java.lang.Double.isFinite
 
 private const val TAG = "ConvivaHandler"
 
@@ -459,6 +458,8 @@ class ConvivaHandler(
                 ConvivaSdkConstants.ASSET_NAME to contentAssetName,
                 ConvivaSdkConstants.PLAYER_NAME to playerName
             ).apply {
+                putAll(collectPlaybackConfigMetadata(player))
+
                 // Do not override the `isLive` value if already set by the consumer, as the value
                 // is read-only for a given session.
                 if (!convivaVideoAnalytics.metadataInfo.containsKey(ConvivaSdkConstants.IS_LIVE)) {

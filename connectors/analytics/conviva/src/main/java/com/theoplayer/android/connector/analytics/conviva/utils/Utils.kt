@@ -91,16 +91,18 @@ fun collectPlayerInfo(): Map<String, Any> {
     )
 }
 
-fun collectContentMetadata(
-    player: Player,
-    configuredContentMetadata: ConvivaMetadata
-): ConvivaMetadata {
-    // Never send an Infinity or NaN
-    val duration = player.duration
-    return if (duration.isNaN() || duration.isInfinite())
-        configuredContentMetadata
-    else
-        configuredContentMetadata + mapOf(ConvivaSdkConstants.DURATION to duration.toInt())
+fun collectPlaybackConfigMetadata(player: Player): ConvivaMetadata {
+    return mutableMapOf<String, Any>(
+        "targetBuffer" to player.abr.targetBuffer,
+        "abrStrategy" to player.abr.abrStrategy.type,
+    ).apply {
+        player.abr.abrStrategy.metadata?.bitrate?.let { abrMetadata ->
+            put("abrMetadata", abrMetadata)
+        }
+        player.source?.sources?.firstOrNull()?.liveOffset?.let { liveOffset ->
+            put("liveOffset", liveOffset)
+        }
+    }
 }
 
 private fun validStringOrNA(str: String?): String {
