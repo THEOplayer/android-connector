@@ -447,6 +447,10 @@ class ConvivaHandler(
             }
         }
 
+    /**
+     * Report extra metadata extracted from the player, next to the custom metadata provided by the
+     * customer.
+     */
     private fun reportMetadata() {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "reportMetadata")
