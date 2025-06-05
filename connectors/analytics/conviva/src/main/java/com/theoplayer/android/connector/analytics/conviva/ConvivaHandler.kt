@@ -415,9 +415,7 @@ class ConvivaHandler(
             // "play" for the first time, to accurately attribute metadata to the video asset.
             reportMetadata()
 
-            convivaVideoAnalytics.reportPlaybackRequested(
-                collectContentMetadata(player, convivaMetadata)
-            )
+            convivaVideoAnalytics.reportPlaybackRequested(convivaMetadata)
         }
     }
 
