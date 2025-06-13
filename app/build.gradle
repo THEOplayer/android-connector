@@ -73,4 +73,8 @@ dependencies {
     implementation libs.yospace
 
     implementation project(':connectors:uplynk')
+
+    implementation fileTree(dir: './libs/AdScriptApiClient_v1.0.10.aar', include: ['*.aar', '*.jar'], exclude: [])
+    implementation project(':connectors:analytics:adscript')
+
 }
