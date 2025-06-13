@@ -48,6 +48,7 @@ class AdscriptAdapter(
     private val adProcessor: AdProcessor?
 ) {
     private var adMetadata: AdScriptDataObject? = null
+    private var waitingforFirstPlayingOfContent = true
     private var waitingForFirstSecondOfAd = false
     private var waitingForFirstSecondOfSsaiAdSince: Double? = null
     private var contentLogPoints = ArrayDeque<LogPoint>()
@@ -308,8 +309,9 @@ class AdscriptAdapter(
         }
         if (playerView.player.ads.isPlaying) {
             adScriptCollector.push(AdScriptEventEnum.START, adMetadata)
-        } else {
+        } else if (waitingforFirstPlayingOfContent){
             adScriptCollector.push(AdScriptEventEnum.START, contentMetadata)
+            waitingforFirstPlayingOfContent = false // workaround for double playing event
         }
         playerView.player.removeEventListener(PlayerEventTypes.PLAYING, onFirstPlaying)
     }
@@ -324,6 +326,7 @@ class AdscriptAdapter(
         if (configuration.debug) {
             Log.d(TAG, "Player Event: ${event.type} : source = ${event.source.toString()}")
         }
+        waitingforFirstPlayingOfContent = true
         playerView.player.addEventListener(PlayerEventTypes.PLAYING, onFirstPlaying)
     }
 
