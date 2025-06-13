@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.nad.adscriptapiclient.AdScriptDataObject
 import com.theoplayer.android.api.THEOplayerConfig
 import com.theoplayer.android.api.THEOplayerView
 import com.theoplayer.android.api.ads.LinearAd
@@ -44,6 +45,8 @@ import com.theoplayer.android.api.event.ads.AdsEventTypes
 import com.theoplayer.android.api.event.ads.SingleAdEvent
 import com.theoplayer.android.api.source.PlaybackPipeline
 import com.theoplayer.android.api.source.SourceDescription
+import com.theoplayer.android.connector.analytics.adscript.AdscriptConfiguration
+import com.theoplayer.android.connector.analytics.adscript.AdscriptConnector
 import com.theoplayer.android.connector.analytics.comscore.ComscoreConfiguration
 import com.theoplayer.android.connector.analytics.comscore.ComscoreConnector
 import com.theoplayer.android.connector.analytics.comscore.ComscoreMediaType
@@ -73,6 +76,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var nielsenConnector: NielsenConnector
     private lateinit var comscoreConnector: ComscoreConnector
     private lateinit var yospaceConnector: YospaceConnector
+    private lateinit var adscriptConnector: AdscriptConnector
     private lateinit var uplynkConnector: UplynkConnector
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,6 +87,7 @@ class MainActivity : ComponentActivity() {
         setupConviva()
         setupComscore()
         setupNielsen()
+        setupAdscript()
         setupYospace()
         setupUplynk()
         setupAdListeners()
@@ -187,6 +192,23 @@ class MainActivity : ComponentActivity() {
     private fun setupNielsen() {
         val appId = "your_nielsen_app_id"
         nielsenConnector = NielsenConnector(applicationContext, theoplayerView.player, appId, true)
+    }
+
+    private fun setupAdscript() {
+        val implementationId = "exampleadscript"
+
+        val config = AdscriptConfiguration(implementationId,true)
+        val metadata = AdScriptDataObject()
+        metadata.set(AdScriptDataObject.FIELD_assetId, "bbb-example");
+        metadata.set(AdScriptDataObject.FIELD_type, AdScriptDataObject.OBJ_TYPE_content);
+        metadata.set(AdScriptDataObject.FIELD_program, "animation");
+        metadata.set(AdScriptDataObject.FIELD_title, "Big Buck Bunny");
+        metadata.set(AdScriptDataObject.FIELD_crossId, "1234");
+        metadata.set(AdScriptDataObject.FIELD_length, "596000");
+        metadata.set(AdScriptDataObject.FIELD_livestream, "0");
+        metadata.set(AdScriptDataObject.FIELD_attribute, AdScriptDataObject.ATTRIBUTE_RegularProgram);
+
+        var adscriptConnector = AdscriptConnector(this, theoplayerView, config, metadata, null)
     }
 
     private fun setupYospace() {
