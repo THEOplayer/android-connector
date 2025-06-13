@@ -1,0 +1,43 @@
+plugins {
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+}
+
+android {
+    namespace 'com.theoplayer.android.connector.analytics.adscript'
+    compileSdk 35
+
+    defaultConfig {
+        minSdk 21
+        targetSdk 35
+        versionCode 1
+        versionName "1.0"
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+    kotlinOptions {
+        jvmTarget = '11'
+    }
+}
+
+dependencies {
+    compileOnly fileTree(dir: './libs/AdScriptApiClient_v1.0.10.aar', include: ['*.aar', '*.jar'], exclude: [])
+    compileOnly "com.theoplayer.theoplayer-sdk-android:core:$sdkVersion"
+    compileOnly "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:$sdkVersion"
+    implementation "com.google.android.gms:play-services-ads-identifier:17.0.1"
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.appcompat
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.test.ext.junit
+    androidTestImplementation libs.androidx.test.espresso.core
+}
