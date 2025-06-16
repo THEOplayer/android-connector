@@ -451,10 +451,8 @@ class ConvivaHandler(
         get() {
             return if (customMetadata.containsKey(ConvivaSdkConstants.ASSET_NAME)) {
                 customMetadata[ConvivaSdkConstants.ASSET_NAME] as String
-            } else if (player.source?.metadata?.containsKey("title") == true) {
-                player.source?.metadata?.get("title") as String
             } else {
-                "NA"
+                player.source?.metadata?.get<String>("title") ?: "NA"
             }
         }
 
