@@ -91,9 +91,9 @@ internal class YospaceAdIntegration(
                 // Notify listener
                 listener.onSessionAvailable()
                 // Replace source with playback URL
-                val newSource = source.replaceSources(source.sources.toMutableList().apply {
+                val newSource = source.copy(sources = source.sources.toMutableList().apply {
                     remove(yospaceSource)
-                    add(0, yospaceSource.replaceSrc(session.playbackUrl))
+                    add(0, yospaceSource.copy(src = session.playbackUrl))
                 })
                 return newSource
             }

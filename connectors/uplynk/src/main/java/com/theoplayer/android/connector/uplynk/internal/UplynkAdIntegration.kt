@@ -227,7 +227,7 @@ internal class UplynkAdIntegration(
         }
 
         val playUrl = uplynkDescriptionConverter.buildPlaybackUrl(minimalResponse.playURL, ssaiDescription)
-        var newUplynkSource = uplynkSource.replaceSrc(playUrl)
+        var newUplynkSource = uplynkSource.copy(src = playUrl)
 
         minimalResponse.drm?.let { drm ->
             if (drm.required) {
@@ -235,11 +235,11 @@ internal class UplynkAdIntegration(
                     drm.widevineLicenseURL?.let { widevine(KeySystemConfiguration.Builder(it).build()) }
                     drm.playreadyLicenseURL?.let { playready(KeySystemConfiguration.Builder(it).build()) }
                 }
-                newUplynkSource = newUplynkSource.replaceDrm(drmBuilder.build())
+                newUplynkSource = newUplynkSource.copy(drm = drmBuilder.build())
             }
         }
 
-        val newSource = source.replaceSources(source.sources.toMutableList().apply {
+        val newSource = source.copy(sources = source.sources.toMutableList().apply {
             remove(uplynkSource)
             add(0, newUplynkSource)
         })
