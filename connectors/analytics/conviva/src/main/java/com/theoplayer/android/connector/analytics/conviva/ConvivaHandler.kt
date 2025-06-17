@@ -24,9 +24,9 @@ import com.theoplayer.android.connector.analytics.conviva.ads.AdReporter
 import com.theoplayer.android.connector.analytics.conviva.utils.ErrorReportBuilder
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateBufferLength
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateConvivaOptions
-import com.theoplayer.android.connector.analytics.conviva.utils.collectContentMetadata
+import com.theoplayer.android.connector.analytics.conviva.utils.calculateStreamType
+import com.theoplayer.android.connector.analytics.conviva.utils.collectPlaybackConfigMetadata
 import com.theoplayer.android.connector.analytics.conviva.utils.collectPlayerInfo
-import java.lang.Double.isFinite
 
 private const val TAG = "ConvivaHandler"
 
@@ -196,16 +196,7 @@ class ConvivaHandler(
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "onDurationChange")
             }
-            val contentInfo = HashMap<String, Any>()
-            if (player.duration.isFinite()) {
-                contentInfo[ConvivaSdkConstants.IS_LIVE] = ConvivaSdkConstants.StreamType.VOD
-
-                // Report duration; Int (seconds)
-                contentInfo[ConvivaSdkConstants.DURATION] = player.duration.toInt()
-            } else {
-                contentInfo[ConvivaSdkConstants.IS_LIVE] = ConvivaSdkConstants.StreamType.LIVE
-            }
-            convivaVideoAnalytics.setContentInfo(contentInfo)
+            reportMetadata()
         }
 
         // Listen for player events
@@ -419,13 +410,11 @@ class ConvivaHandler(
         if (!playbackRequested) {
             playbackRequested = true
 
-            // In most cases that it's required to set content metadata before the player reports
+            // In most cases it's required to set content metadata before the player reports
             // "play" for the first time, to accurately attribute metadata to the video asset.
             reportMetadata()
 
-            convivaVideoAnalytics.reportPlaybackRequested(
-                collectContentMetadata(player, convivaMetadata)
-            )
+            convivaVideoAnalytics.reportPlaybackRequested(convivaMetadata)
         }
     }
 
@@ -456,24 +445,40 @@ class ConvivaHandler(
             }
         }
 
+    /**
+     * Report extra metadata extracted from the player, next to the custom metadata provided by the
+     * customer.
+     */
     private fun reportMetadata() {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "reportMetadata")
         }
-        val src = player.src ?: ""
-        val streamType = if (isFinite(player.duration)) {
-            ConvivaSdkConstants.StreamType.VOD
-        } else {
-            ConvivaSdkConstants.StreamType.LIVE
-        }
         val playerName = customMetadata[ConvivaSdkConstants.PLAYER_NAME] ?: convivaMetadata[ConvivaSdkConstants.PLAYER_NAME] ?: "THEOplayer"
         setContentInfo(
-            mapOf(
-                ConvivaSdkConstants.STREAM_URL to src,
-                ConvivaSdkConstants.IS_LIVE to streamType,
+            mutableMapOf(
+                ConvivaSdkConstants.STREAM_URL to (player.src ?: ""),
                 ConvivaSdkConstants.ASSET_NAME to contentAssetName,
                 ConvivaSdkConstants.PLAYER_NAME to playerName
-            )
+            ).apply {
+                putAll(collectPlaybackConfigMetadata(player))
+
+                // Do not override the `isLive` value if already set by the consumer, as the value
+                // is read-only for a given session.
+                // Note: also allow "Conviva.streamType" as metadata key, which is used on other platforms.
+                val configuredStreamType = convivaVideoAnalytics.metadataInfo[ConvivaSdkConstants.IS_LIVE] ?:
+                        convivaVideoAnalytics.metadataInfo["Conviva.streamType"]
+                // Only pass `isLive` property if pre-configured, or if we have a valid duration
+                val isLive = configuredStreamType ?: calculateStreamType(player)
+                isLive?.let {
+                    put(ConvivaSdkConstants.IS_LIVE, it)
+                }
+
+                // Only pass a finite duration value, never NaN or Infinite.
+                if (player.duration.isFinite()) {
+                    // Report duration; Int (seconds)
+                    put(ConvivaSdkConstants.DURATION, player.duration.toInt())
+                }
+            }
         )
     }
 

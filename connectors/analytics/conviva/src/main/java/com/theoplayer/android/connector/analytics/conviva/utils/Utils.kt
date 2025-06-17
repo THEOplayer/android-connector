@@ -1,6 +1,7 @@
 package com.theoplayer.android.connector.analytics.conviva.utils
 
 import com.conviva.sdk.ConvivaSdkConstants
+import com.conviva.sdk.ConvivaSdkConstants.StreamType
 import com.theoplayer.android.api.THEOplayerGlobal
 import com.theoplayer.android.api.ads.AdBreak
 import com.theoplayer.android.api.ads.Ad
@@ -11,6 +12,7 @@ import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.api.timerange.TimeRanges
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConfiguration
 import com.theoplayer.android.connector.analytics.conviva.ConvivaMetadata
+import java.lang.Double.isFinite
 
 fun calculateAdType(ad: Ad): ConvivaSdkConstants.AdType {
     return when(ad.integration) {
@@ -70,6 +72,18 @@ fun calculateConvivaOptions(config: ConvivaConfiguration): Map<String, Any> {
     return options
 }
 
+fun calculateStreamType(player: Player): StreamType? {
+    return if (!player.duration.isNaN()) {
+        if (isFinite(player.duration)) {
+            StreamType.VOD
+        } else {
+            StreamType.LIVE
+        }
+    } else {
+        null
+    }
+}
+
 fun collectPlayerInfo(): Map<String, Any> {
     return mapOf(
         ConvivaSdkConstants.FRAMEWORK_NAME to "THEOplayer",
@@ -77,16 +91,18 @@ fun collectPlayerInfo(): Map<String, Any> {
     )
 }
 
-fun collectContentMetadata(
-    player: Player,
-    configuredContentMetadata: ConvivaMetadata
-): ConvivaMetadata {
-    // Never send an Infinity or NaN
-    val duration = player.duration
-    return if (duration.isNaN() || duration.isInfinite())
-        configuredContentMetadata
-    else
-        configuredContentMetadata + mapOf(ConvivaSdkConstants.DURATION to duration.toInt())
+fun collectPlaybackConfigMetadata(player: Player): ConvivaMetadata {
+    return mutableMapOf<String, Any>(
+        "targetBuffer" to player.abr.targetBuffer,
+        "abrStrategy" to player.abr.abrStrategy.type.name.lowercase(),
+    ).apply {
+        player.abr.abrStrategy.metadata?.bitrate?.let { abrMetadata ->
+            put("abrMetadata", abrMetadata)
+        }
+        player.source?.sources?.firstOrNull()?.liveOffset?.let { liveOffset ->
+            put("liveOffset", liveOffset)
+        }
+    }
 }
 
 private fun validStringOrNA(str: String?): String {
