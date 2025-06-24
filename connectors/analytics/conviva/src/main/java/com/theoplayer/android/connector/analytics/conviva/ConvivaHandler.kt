@@ -179,6 +179,8 @@ class ConvivaHandler(
                     else -> "NA"
                 }
             )
+            // Set the metadata we have right now. It can be further updated before the `play` event
+            reportMetadata()
         }
 
         onEnded = EventListener<EndedEvent> {
@@ -454,11 +456,14 @@ class ConvivaHandler(
             Log.d(TAG, "reportMetadata")
         }
         val playerName = customMetadata[ConvivaSdkConstants.PLAYER_NAME] ?: convivaMetadata[ConvivaSdkConstants.PLAYER_NAME] ?: "THEOplayer"
+        val viewerId = customMetadata[ConvivaSdkConstants.VIEWER_ID] ?: convivaMetadata[ConvivaSdkConstants.VIEWER_ID] ?: "viewerId"
+
         setContentInfo(
             mutableMapOf(
                 ConvivaSdkConstants.STREAM_URL to (player.src ?: ""),
                 ConvivaSdkConstants.ASSET_NAME to contentAssetName,
-                ConvivaSdkConstants.PLAYER_NAME to playerName
+                ConvivaSdkConstants.PLAYER_NAME to playerName,
+                ConvivaSdkConstants.VIEWER_ID to viewerId
             ).apply {
                 putAll(collectPlaybackConfigMetadata(player))
 
