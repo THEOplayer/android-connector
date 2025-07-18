@@ -20,6 +20,8 @@ class GemiusAdapter(
 
     init {
         val playerData = PlayerData()
+        playerData.resolution = "${playerView.width}x${playerView.height}"
+        playerData.volume = if (playerView.player.isMuted) -1 else (playerView.player.volume * 100).toInt()
         gemiusPlayer = Player(PLAYER_ID, configuration.hitCollectorHost, configuration.gemiusId, playerData)
         gemiusPlayer.setContext(context)
 
