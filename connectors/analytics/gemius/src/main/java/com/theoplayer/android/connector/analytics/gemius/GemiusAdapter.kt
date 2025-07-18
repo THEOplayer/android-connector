@@ -1,22 +1,68 @@
 package com.theoplayer.android.connector.analytics.gemius
 
 import android.content.Context
+import android.util.Log
 import com.theoplayer.android.api.THEOplayerView
 import com.gemius.sdk.stream.Player
 import com.gemius.sdk.stream.PlayerData
 import com.gemius.sdk.stream.ProgramData
+import com.theoplayer.android.api.ads.Ad
+import com.theoplayer.android.api.event.EventListener
+import com.theoplayer.android.api.event.ads.AdBeginEvent
+import com.theoplayer.android.api.event.ads.AdBreakBeginEvent
+import com.theoplayer.android.api.event.ads.AdBreakEndEvent
+import com.theoplayer.android.api.event.ads.AdEndEvent
+import com.theoplayer.android.api.event.ads.AdSkipEvent
+import com.theoplayer.android.api.event.player.EndedEvent
+import com.theoplayer.android.api.event.player.ErrorEvent
+import com.theoplayer.android.api.event.player.PauseEvent
+import com.theoplayer.android.api.event.player.PlayEvent
+import com.theoplayer.android.api.event.player.PlayingEvent
+import com.theoplayer.android.api.event.player.SeekingEvent
+import com.theoplayer.android.api.event.player.SourceChangeEvent
+import com.theoplayer.android.api.event.player.VolumeChangeEvent
+import com.theoplayer.android.api.event.player.WaitingEvent
+import com.theoplayer.android.api.event.track.mediatrack.audio.QualityChangedEvent
+import com.theoplayer.android.api.event.track.mediatrack.video.list.AddTrackEvent
+import com.theoplayer.android.api.event.track.mediatrack.video.list.RemoveTrackEvent
 
 val PLAYER_ID = "THEOplayer"
+val TAG = "GemiusConnector"
 
 class GemiusAdapter(
     context: Context,
-    configuration: GemiusConfiguration,
-    playerView: THEOplayerView,
-    adProcessor: AdProcessor?
+    private val configuration: GemiusConfiguration,
+    private val playerView: THEOplayerView,
+    private val adProcessor: AdProcessor?
 ) {
     private val gemiusPlayer: Player?
+
     private var programId: String? = null
     private var programData: ProgramData? = null
+
+    private var partCount: Int = 1
+    private var adCount: Int = 1
+    private var currentAd: Ad? = null
+
+    private val onSourceChange: EventListener<SourceChangeEvent>
+    private val onFirstPlaying: EventListener<PlayingEvent>
+    private val onPlay: EventListener<PlayEvent>
+    private val onPause: EventListener<PauseEvent>
+    private val onWaiting: EventListener<WaitingEvent>
+    private val onSeeking: EventListener<SeekingEvent>
+    private val onError: EventListener<ErrorEvent>
+    private val onEnded: EventListener<EndedEvent>
+    private val onVolumeChange: EventListener<VolumeChangeEvent>
+
+    private val onAddVideoTrack: EventListener<AddTrackEvent>
+    private val onRemoveVideoTrack: EventListener<RemoveTrackEvent>
+    private val onVideoQualityChanged: EventListener<QualityChangedEvent<*,*>>
+
+    private val onAdBreakBeginListener: EventListener<AdBreakBeginEvent>
+    private val onAdBeginListener: EventListener<AdBeginEvent>
+    private val onAdEndListener: EventListener<AdEndEvent>
+    private val onAdSkipListener: EventListener<AdSkipEvent>
+    private val onAdBreakEndedListener: EventListener<AdBreakEndEvent>
 
     init {
         val playerData = PlayerData()
@@ -25,11 +71,115 @@ class GemiusAdapter(
         gemiusPlayer = Player(PLAYER_ID, configuration.hitCollectorHost, configuration.gemiusId, playerData)
         gemiusPlayer.setContext(context)
 
+        onSourceChange = EventListener { event -> handleSourceChange(event) }
+        onFirstPlaying = EventListener { event -> handleFirstPlaying(event) }
+        onPlay = EventListener { event -> handlePlay(event) }
+        onPause = EventListener { event -> handlePause(event) }
+        onWaiting = EventListener { event -> handleWaiting(event) }
+        onSeeking = EventListener { event -> handleSeeking(event) }
+        onError = EventListener { event -> handleError(event) }
+        onEnded = EventListener { event -> handleEnded(event) }
+        onVolumeChange = EventListener { event -> handleVolumeChange(event) }
+        onAddVideoTrack = EventListener { event -> handleAddVideoTrack(event) }
+        onRemoveVideoTrack = EventListener { event -> handleRemoveVideoTrack(event) }
+        onVideoQualityChanged = EventListener { event -> handleVideoQualityChanged(event) }
+        onAdBreakBeginListener = EventListener { event -> handleAdBreakBegin(event) }
+        onAdBeginListener = EventListener { event -> handleAdBegin(event) }
+        onAdEndListener = EventListener { event -> handleAdEnd(event) }
+        onAdSkipListener = EventListener { event -> handleAdSkip(event) }
+        onAdBreakEndedListener = EventListener { event -> handleAdBreakEnded(event) }
+
     }
 
     fun update(programId: String, programData: ProgramData) {
         this.programId = programId
         this.programData = programData
+    }
+
+    private fun handleSourceChange(event: SourceChangeEvent) {
+        if (configuration.debug) {
+            Log.d(TAG, "Player Event: ${event.type}")
+        }
+    }
+    private fun handleFirstPlaying(event: PlayingEvent) {
+        if (configuration.debug) {
+            Log.d(TAG, "Player Event: ${event.type}")
+        }
+    }
+    private fun handlePlay(event: PlayEvent) {
+        if (configuration.debug) {
+            Log.d(TAG, "Player Event: ${event.type}")
+        }
+    }
+    private fun handlePause(event: PauseEvent) {
+        if (configuration.debug) {
+            Log.d(TAG, "Player Event: ${event.type}")
+        }
+    }
+    private fun handleWaiting(event: WaitingEvent) {
+        if (configuration.debug) {
+            Log.d(TAG, "Player Event: ${event.type}")
+        }
+    }
+    private fun handleSeeking(event: SeekingEvent) {
+        if (configuration.debug) {
+            Log.d(TAG, "Player Event: ${event.type}")
+        }
+    }
+    private fun handleError(event: ErrorEvent) {
+        if (configuration.debug) {
+            Log.d(TAG, "Player Event: ${event.type}")
+        }
+    }
+    private fun handleEnded(event: EndedEvent) {
+        if (configuration.debug) {
+            Log.d(TAG, "Player Event: ${event.type}")
+        }
+    }
+    private fun handleVolumeChange(event: VolumeChangeEvent) {
+        if (configuration.debug) {
+            Log.d(TAG, "Player Event: ${event.type}")
+        }
+    }
+    private fun handleAddVideoTrack(event: AddTrackEvent) {
+        if (configuration.debug) {
+            Log.d(TAG, "Player Event: ${event.type}")
+        }
+    }
+    private fun handleRemoveVideoTrack(event: RemoveTrackEvent) {
+        if (configuration.debug) {
+            Log.d(TAG, "Player Event: ${event.type}")
+        }
+    }
+    private fun handleVideoQualityChanged(event: QualityChangedEvent<*,*>) {
+        if (configuration.debug) {
+            Log.d(TAG, "Player Event: ${event.type}")
+        }
+    }
+    private fun handleAdBreakBegin(event: AdBreakBeginEvent) {
+        if (configuration.debug) {
+            Log.d(TAG, "Player Event: ${event.type}")
+        }
+    }
+    private fun handleAdBegin(event: AdBeginEvent) {
+        if (configuration.debug) {
+            Log.d(TAG, "Player Event: ${event.type}")
+        }
+    }
+    private fun handleAdEnd(event: AdEndEvent) {
+        if (configuration.debug) {
+            Log.d(TAG, "Player Event: ${event.type}")
+        }
+    }
+    private fun handleAdSkip(event: AdSkipEvent) {
+        if (configuration.debug) {
+            Log.d(TAG, "Player Event: ${event.type}")
+        }
+    }
+    private fun handleAdBreakEnded(event: AdBreakEndEvent) {
+        if (configuration.debug) {
+            Log.d(TAG, "Player Event: ${event.type}")
+        }
     }
 
 }
