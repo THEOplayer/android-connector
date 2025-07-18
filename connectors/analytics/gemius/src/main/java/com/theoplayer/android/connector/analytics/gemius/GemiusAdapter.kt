@@ -1,5 +1,6 @@
 package com.theoplayer.android.connector.analytics.gemius
 
+import android.content.Context
 import com.theoplayer.android.api.THEOplayerView
 import com.gemius.sdk.stream.Player
 import com.gemius.sdk.stream.PlayerData
@@ -8,6 +9,7 @@ import com.gemius.sdk.stream.ProgramData
 val PLAYER_ID = "THEOplayer"
 
 class GemiusAdapter(
+    context: Context,
     configuration: GemiusConfiguration,
     playerView: THEOplayerView,
     adProcessor: AdProcessor?
@@ -19,6 +21,7 @@ class GemiusAdapter(
     init {
         val playerData = PlayerData()
         gemiusPlayer = Player(PLAYER_ID, configuration.hitCollectorHost, configuration.gemiusId, playerData)
+        gemiusPlayer.setContext(context)
 
     }
 
