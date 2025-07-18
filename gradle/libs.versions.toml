@@ -24,6 +24,7 @@ conviva = "4.0.43"
 nielsen = "9.2.0.0"
 comscore = "6.10.0"
 yospace = "3.6.7"
+material = "1.12.0"
 
 [libraries]
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidxAppCompat" }
@@ -52,6 +53,7 @@ conviva = { group = "com.conviva.sdk", name = "conviva-core-sdk", version.ref = 
 nielsen = { group = "com.nielsenappsdk.global", name = "ad", version.ref = "nielsen" }
 comscore = { group = "com.comscore", name = "android-analytics", version.ref = "comscore" }
 yospace = { group = "com.yospace", name = "admanagement-sdk", version.ref = "yospace" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
