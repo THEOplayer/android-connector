@@ -13,10 +13,12 @@ import com.theoplayer.android.api.event.ads.AdBreakBeginEvent
 import com.theoplayer.android.api.event.ads.AdBreakEndEvent
 import com.theoplayer.android.api.event.ads.AdEndEvent
 import com.theoplayer.android.api.event.ads.AdSkipEvent
+import com.theoplayer.android.api.event.ads.AdsEventTypes
 import com.theoplayer.android.api.event.player.EndedEvent
 import com.theoplayer.android.api.event.player.ErrorEvent
 import com.theoplayer.android.api.event.player.PauseEvent
 import com.theoplayer.android.api.event.player.PlayEvent
+import com.theoplayer.android.api.event.player.PlayerEventTypes
 import com.theoplayer.android.api.event.player.PlayingEvent
 import com.theoplayer.android.api.event.player.SeekingEvent
 import com.theoplayer.android.api.event.player.SourceChangeEvent
@@ -25,6 +27,8 @@ import com.theoplayer.android.api.event.player.WaitingEvent
 import com.theoplayer.android.api.event.track.mediatrack.audio.QualityChangedEvent
 import com.theoplayer.android.api.event.track.mediatrack.video.list.AddTrackEvent
 import com.theoplayer.android.api.event.track.mediatrack.video.list.RemoveTrackEvent
+import com.theoplayer.android.api.event.track.mediatrack.video.list.VideoTrackListEventTypes
+import com.theoplayer.android.api.event.track.tracklist.TrackListEvent
 
 val PLAYER_ID = "THEOplayer"
 val TAG = "GemiusConnector"
@@ -89,11 +93,31 @@ class GemiusAdapter(
         onAdSkipListener = EventListener { event -> handleAdSkip(event) }
         onAdBreakEndedListener = EventListener { event -> handleAdBreakEnded(event) }
 
+        addEventListeners()
     }
 
     fun update(programId: String, programData: ProgramData) {
         this.programId = programId
         this.programData = programData
+    }
+
+    private fun addEventListeners() {
+        playerView.player.addEventListener(PlayerEventTypes.SOURCECHANGE, onSourceChange)
+        playerView.player.addEventListener(PlayerEventTypes.PLAYING, onFirstPlaying)
+        playerView.player.addEventListener(PlayerEventTypes.PLAY, onPlay)
+        playerView.player.addEventListener(PlayerEventTypes.PAUSE, onPause)
+        playerView.player.addEventListener(PlayerEventTypes.WAITING, onWaiting)
+        playerView.player.addEventListener(PlayerEventTypes.SEEKING, onSeeking)
+        playerView.player.addEventListener(PlayerEventTypes.ERROR, onError)
+        playerView.player.addEventListener(PlayerEventTypes.ENDED, onEnded)
+        playerView.player.addEventListener(PlayerEventTypes.VOLUMECHANGE, onVolumeChange)
+        playerView.player.videoTracks.addEventListener(VideoTrackListEventTypes.ADDTRACK, onAddVideoTrack)
+        playerView.player.videoTracks.addEventListener(VideoTrackListEventTypes.REMOVETRACK, onRemoveVideoTrack)
+        playerView.player.ads.addEventListener(AdsEventTypes.AD_BREAK_BEGIN, onAdBreakBeginListener)
+        playerView.player.ads.addEventListener(AdsEventTypes.AD_BEGIN, onAdBeginListener)
+        playerView.player.ads.addEventListener(AdsEventTypes.AD_END, onAdEndListener)
+        playerView.player.ads.addEventListener(AdsEventTypes.AD_SKIP, onAdSkipListener)
+        playerView.player.ads.addEventListener(AdsEventTypes.AD_BREAK_END, onAdBreakEndedListener)
     }
 
     private fun handleSourceChange(event: SourceChangeEvent) {
