@@ -201,7 +201,19 @@ class GemiusAdapter(
     }
     private fun handleVolumeChange(event: VolumeChangeEvent) {
         if (configuration.debug) {
-            Log.d(TAG, "Player Event: ${event.type}")
+            Log.d(TAG, "Player Event: ${event.type}: volume = ${event.volume}")
+        }
+        val computedVolume = computeVolume()
+        val programId = programId ?: return
+        currentAd?.let { ad ->
+            val adBreak = ad.adBreak ?: return
+            val adEventData = EventAdData()
+            adEventData.volume = computedVolume
+            gemiusPlayer?.adEvent(programId, ad.id, adBreak.timeOffset, Player.EventType.CHANGE_VOL, adEventData)
+        } ?: run {
+            val programEventData = EventProgramData()
+            programEventData.volume = computedVolume
+            gemiusPlayer?.programEvent(programId, playerView.player.currentTime.toInt(), Player.EventType.CHANGE_VOL, programEventData)
         }
     }
     private fun handleAddVideoTrack(event: AddTrackEvent) {
