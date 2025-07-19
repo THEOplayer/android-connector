@@ -182,8 +182,9 @@ class GemiusAdapter(
     }
     private fun handleSeeking(event: SeekingEvent) {
         if (configuration.debug) {
-            Log.d(TAG, "Player Event: ${event.type}")
+            Log.d(TAG, "Player Event: ${event.type}: currentTime = ${event.currentTime}")
         }
+        reportBasicEvent(Player.EventType.SEEK)
     }
     private fun handleError(event: ErrorEvent) {
         if (configuration.debug) {
