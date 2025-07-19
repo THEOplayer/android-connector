@@ -165,9 +165,8 @@ class GemiusAdapter(
             programEventData.partID = partCount
             programEventData.autoPlay = player.isAutoplay
             if (currentQuality!= null) programEventData.quality = "${currentQuality.width}x${currentQuality.height}"
-            gemiusPlayer?.programEvent(programId, player.currentTime.toInt(), Player.EventType.PLAY, )
+            gemiusPlayer?.programEvent(programId, player.currentTime.toInt(), Player.EventType.PLAY, programEventData)
         }
-
     }
     private fun handlePlay(event: PlayEvent) {
         if (configuration.debug) {
