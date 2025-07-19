@@ -188,13 +188,16 @@ class GemiusAdapter(
     }
     private fun handleError(event: ErrorEvent) {
         if (configuration.debug) {
-            Log.d(TAG, "Player Event: ${event.type}")
+            val errorObject = event.errorObject
+            Log.d(TAG, "Player Event: ${event.type}: error = ${errorObject.code}: ${errorObject.message}")
         }
+        reportBasicEvent(Player.EventType.COMPLETE)
     }
     private fun handleEnded(event: EndedEvent) {
         if (configuration.debug) {
-            Log.d(TAG, "Player Event: ${event.type}")
+            Log.d(TAG, "Player Event: ${event.type}: currentTime = ${event.currentTime}")
         }
+        reportBasicEvent(Player.EventType.COMPLETE)
     }
     private fun handleVolumeChange(event: VolumeChangeEvent) {
         if (configuration.debug) {
