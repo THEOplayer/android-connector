@@ -81,7 +81,7 @@ class GemiusAdapter(
 
         onSourceChange = EventListener { event -> handleSourceChange(event) }
         onFirstPlaying = EventListener { event -> handleFirstPlaying(event) }
-        onPlay = EventListener { event -> handlePlay(event) }
+//        onPlay = EventListener { event -> handlePlay(event) }
         onPause = EventListener { event -> handlePause(event) }
         onWaiting = EventListener { event -> handleWaiting(event) }
         onSeeking = EventListener { event -> handleSeeking(event) }
@@ -141,12 +141,6 @@ class GemiusAdapter(
         playerView.player.addEventListener(PlayerEventTypes.PLAYING,onFirstPlaying)
     }
     private fun handleFirstPlaying(event: PlayingEvent) {
-        if (configuration.debug) {
-            Log.d(TAG, "Player Event: ${event.type}: currentTime = ${event.currentTime}")
-        }
-
-    }
-    private fun handlePlay(event: PlayEvent) {
         if (configuration.debug) {
             Log.d(TAG, "Player Event: ${event.type}: currentTime = ${event.currentTime}")
         }
