@@ -122,8 +122,15 @@ class GemiusAdapter(
 
     private fun handleSourceChange(event: SourceChangeEvent) {
         if (configuration.debug) {
-            Log.d(TAG, "Player Event: ${event.type}")
+            Log.d(TAG, "Player Event: ${event.type}: source = ${event.source.toString()}")
         }
+        partCount = 1
+        currentAd = null
+        val programId = this.programId ?: return
+        val programData = this.programData ?: return
+        gemiusPlayer?.newProgram(programId,programData)
+        playerView.player.removeEventListener(PlayerEventTypes.PLAYING,onFirstPlaying)
+        playerView.player.addEventListener(PlayerEventTypes.PLAYING,onFirstPlaying)
     }
     private fun handleFirstPlaying(event: PlayingEvent) {
         if (configuration.debug) {
