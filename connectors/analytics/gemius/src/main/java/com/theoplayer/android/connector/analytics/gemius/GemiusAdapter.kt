@@ -170,9 +170,23 @@ class GemiusAdapter(
     }
     private fun handlePause(event: PauseEvent) {
         if (configuration.debug) {
-            Log.d(TAG, "Player Event: ${event.type}")
+            Log.d(TAG, "Player Event: ${event.type}: currentTime = ${event.currentTime}")
+        }
+        reportBasicEvent(Player.EventType.PAUSE)
+    }
+
+    private fun reportBasicEvent(eventType: Player.EventType) {
+        val programId = programId ?: return
+        currentAd?.let { ad ->
+            val offset = ad.adBreak?.timeOffset ?: return
+            // docs mention null can be passed but interface prohibits
+            gemiusPlayer?.adEvent(programId,ad.id, offset, eventType, EventAdData())
+        } ?: run {
+            // docs mention null can be passed but interface prohibits
+            gemiusPlayer?.programEvent(programId, playerView.player.currentTime.toInt(), eventType, EventProgramData())
         }
     }
+
     private fun handleWaiting(event: WaitingEvent) {
         if (configuration.debug) {
             Log.d(TAG, "Player Event: ${event.type}")
