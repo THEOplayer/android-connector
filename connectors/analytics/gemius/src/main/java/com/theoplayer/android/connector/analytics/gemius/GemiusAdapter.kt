@@ -30,8 +30,8 @@ import com.theoplayer.android.api.event.track.mediatrack.video.list.RemoveTrackE
 import com.theoplayer.android.api.event.track.mediatrack.video.list.VideoTrackListEventTypes
 import com.theoplayer.android.api.event.track.tracklist.TrackListEvent
 
-val PLAYER_ID = "THEOplayer"
-val TAG = "GemiusConnector"
+const val PLAYER_ID = "THEOplayer"
+const val TAG = "GemiusConnector"
 
 class GemiusAdapter(
     context: Context,
