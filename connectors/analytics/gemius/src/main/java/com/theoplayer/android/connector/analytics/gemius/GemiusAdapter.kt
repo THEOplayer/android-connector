@@ -54,7 +54,7 @@ class GemiusAdapter(
 
     private val onSourceChange: EventListener<SourceChangeEvent>
     private val onFirstPlaying: EventListener<PlayingEvent>
-    private val onPlay: EventListener<PlayEvent>
+//    private val onPlay: EventListener<PlayEvent>
     private val onPause: EventListener<PauseEvent>
     private val onWaiting: EventListener<WaitingEvent>
     private val onSeeking: EventListener<SeekingEvent>
@@ -112,7 +112,7 @@ class GemiusAdapter(
     private fun addEventListeners() {
         playerView.player.addEventListener(PlayerEventTypes.SOURCECHANGE, onSourceChange)
         playerView.player.addEventListener(PlayerEventTypes.PLAYING, onFirstPlaying)
-        playerView.player.addEventListener(PlayerEventTypes.PLAY, onPlay)
+//        playerView.player.addEventListener(PlayerEventTypes.PLAY, onPlay)
         playerView.player.addEventListener(PlayerEventTypes.PAUSE, onPause)
         playerView.player.addEventListener(PlayerEventTypes.WAITING, onWaiting)
         playerView.player.addEventListener(PlayerEventTypes.SEEKING, onSeeking)
