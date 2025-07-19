@@ -2,11 +2,15 @@ package com.theoplayer.android.connector.analytics.gemius
 
 import android.content.Context
 import android.util.Log
+import com.gemius.sdk.stream.EventAdData
+import com.gemius.sdk.stream.EventProgramData
 import com.theoplayer.android.api.THEOplayerView
 import com.gemius.sdk.stream.Player
 import com.gemius.sdk.stream.PlayerData
 import com.gemius.sdk.stream.ProgramData
 import com.theoplayer.android.api.ads.Ad
+import com.theoplayer.android.api.ads.LinearAd
+import com.theoplayer.android.api.ads.ima.GoogleImaAd
 import com.theoplayer.android.api.event.EventListener
 import com.theoplayer.android.api.event.ads.AdBeginEvent
 import com.theoplayer.android.api.event.ads.AdBreakBeginEvent
@@ -71,7 +75,7 @@ class GemiusAdapter(
     init {
         val playerData = PlayerData()
         playerData.resolution = "${playerView.width}x${playerView.height}"
-        playerData.volume = if (playerView.player.isMuted) -1 else (playerView.player.volume * 100).toInt()
+        playerData.volume = computeVolume()
         gemiusPlayer = Player(PLAYER_ID, configuration.hitCollectorHost, configuration.gemiusId, playerData)
         gemiusPlayer.setContext(context)
 
@@ -99,6 +103,10 @@ class GemiusAdapter(
     fun update(programId: String, programData: ProgramData) {
         this.programId = programId
         this.programData = programData
+    }
+
+    private fun computeVolume(): Int {
+        return if (playerView.player.isMuted) -1 else (playerView.player.volume * 100).toInt()
     }
 
     private fun addEventListeners() {
@@ -134,8 +142,32 @@ class GemiusAdapter(
     }
     private fun handleFirstPlaying(event: PlayingEvent) {
         if (configuration.debug) {
-            Log.d(TAG, "Player Event: ${event.type}")
+            Log.d(TAG, "Player Event: ${event.type}: currentTime = ${event.currentTime}")
         }
+        val computedVolume = computeVolume()
+        val programId = programId ?: return
+        currentAd?.let { ad ->
+            val adId = ad.id
+            val adBreak = ad.adBreak ?: return
+            val offset = adBreak.timeOffset
+            val adEventData = EventAdData()
+            adEventData.volume = computedVolume
+            adEventData.breakSize = adBreak.ads.size
+            if (ad is LinearAd) adEventData.adDuration = ad.duration
+            adEventData.adPosition = adCount
+            gemiusPlayer?.adEvent(programId, adId, offset, Player.EventType.PLAY, adEventData)
+        } ?: run {
+            val player = playerView.player
+            val currentQuality = player.videoTracks.first { track -> track.isEnabled }.activeQuality
+            val programEventData = EventProgramData()
+            programEventData.volume = computedVolume
+            programEventData.programDuration = player.duration.toInt()
+            programEventData.partID = partCount
+            programEventData.autoPlay = player.isAutoplay
+            if (currentQuality!= null) programEventData.quality = "${currentQuality.width}x${currentQuality.height}"
+            gemiusPlayer?.programEvent(programId, player.currentTime.toInt(), Player.EventType.PLAY, )
+        }
+
     }
     private fun handlePlay(event: PlayEvent) {
         if (configuration.debug) {
