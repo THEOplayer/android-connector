@@ -144,6 +144,12 @@ class GemiusAdapter(
         if (configuration.debug) {
             Log.d(TAG, "Player Event: ${event.type}: currentTime = ${event.currentTime}")
         }
+
+    }
+    private fun handlePlay(event: PlayEvent) {
+        if (configuration.debug) {
+            Log.d(TAG, "Player Event: ${event.type}: currentTime = ${event.currentTime}")
+        }
         val computedVolume = computeVolume()
         val programId = programId ?: return
         currentAd?.let { ad ->
@@ -166,11 +172,6 @@ class GemiusAdapter(
             programEventData.autoPlay = player.isAutoplay
             if (currentQuality!= null) programEventData.quality = "${currentQuality.width}x${currentQuality.height}"
             gemiusPlayer?.programEvent(programId, player.currentTime.toInt(), Player.EventType.PLAY, programEventData)
-        }
-    }
-    private fun handlePlay(event: PlayEvent) {
-        if (configuration.debug) {
-            Log.d(TAG, "Player Event: ${event.type}")
         }
     }
     private fun handlePause(event: PauseEvent) {
