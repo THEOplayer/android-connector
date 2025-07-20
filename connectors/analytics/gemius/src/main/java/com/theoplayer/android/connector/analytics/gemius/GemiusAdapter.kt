@@ -11,6 +11,7 @@ import com.gemius.sdk.stream.ProgramData
 import com.theoplayer.android.api.ads.Ad
 import com.theoplayer.android.api.ads.LinearAd
 import com.theoplayer.android.api.ads.ima.GoogleImaAd
+import com.theoplayer.android.api.event.Event
 import com.theoplayer.android.api.event.EventListener
 import com.theoplayer.android.api.event.ads.AdBeginEvent
 import com.theoplayer.android.api.event.ads.AdBreakBeginEvent
@@ -29,10 +30,12 @@ import com.theoplayer.android.api.event.player.SourceChangeEvent
 import com.theoplayer.android.api.event.player.VolumeChangeEvent
 import com.theoplayer.android.api.event.player.WaitingEvent
 import com.theoplayer.android.api.event.track.mediatrack.audio.QualityChangedEvent
+import com.theoplayer.android.api.event.track.mediatrack.video.VideoTrackEventTypes
 import com.theoplayer.android.api.event.track.mediatrack.video.list.AddTrackEvent
 import com.theoplayer.android.api.event.track.mediatrack.video.list.RemoveTrackEvent
 import com.theoplayer.android.api.event.track.mediatrack.video.list.VideoTrackListEventTypes
 import com.theoplayer.android.api.event.track.tracklist.TrackListEvent
+import com.theoplayer.android.api.player.track.mediatrack.quality.VideoQuality
 
 const val PLAYER_ID = "THEOplayer"
 const val TAG = "GemiusConnector"
@@ -218,17 +221,35 @@ class GemiusAdapter(
     }
     private fun handleAddVideoTrack(event: AddTrackEvent) {
         if (configuration.debug) {
-            Log.d(TAG, "Player Event: ${event.type}")
+            Log.d(TAG, "Player Event (Video Track): ${event.type}")
         }
+        val track = event.track
+        track.addEventListener(VideoTrackEventTypes.ACTIVEQUALITYCHANGEDEVENT, onVideoQualityChanged)
     }
     private fun handleRemoveVideoTrack(event: RemoveTrackEvent) {
         if (configuration.debug) {
             Log.d(TAG, "Player Event: ${event.type}")
         }
+        val track = event.track
+        track.removeEventListener(VideoTrackEventTypes.ACTIVEQUALITYCHANGEDEVENT, onVideoQualityChanged)
     }
     private fun handleVideoQualityChanged(event: QualityChangedEvent<*,*>) {
         if (configuration.debug) {
             Log.d(TAG, "Player Event: ${event.type}")
+        }
+        val programId = programId ?: return
+        val activeQuality = (event.getQuality() as VideoQuality)
+        val height = activeQuality.height
+        val width = activeQuality.width
+        currentAd?.let { ad ->
+            val adBreak = ad.adBreak ?: return
+            val adEventData = EventAdData()
+            adEventData.quality = "${width}x${height}"
+            gemiusPlayer?.adEvent(programId,ad.id,adBreak.timeOffset,Player.EventType.CHANGE_QUAL,adEventData)
+        } ?: run {
+            val programEventData = EventProgramData()
+            programEventData.quality = "${width}x${height}"
+            gemiusPlayer?.programEvent(programId,playerView.player.currentTime.toInt(),Player.EventType.CHANGE_QUAL,programEventData)
         }
     }
     private fun handleAdBreakBegin(event: AdBreakBeginEvent) {
