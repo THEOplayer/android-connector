@@ -161,6 +161,7 @@ class GemiusAdapter(
             adEventData.adPosition = adCount
             gemiusPlayer?.adEvent(programId, adId, offset, Player.EventType.PLAY, adEventData)
         } ?: run {
+            if (hasPrerollScheduled()) return
             val player = playerView.player
             val currentQuality = player.videoTracks.first { track -> track.isEnabled }.activeQuality
             val programEventData = EventProgramData()
@@ -327,5 +328,9 @@ class GemiusAdapter(
             adData.resolution = "${playerView.width}x${playerView.height}"
             return adData
         }
-        }
+    }
+
+    private fun hasPrerollScheduled(): Boolean {
+        return playerView.player.ads.scheduledAds.any { it.adBreak?.timeOffset == 0 }
+    }
 }
