@@ -2,6 +2,8 @@ package com.theoplayer.android.connector.analytics.gemius
 
 import android.content.Context
 import android.util.Log
+import com.gemius.sdk.Config
+import com.gemius.sdk.GemiusSdk
 import com.gemius.sdk.stream.AdData
 import com.gemius.sdk.stream.EventAdData
 import com.gemius.sdk.stream.EventProgramData
@@ -36,6 +38,10 @@ import com.theoplayer.android.api.player.track.mediatrack.quality.VideoQuality
 
 const val PLAYER_ID = "THEOplayer"
 const val TAG = "GemiusConnector"
+
+const val GEMIUS_SDK_LOGS = true
+const val PLAYER_EVENTS_LOGS = true
+const val INTEGRATION_LOGS = true
 
 class GemiusAdapter(
     context: Context,
@@ -78,6 +84,7 @@ class GemiusAdapter(
         playerData.volume = computeVolume()
         gemiusPlayer = Player(PLAYER_ID, configuration.hitCollectorHost, configuration.gemiusId, playerData)
         gemiusPlayer.setContext(context)
+        Config.setLoggingEnabled(configuration.debug && GEMIUS_SDK_LOGS)
 
         onSourceChange = EventListener { event -> handleSourceChange(event) }
         onFirstPlaying = EventListener { event -> handleFirstPlaying(event) }
@@ -129,7 +136,7 @@ class GemiusAdapter(
     }
 
     private fun handleSourceChange(event: SourceChangeEvent) {
-        if (configuration.debug) {
+        if (configuration.debug && PLAYER_EVENTS_LOGS) {
             Log.d(TAG, "Player Event: ${event.type}: source = ${event.source.toString()}")
         }
         partCount = 1
@@ -141,7 +148,7 @@ class GemiusAdapter(
         playerView.player.addEventListener(PlayerEventTypes.PLAYING,onFirstPlaying)
     }
     private fun handleFirstPlaying(event: PlayingEvent) {
-        if (configuration.debug) {
+        if (configuration.debug && PLAYER_EVENTS_LOGS) {
             Log.d(TAG, "Player Event: ${event.type}: currentTime = ${event.currentTime}")
         }
         val computedVolume = computeVolume()
@@ -170,38 +177,38 @@ class GemiusAdapter(
         }
     }
     private fun handlePause(event: PauseEvent) {
-        if (configuration.debug) {
+        if (configuration.debug && PLAYER_EVENTS_LOGS) {
             Log.d(TAG, "Player Event: ${event.type}: currentTime = ${event.currentTime}")
         }
         reportBasicEvent(Player.EventType.PAUSE)
     }
     private fun handleWaiting(event: WaitingEvent) {
-        if (configuration.debug) {
+        if (configuration.debug && PLAYER_EVENTS_LOGS) {
             Log.d(TAG, "Player Event: ${event.type}: currentTime = ${event.currentTime}")
         }
         reportBasicEvent(Player.EventType.BUFFER)
     }
     private fun handleSeeking(event: SeekingEvent) {
-        if (configuration.debug) {
+        if (configuration.debug && PLAYER_EVENTS_LOGS) {
             Log.d(TAG, "Player Event: ${event.type}: currentTime = ${event.currentTime}")
         }
         reportBasicEvent(Player.EventType.SEEK)
     }
     private fun handleError(event: ErrorEvent) {
-        if (configuration.debug) {
+        if (configuration.debug && PLAYER_EVENTS_LOGS) {
             val errorObject = event.errorObject
             Log.d(TAG, "Player Event: ${event.type}: error = ${errorObject.code}: ${errorObject.message}")
         }
         reportBasicEvent(Player.EventType.COMPLETE)
     }
     private fun handleEnded(event: EndedEvent) {
-        if (configuration.debug) {
+        if (configuration.debug && PLAYER_EVENTS_LOGS) {
             Log.d(TAG, "Player Event: ${event.type}: currentTime = ${event.currentTime}")
         }
         reportBasicEvent(Player.EventType.COMPLETE)
     }
     private fun handleVolumeChange(event: VolumeChangeEvent) {
-        if (configuration.debug) {
+        if (configuration.debug && PLAYER_EVENTS_LOGS) {
             Log.d(TAG, "Player Event: ${event.type}: volume = ${event.volume}")
         }
         val computedVolume = computeVolume()
@@ -218,21 +225,21 @@ class GemiusAdapter(
         }
     }
     private fun handleAddVideoTrack(event: AddTrackEvent) {
-        if (configuration.debug) {
+        if (configuration.debug && PLAYER_EVENTS_LOGS) {
             Log.d(TAG, "Player Event (Video Track): ${event.type}")
         }
         val track = event.track
         track.addEventListener(VideoTrackEventTypes.ACTIVEQUALITYCHANGEDEVENT, onVideoQualityChanged)
     }
     private fun handleRemoveVideoTrack(event: RemoveTrackEvent) {
-        if (configuration.debug) {
+        if (configuration.debug && PLAYER_EVENTS_LOGS) {
             Log.d(TAG, "Player Event: ${event.type}")
         }
         val track = event.track
         track.removeEventListener(VideoTrackEventTypes.ACTIVEQUALITYCHANGEDEVENT, onVideoQualityChanged)
     }
     private fun handleVideoQualityChanged(event: QualityChangedEvent<*,*>) {
-        if (configuration.debug) {
+        if (configuration.debug && PLAYER_EVENTS_LOGS) {
             Log.d(TAG, "Player Event: ${event.type}")
         }
         val programId = programId ?: return
@@ -251,7 +258,7 @@ class GemiusAdapter(
         }
     }
     private fun handleAdBreakBegin(event: AdBreakBeginEvent) {
-        if (configuration.debug) {
+        if (configuration.debug && PLAYER_EVENTS_LOGS) {
             Log.d(TAG, "Player Event: ${event.type}: offset = ${event.adBreak.timeOffset}")
         }
         reportBasicEvent(Player.EventType.BREAK)
@@ -262,14 +269,14 @@ class GemiusAdapter(
         val ad = event.ad
         currentAd = ad
         val adId = ad?.id ?: return
-        if (configuration.debug) {
+        if (configuration.debug && PLAYER_EVENTS_LOGS) {
             Log.d(TAG, "Player Event: ${event.type}: id = $adId")
         }
         val adData = buildAdData(ad)
         gemiusPlayer?.newAd(adId,adData)
     }
     private fun handleAdEnd(event: AdEndEvent) {
-        if (configuration.debug) {
+        if (configuration.debug && PLAYER_EVENTS_LOGS) {
             Log.d(TAG, "Player Event: ${event.type}: id = ${event.ad?.id}")
         }
         reportBasicEvent(Player.EventType.COMPLETE)
@@ -280,14 +287,14 @@ class GemiusAdapter(
         playerView.player.addEventListener(PlayerEventTypes.PLAYING, onFirstPlaying)
     }
     private fun handleAdSkip(event: AdSkipEvent) {
-        if (configuration.debug) {
+        if (configuration.debug && PLAYER_EVENTS_LOGS) {
             Log.d(TAG, "Player Event: ${event.type}: id = ${event.ad?.id}")
         }
         reportBasicEvent(Player.EventType.SKIP)
     }
     private fun handleAdBreakEnded(event: AdBreakEndEvent) {
         val offset = event.adBreak.timeOffset
-        if (configuration.debug) {
+        if (configuration.debug && PLAYER_EVENTS_LOGS) {
             Log.d(TAG, "Player Event: ${event.type}: offset = $offset")
         }
         adCount = 1
