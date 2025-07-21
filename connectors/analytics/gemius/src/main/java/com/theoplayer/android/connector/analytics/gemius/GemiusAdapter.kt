@@ -284,8 +284,9 @@ class GemiusAdapter(
     }
     private fun handleAdSkip(event: AdSkipEvent) {
         if (configuration.debug) {
-            Log.d(TAG, "Player Event: ${event.type}")
+            Log.d(TAG, "Player Event: ${event.type}: id = ${event.ad?.id}")
         }
+        reportBasicEvent(Player.EventType.SKIP)
     }
     private fun handleAdBreakEnded(event: AdBreakEndEvent) {
         if (configuration.debug) {
