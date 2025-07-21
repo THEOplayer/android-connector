@@ -11,8 +11,6 @@ import com.gemius.sdk.stream.PlayerData
 import com.gemius.sdk.stream.ProgramData
 import com.theoplayer.android.api.ads.Ad
 import com.theoplayer.android.api.ads.LinearAd
-import com.theoplayer.android.api.ads.ima.GoogleImaAd
-import com.theoplayer.android.api.event.Event
 import com.theoplayer.android.api.event.EventListener
 import com.theoplayer.android.api.event.ads.AdBeginEvent
 import com.theoplayer.android.api.event.ads.AdBreakBeginEvent
@@ -23,7 +21,6 @@ import com.theoplayer.android.api.event.ads.AdsEventTypes
 import com.theoplayer.android.api.event.player.EndedEvent
 import com.theoplayer.android.api.event.player.ErrorEvent
 import com.theoplayer.android.api.event.player.PauseEvent
-import com.theoplayer.android.api.event.player.PlayEvent
 import com.theoplayer.android.api.event.player.PlayerEventTypes
 import com.theoplayer.android.api.event.player.PlayingEvent
 import com.theoplayer.android.api.event.player.SeekingEvent
@@ -35,7 +32,6 @@ import com.theoplayer.android.api.event.track.mediatrack.video.VideoTrackEventTy
 import com.theoplayer.android.api.event.track.mediatrack.video.list.AddTrackEvent
 import com.theoplayer.android.api.event.track.mediatrack.video.list.RemoveTrackEvent
 import com.theoplayer.android.api.event.track.mediatrack.video.list.VideoTrackListEventTypes
-import com.theoplayer.android.api.event.track.tracklist.TrackListEvent
 import com.theoplayer.android.api.player.track.mediatrack.quality.VideoQuality
 
 const val PLAYER_ID = "THEOplayer"
