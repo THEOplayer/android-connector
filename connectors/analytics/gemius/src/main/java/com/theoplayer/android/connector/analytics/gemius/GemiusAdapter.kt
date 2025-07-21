@@ -273,8 +273,14 @@ class GemiusAdapter(
     }
     private fun handleAdEnd(event: AdEndEvent) {
         if (configuration.debug) {
-            Log.d(TAG, "Player Event: ${event.type}")
+            Log.d(TAG, "Player Event: ${event.type}: id = ${event.ad?.id}")
         }
+        reportBasicEvent(Player.EventType.COMPLETE)
+        reportBasicEvent(Player.EventType.CLOSE)
+        adCount++
+        currentAd = null
+        playerView.player.removeEventListener(PlayerEventTypes.PLAYING, onFirstPlaying)
+        playerView.player.addEventListener(PlayerEventTypes.PLAYING, onFirstPlaying)
     }
     private fun handleAdSkip(event: AdSkipEvent) {
         if (configuration.debug) {
