@@ -70,11 +70,11 @@ class GemiusAdapter(
     private val onRemoveVideoTrack: EventListener<RemoveTrackEvent>
     private val onVideoQualityChanged: EventListener<QualityChangedEvent<*,*>>
 
-    private val onAdBreakBeginListener: EventListener<AdBreakBeginEvent>
-    private val onAdBeginListener: EventListener<AdBeginEvent>
-    private val onAdEndListener: EventListener<AdEndEvent>
-    private val onAdSkipListener: EventListener<AdSkipEvent>
-    private val onAdBreakEndedListener: EventListener<AdBreakEndEvent>
+    private val onAdBreakBegin: EventListener<AdBreakBeginEvent>
+    private val onAdBegin: EventListener<AdBeginEvent>
+    private val onAdEnd: EventListener<AdEndEvent>
+    private val onAdSkip: EventListener<AdSkipEvent>
+    private val onAdBreakEnded: EventListener<AdBreakEndEvent>
 
     init {
         val playerData = PlayerData()
@@ -95,11 +95,11 @@ class GemiusAdapter(
         onAddVideoTrack = EventListener { event -> handleAddVideoTrack(event) }
         onRemoveVideoTrack = EventListener { event -> handleRemoveVideoTrack(event) }
         onVideoQualityChanged = EventListener { event -> handleVideoQualityChanged(event) }
-        onAdBreakBeginListener = EventListener { event -> handleAdBreakBegin(event) }
-        onAdBeginListener = EventListener { event -> handleAdBegin(event) }
-        onAdEndListener = EventListener { event -> handleAdEnd(event) }
-        onAdSkipListener = EventListener { event -> handleAdSkip(event) }
-        onAdBreakEndedListener = EventListener { event -> handleAdBreakEnded(event) }
+        onAdBreakBegin = EventListener { event -> handleAdBreakBegin(event) }
+        onAdBegin = EventListener { event -> handleAdBegin(event) }
+        onAdEnd = EventListener { event -> handleAdEnd(event) }
+        onAdSkip = EventListener { event -> handleAdSkip(event) }
+        onAdBreakEnded = EventListener { event -> handleAdBreakEnded(event) }
 
         addEventListeners()
     }
@@ -125,11 +125,11 @@ class GemiusAdapter(
         playerView.player.addEventListener(PlayerEventTypes.VOLUMECHANGE, onVolumeChange)
         playerView.player.videoTracks.addEventListener(VideoTrackListEventTypes.ADDTRACK, onAddVideoTrack)
         playerView.player.videoTracks.addEventListener(VideoTrackListEventTypes.REMOVETRACK, onRemoveVideoTrack)
-        playerView.player.ads.addEventListener(AdsEventTypes.AD_BREAK_BEGIN, onAdBreakBeginListener)
-        playerView.player.ads.addEventListener(AdsEventTypes.AD_BEGIN, onAdBeginListener)
-        playerView.player.ads.addEventListener(AdsEventTypes.AD_END, onAdEndListener)
-        playerView.player.ads.addEventListener(AdsEventTypes.AD_SKIP, onAdSkipListener)
-        playerView.player.ads.addEventListener(AdsEventTypes.AD_BREAK_END, onAdBreakEndedListener)
+        playerView.player.ads.addEventListener(AdsEventTypes.AD_BREAK_BEGIN, onAdBreakBegin)
+        playerView.player.ads.addEventListener(AdsEventTypes.AD_BEGIN, onAdBegin)
+        playerView.player.ads.addEventListener(AdsEventTypes.AD_END, onAdEnd)
+        playerView.player.ads.addEventListener(AdsEventTypes.AD_SKIP, onAdSkip)
+        playerView.player.ads.addEventListener(AdsEventTypes.AD_BREAK_END, onAdBreakEnded)
     }
 
     private fun handleSourceChange(event: SourceChangeEvent) {
