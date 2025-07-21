@@ -254,8 +254,11 @@ class GemiusAdapter(
     }
     private fun handleAdBreakBegin(event: AdBreakBeginEvent) {
         if (configuration.debug) {
-            Log.d(TAG, "Player Event: ${event.type}")
+            Log.d(TAG, "Player Event: ${event.type}: offset = ${event.adBreak.timeOffset}")
         }
+        reportBasicEvent(Player.EventType.BREAK)
+        playerView.player.removeEventListener(PlayerEventTypes.PLAYING, onFirstPlaying)
+        playerView.player.addEventListener(PlayerEventTypes.PLAYING, onFirstPlaying)
     }
     private fun handleAdBegin(event: AdBeginEvent) {
         if (configuration.debug) {
