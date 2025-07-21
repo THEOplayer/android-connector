@@ -2,6 +2,7 @@ package com.theoplayer.android.connector.analytics.gemius
 
 import android.content.Context
 import android.util.Log
+import com.gemius.sdk.stream.AdData
 import com.gemius.sdk.stream.EventAdData
 import com.gemius.sdk.stream.EventProgramData
 import com.theoplayer.android.api.THEOplayerView
@@ -261,9 +262,14 @@ class GemiusAdapter(
         playerView.player.addEventListener(PlayerEventTypes.PLAYING, onFirstPlaying)
     }
     private fun handleAdBegin(event: AdBeginEvent) {
+        val ad = event.ad
+        currentAd = ad
+        val adId = ad?.id ?: return
         if (configuration.debug) {
-            Log.d(TAG, "Player Event: ${event.type}")
+            Log.d(TAG, "Player Event: ${event.type}: id = ${adId}")
         }
+        val adData = buildAdData(ad)
+        gemiusPlayer?.newAd(adId,adData)
     }
     private fun handleAdEnd(event: AdEndEvent) {
         if (configuration.debug) {
@@ -291,4 +297,20 @@ class GemiusAdapter(
             gemiusPlayer?.programEvent(programId, playerView.player.currentTime.toInt(), eventType, EventProgramData())
         }
     }
+
+    private fun buildAdData(ad: Ad): AdData {
+        val adData = AdData()
+        val linearAd = ad as? LinearAd ?: return adData
+        configuration.adProcessor?.let { adProcessor ->
+            return adProcessor.apply(ad)
+        } ?: run {
+            adData.name = linearAd.id
+            adData.adType = AdData.AdType.BREAK
+            adData.adFormat = 1 // 1 = VIDEO ; 2 = AUDIO
+            adData.duration = linearAd.duration
+            adData.quality = "${playerView.player.videoWidth}x${playerView.player.videoHeight}"
+            adData.resolution = "${playerView.width}x${playerView.height}"
+            return adData
+        }
+        }
 }
