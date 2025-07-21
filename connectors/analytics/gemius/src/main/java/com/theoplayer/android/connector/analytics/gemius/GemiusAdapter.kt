@@ -3,7 +3,6 @@ package com.theoplayer.android.connector.analytics.gemius
 import android.content.Context
 import android.util.Log
 import com.gemius.sdk.Config
-import com.gemius.sdk.GemiusSdk
 import com.gemius.sdk.stream.AdData
 import com.gemius.sdk.stream.EventAdData
 import com.gemius.sdk.stream.EventProgramData
