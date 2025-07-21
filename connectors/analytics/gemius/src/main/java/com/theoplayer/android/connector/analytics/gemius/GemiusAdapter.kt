@@ -263,7 +263,7 @@ class GemiusAdapter(
         currentAd = ad
         val adId = ad?.id ?: return
         if (configuration.debug) {
-            Log.d(TAG, "Player Event: ${event.type}: id = ${adId}")
+            Log.d(TAG, "Player Event: ${event.type}: id = $adId")
         }
         val adData = buildAdData(ad)
         gemiusPlayer?.newAd(adId,adData)
@@ -288,7 +288,7 @@ class GemiusAdapter(
     private fun handleAdBreakEnded(event: AdBreakEndEvent) {
         val offset = event.adBreak.timeOffset
         if (configuration.debug) {
-            Log.d(TAG, "Player Event: ${event.type}: offset = ${offset}")
+            Log.d(TAG, "Player Event: ${event.type}: offset = $offset")
         }
         adCount = 1
         if (offset > 0) partCount++
