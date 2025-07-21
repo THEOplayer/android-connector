@@ -146,7 +146,7 @@ class GemiusAdapter(
         val programData = this.programData ?: return
 
         if (configuration.debug && INTEGRATION_LOGS) {
-            Log.d(TAG, "Integration: NEW PROGRAM - id: $programId - data: ${programData}")
+            Log.d(TAG, "Integration: NEW PROGRAM - id: $programId - data: $programData")
         }
         gemiusPlayer?.newProgram(programId,programData)
         playerView.player.removeEventListener(PlayerEventTypes.PLAYING,onFirstPlaying)
