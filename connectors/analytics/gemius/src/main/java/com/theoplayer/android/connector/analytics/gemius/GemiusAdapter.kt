@@ -317,7 +317,7 @@ class GemiusAdapter(
     private fun buildAdData(ad: Ad): AdData {
         val adData = AdData()
         val linearAd = ad as? LinearAd ?: return adData
-        configuration.adProcessor?.let { adProcessor ->
+        adProcessor?.let { adProcessor ->
             return adProcessor.apply(ad)
         } ?: run {
             adData.name = linearAd.id
