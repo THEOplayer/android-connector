@@ -35,6 +35,7 @@ import com.theoplayer.android.api.event.track.mediatrack.video.list.AddTrackEven
 import com.theoplayer.android.api.event.track.mediatrack.video.list.RemoveTrackEvent
 import com.theoplayer.android.api.event.track.mediatrack.video.list.VideoTrackListEventTypes
 import com.theoplayer.android.api.player.track.mediatrack.quality.VideoQuality
+import com.theoplayer.android.connector.analytics.gemius.Utils.describeEvent
 
 const val PLAYER_ID = "THEOplayer"
 const val TAG = "GemiusConnector"
@@ -143,6 +144,10 @@ class GemiusAdapter(
         currentAd = null
         val programId = this.programId ?: return
         val programData = this.programData ?: return
+
+        if (configuration.debug && INTEGRATION_LOGS) {
+            Log.d(TAG, "Integration: NEW PROGRAM - id: $programId - data: ${programData}")
+        }
         gemiusPlayer?.newProgram(programId,programData)
         playerView.player.removeEventListener(PlayerEventTypes.PLAYING,onFirstPlaying)
         playerView.player.addEventListener(PlayerEventTypes.PLAYING,onFirstPlaying)
@@ -162,6 +167,9 @@ class GemiusAdapter(
             adEventData.breakSize = adBreak.ads.size
             if (ad is LinearAd) adEventData.adDuration = ad.duration
             adEventData.adPosition = adCount
+            if (configuration.debug && INTEGRATION_LOGS) {
+                Log.d(TAG, "Integration: AD EVENT (${describeEvent(Player.EventType.PLAY)}) - programId: $programId - adId: $adId - offset: $offset")
+            }
             gemiusPlayer?.adEvent(programId, adId, offset, Player.EventType.PLAY, adEventData)
         } ?: run {
             if (hasPrerollScheduled()) return
@@ -173,7 +181,11 @@ class GemiusAdapter(
             programEventData.partID = partCount
             programEventData.autoPlay = player.isAutoplay
             if (currentQuality!= null) programEventData.quality = "${currentQuality.width}x${currentQuality.height}"
-            gemiusPlayer?.programEvent(programId, player.currentTime.toInt(), Player.EventType.PLAY, programEventData)
+            val currentTime = player.currentTime.toInt()
+            if (configuration.debug && INTEGRATION_LOGS) {
+                Log.d(TAG, "Integration: PROGRAM EVENT (${describeEvent(Player.EventType.PLAY)}) - programId: $programId - offset: $currentTime")
+            }
+            gemiusPlayer?.programEvent(programId, currentTime, Player.EventType.PLAY, programEventData)
         }
     }
     private fun handlePause(event: PauseEvent) {
@@ -215,13 +227,22 @@ class GemiusAdapter(
         val programId = programId ?: return
         currentAd?.let { ad ->
             val adBreak = ad.adBreak ?: return
+            val adId = ad.id
+            val offset = adBreak.timeOffset
             val adEventData = EventAdData()
             adEventData.volume = computedVolume
-            gemiusPlayer?.adEvent(programId, ad.id, adBreak.timeOffset, Player.EventType.CHANGE_VOL, adEventData)
+            if (configuration.debug && INTEGRATION_LOGS) {
+                Log.d(TAG, "Integration: AD EVENT (${describeEvent(Player.EventType.CHANGE_VOL)}) - programId: $programId - adId: $adId - offset: $offset")
+            }
+            gemiusPlayer?.adEvent(programId, ad.id, offset, Player.EventType.CHANGE_VOL, adEventData)
         } ?: run {
             val programEventData = EventProgramData()
             programEventData.volume = computedVolume
-            gemiusPlayer?.programEvent(programId, playerView.player.currentTime.toInt(), Player.EventType.CHANGE_VOL, programEventData)
+            val currentTime = playerView.player.currentTime.toInt()
+            if (configuration.debug && INTEGRATION_LOGS) {
+                Log.d(TAG, "Integration: PROGRAM EVENT (${describeEvent(Player.EventType.CHANGE_VOL)}) - programId: $programId - offset: $currentTime")
+            }
+            gemiusPlayer?.programEvent(programId, currentTime, Player.EventType.CHANGE_VOL, programEventData)
         }
     }
     private fun handleAddVideoTrack(event: AddTrackEvent) {
@@ -248,13 +269,22 @@ class GemiusAdapter(
         val width = activeQuality.width
         currentAd?.let { ad ->
             val adBreak = ad.adBreak ?: return
+            val adId = ad.id
+            val offset = adBreak.timeOffset
             val adEventData = EventAdData()
             adEventData.quality = "${width}x${height}"
+            if (configuration.debug && INTEGRATION_LOGS) {
+                Log.d(TAG, "Integration: AD EVENT (${describeEvent(Player.EventType.CHANGE_QUAL)}) - programId: $programId - adId: $adId - offset: $offset")
+            }
             gemiusPlayer?.adEvent(programId,ad.id,adBreak.timeOffset,Player.EventType.CHANGE_QUAL,adEventData)
         } ?: run {
             val programEventData = EventProgramData()
             programEventData.quality = "${width}x${height}"
-            gemiusPlayer?.programEvent(programId,playerView.player.currentTime.toInt(),Player.EventType.CHANGE_QUAL,programEventData)
+            val currentTime = playerView.player.currentTime.toInt()
+            if (configuration.debug && INTEGRATION_LOGS) {
+                Log.d(TAG, "Integration: PROGRAM EVENT (${describeEvent(Player.EventType.CHANGE_QUAL)}) - programId: $programId - offset: $currentTime")
+            }
+            gemiusPlayer?.programEvent(programId,currentTime,Player.EventType.CHANGE_QUAL,programEventData)
         }
     }
     private fun handleAdBreakBegin(event: AdBreakBeginEvent) {
@@ -273,6 +303,9 @@ class GemiusAdapter(
             Log.d(TAG, "Player Event: ${event.type}: id = $adId")
         }
         val adData = buildAdData(ad)
+        if (configuration.debug && INTEGRATION_LOGS) {
+            Log.d(TAG, "Integration: NEW AD - id: $adId - data: $adData")
+        }
         gemiusPlayer?.newAd(adId,adData)
     }
     private fun handleAdEnd(event: AdEndEvent) {
@@ -301,6 +334,9 @@ class GemiusAdapter(
         if (offset > 0) partCount++
         val programId = programId ?: return
         val programData = programData ?: return
+        if (configuration.debug && INTEGRATION_LOGS) {
+            Log.d(TAG, "Integration: NEW PROGRAM - id: $programId - data: $programData")
+        }
         gemiusPlayer?.newProgram(programId, programData)
         playerView.player.removeEventListener(PlayerEventTypes.PLAYING, onFirstPlaying)
         if (offset == 0) playerView.player.addEventListener(PlayerEventTypes.PLAYING, onFirstPlaying)
@@ -309,11 +345,18 @@ class GemiusAdapter(
         val programId = programId ?: return
         currentAd?.let { ad ->
             val offset = ad.adBreak?.timeOffset ?: return
+            if (configuration.debug && INTEGRATION_LOGS) {
+                Log.d(TAG, "Integration: AD EVENT (${describeEvent(eventType)}) - id: ${ad.id} - offset: $offset")
+            }
             // docs mention null can be passed but interface prohibits
             gemiusPlayer?.adEvent(programId,ad.id, offset, eventType, EventAdData())
         } ?: run {
+            val currentTime = playerView.player.currentTime.toInt()
+            if (configuration.debug && INTEGRATION_LOGS) {
+                Log.d(TAG, "Integration: PROGRAM EVENT (${describeEvent(eventType)}) - id: $programId - offset: $currentTime")
+            }
             // docs mention null can be passed but interface prohibits
-            gemiusPlayer?.programEvent(programId, playerView.player.currentTime.toInt(), eventType, EventProgramData())
+            gemiusPlayer?.programEvent(programId, currentTime, eventType, EventProgramData())
         }
     }
 
