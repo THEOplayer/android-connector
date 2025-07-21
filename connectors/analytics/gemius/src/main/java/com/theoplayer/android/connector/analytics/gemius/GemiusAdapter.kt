@@ -289,9 +289,17 @@ class GemiusAdapter(
         reportBasicEvent(Player.EventType.SKIP)
     }
     private fun handleAdBreakEnded(event: AdBreakEndEvent) {
+        val offset = event.adBreak.timeOffset
         if (configuration.debug) {
-            Log.d(TAG, "Player Event: ${event.type}")
+            Log.d(TAG, "Player Event: ${event.type}: offset = ${offset}")
         }
+        adCount = 1
+        if (offset > 0) partCount++
+        val programId = programId ?: return
+        val programData = programData ?: return
+        gemiusPlayer?.newProgram(programId, programData)
+        playerView.player.removeEventListener(PlayerEventTypes.PLAYING, onFirstPlaying)
+        if (offset == 0) playerView.player.addEventListener(PlayerEventTypes.PLAYING, onFirstPlaying)
     }
     private fun reportBasicEvent(eventType: Player.EventType) {
         val programId = programId ?: return
