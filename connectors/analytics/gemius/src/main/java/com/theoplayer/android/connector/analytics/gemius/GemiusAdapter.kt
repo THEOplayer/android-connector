@@ -236,7 +236,7 @@ class GemiusAdapter(
             Log.d(TAG, "Player Event: ${event.type}")
         }
         val programId = programId ?: return
-        val activeQuality = (event.getQuality() as VideoQuality)
+        val activeQuality = (event.quality as? VideoQuality) ?: return
         val height = activeQuality.height
         val width = activeQuality.width
         currentAd?.let { ad ->
