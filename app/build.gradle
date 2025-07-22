@@ -56,6 +56,9 @@ dependencies {
     implementation libs.androidx.compose.ui.tooling.preview
     debugImplementation libs.androidx.compose.ui.tooling
 
+    implementation "ch.acra:acra-http:5.7.0"
+    implementation fileTree(dir: './libs/GemiusSDK_2.0.8.aar', include: ['*.aar', '*.jar'], exclude: [])
+
     implementation "com.theoplayer.theoplayer-sdk-android:core:$sdkVersion"
     implementation "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:$sdkVersion"
     implementation libs.theoplayer.android.ui
@@ -68,6 +71,8 @@ dependencies {
 
     implementation project(':connectors:analytics:comscore')
     implementation libs.comscore
+
+    implementation project(":connectors:analytics:gemius")
 
     implementation project(':connectors:yospace')
     implementation libs.yospace

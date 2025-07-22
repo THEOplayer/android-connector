@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.gemius.sdk.stream.ProgramData
 import com.theoplayer.android.api.THEOplayerConfig
 import com.theoplayer.android.api.THEOplayerView
 import com.theoplayer.android.api.ads.LinearAd
@@ -50,7 +51,9 @@ import com.theoplayer.android.connector.analytics.comscore.ComscoreMediaType
 import com.theoplayer.android.connector.analytics.comscore.ComscoreMetaData
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConfiguration
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConnector
+import com.theoplayer.android.connector.analytics.gemius.GemiusConfiguration
 import com.theoplayer.android.connector.analytics.nielsen.NielsenConnector
+import com.theoplayer.android.connector.analytics.gemius.GemiusConnector
 import com.theoplayer.android.connector.uplynk.SkippedAdStrategy
 import com.theoplayer.android.connector.uplynk.UplynkConfiguration
 import com.theoplayer.android.connector.uplynk.UplynkConnector
@@ -74,6 +77,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var comscoreConnector: ComscoreConnector
     private lateinit var yospaceConnector: YospaceConnector
     private lateinit var uplynkConnector: UplynkConnector
+    private lateinit var gemiusConnector: GemiusConnector
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,6 +89,7 @@ class MainActivity : ComponentActivity() {
         setupNielsen()
         setupYospace()
         setupUplynk()
+        setupGemius()
         setupAdListeners()
 
         setContent {
@@ -182,6 +187,26 @@ class MainActivity : ComponentActivity() {
             comscoreConfiguration,
             metadata
         )
+    }
+
+    private fun setupGemius() {
+        val gemiusId = "your_gemius_id"
+        val hitCollectorHost = "your_hit_collector_host"
+        val gemiusConfiguration = GemiusConfiguration(
+            "Demo",
+            "1.0",
+            hitCollectorHost,
+            gemiusId,
+            true,
+            null
+        )
+        gemiusConnector = GemiusConnector(this,gemiusConfiguration,theoplayerView)
+        val programData = ProgramData()
+        programData.name = "testasset1"
+        programData.programGenre = 1
+        programData.programSeason = "1"
+        programData.programProducer = "Someone"
+        gemiusConnector.update("test asset 1", programData)
     }
 
     private fun setupNielsen() {
