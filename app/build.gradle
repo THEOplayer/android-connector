@@ -69,6 +69,8 @@ dependencies {
     implementation project(':connectors:analytics:comscore')
     implementation libs.comscore
 
+    implementation project(":connectors:analytics:gemius")
+
     implementation project(':connectors:yospace')
     implementation libs.yospace
 
