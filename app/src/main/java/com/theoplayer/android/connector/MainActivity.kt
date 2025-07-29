@@ -195,20 +195,23 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun setupAdscript() {
-        val implementationId = "exampleadscript"
-
-        val config = AdscriptConfiguration(implementationId,true)
-        val metadata = AdScriptDataObject()
-        metadata.set(AdScriptDataObject.FIELD_assetId, "bbb-example");
-        metadata.set(AdScriptDataObject.FIELD_type, AdScriptDataObject.OBJ_TYPE_content);
-        metadata.set(AdScriptDataObject.FIELD_program, "animation");
-        metadata.set(AdScriptDataObject.FIELD_title, "Big Buck Bunny");
-        metadata.set(AdScriptDataObject.FIELD_crossId, "1234");
-        metadata.set(AdScriptDataObject.FIELD_length, "596000");
-        metadata.set(AdScriptDataObject.FIELD_livestream, "0");
-        metadata.set(AdScriptDataObject.FIELD_attribute, AdScriptDataObject.ATTRIBUTE_RegularProgram);
-
-        var adscriptConnector = AdscriptConnector(this, theoplayerView, config, metadata, null)
+        val config = AdscriptConfiguration(implementationId = "exampleadscript", debug = true)
+        val metadata = AdScriptDataObject().apply {
+            set(AdScriptDataObject.FIELD_assetId, "bbb-example")
+            set(AdScriptDataObject.FIELD_type, AdScriptDataObject.OBJ_TYPE_content)
+            set(AdScriptDataObject.FIELD_program, "animation")
+            set(AdScriptDataObject.FIELD_title, "Big Buck Bunny")
+            set(AdScriptDataObject.FIELD_crossId, "1234")
+            set(AdScriptDataObject.FIELD_length, "596000")
+            set(AdScriptDataObject.FIELD_livestream, "0")
+            set(AdScriptDataObject.FIELD_attribute, AdScriptDataObject.ATTRIBUTE_RegularProgram)
+        }
+        adscriptConnector = AdscriptConnector(
+            activity = this,
+            playerView = theoplayerView,
+            configuration = config,
+            contentMetadata = metadata,
+            adProcessor = null)
     }
 
     private fun setupYospace() {
