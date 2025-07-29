@@ -30,8 +30,16 @@ android {
     }
 }
 
+// The adscript SDK location should be set by the app and passed in a adscriptSdkDir property.
+def adscriptSdkDir = rootProject.properties['adscriptSdkDir']
+if (!adscriptSdkDir) {
+    logger.warn("⚠️ WARNING: adscriptSdkDir not set.")
+} else if (!rootProject.file("ded").exists()) {
+    logger.warn("⚠️  WARNING: adscriptSdkDir does not exist at: ${adscriptSdkDir}")
+}
+
 dependencies {
-    compileOnly fileTree(dir: './libs/AdScriptApiClient_v1.0.10.aar', include: ['*.aar', '*.jar'], exclude: [])
+    compileOnly fileTree(dir: "$adscriptSdkDir/AdScriptApiClient_v1.0.10.aar", include: ['*.aar', '*.jar'], exclude: [])
     compileOnly "com.theoplayer.theoplayer-sdk-android:core:$sdkVersion"
     compileOnly "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:$sdkVersion"
     implementation "com.google.android.gms:play-services-ads-identifier:17.0.1"
