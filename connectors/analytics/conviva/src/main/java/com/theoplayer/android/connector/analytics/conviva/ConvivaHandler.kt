@@ -20,6 +20,7 @@ import com.theoplayer.android.api.event.player.*
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.api.source.SourceDescription
 import com.theoplayer.android.connector.analytics.conviva.ads.AdReporter
+import com.theoplayer.android.connector.analytics.conviva.theolive.THEOliveReporter
 import com.theoplayer.android.connector.analytics.conviva.utils.ErrorReportBuilder
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateBufferLength
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateConvivaOptions
@@ -55,6 +56,8 @@ class ConvivaHandler(
     private var convivaAdAnalytics: ConvivaAdAnalytics
 
     private var adReporter: AdReporter? = null
+
+    private var theoliveReporter: THEOliveReporter? = null
 
     private var currentSource: SourceDescription? = null
     private var playbackRequested: Boolean = false
@@ -95,6 +98,8 @@ class ConvivaHandler(
             this,
             adEventsExtension,
             )
+
+        theoliveReporter = THEOliveReporter(player, convivaVideoAnalytics)
 
         onPlay = EventListener<PlayEvent> {
             if (BuildConfig.DEBUG) {
@@ -485,6 +490,7 @@ class ConvivaHandler(
         maybeReportPlaybackEnded()
         removeEventListeners()
 
+        theoliveReporter?.destroy()
         adReporter?.destroy()
         customMetadata = mapOf()
         convivaAdAnalytics.release()
