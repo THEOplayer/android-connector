@@ -11,7 +11,8 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven { url 'https://maven.theoplayer.com/releases/' }
+        maven { url 'https://maven.theoplayer.com/releases' }
+        maven { url 'https://maven.theoplayer.com/snapshots' }
         maven { url 'https://raw.githubusercontent.com/NielsenDigitalSDK/nielsenappsdk-android/master/' }
         maven {
             url 'https://yospacerepo.jfrog.io/yospacerepo/android-sdk'
