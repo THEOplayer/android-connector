@@ -8,7 +8,6 @@ import com.theoplayer.android.api.event.player.theolive.IntentToFallbackEvent
 import com.theoplayer.android.api.event.player.theolive.TheoLiveEventTypes
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.connector.analytics.conviva.BuildConfig
-import com.theoplayer.android.connector.analytics.conviva.utils.flattenErrorObject
 
 private const val TAG = "THEOliveReporter"
 
@@ -18,28 +17,22 @@ class THEOliveReporter(val player: Player, val convivaVideoAnalytics: ConvivaVid
         EventListener<EndpointLoadedEvent> { event ->
             val endpoint = event.getEndpoint()
             if (BuildConfig.DEBUG) {
-                Log.d(TAG, "onEndPointLoaded ${endpoint.hespSrc}")
+                Log.d(TAG, "onEndPointLoaded - endpoint: $endpoint")
             }
-            convivaVideoAnalytics.reportPlaybackEvent("endpointLoaded", mutableMapOf<String, Any>().apply {
-                endpoint.adSrc?.let { put("adSrc", it) }
-                endpoint.contentProtection?.let {
-                    put("contentProtection", it)
-                }
-                endpoint.hespSrc?.let { put("hespSrc", it) }
-                endpoint.hlsSrc?.let { put("hlsSrc", it) }
-                endpoint.targetLatency?.let { put("targetLatency", it) }
-                put("weight", endpoint.weight)
-                put("priority", endpoint.priority)
-            })
+            convivaVideoAnalytics.reportPlaybackEvent(
+                "endpointLoaded",
+                mutableMapOf<String, Any>().apply { put("endpoint", endpoint) }
+            )
         }
     private val onIntentToFallback: EventListener<IntentToFallbackEvent> =
         EventListener<IntentToFallbackEvent> { event ->
+            val reason = event.reason ?: "NA"
             if (BuildConfig.DEBUG) {
-                Log.d(TAG, "IntentToFallbackEvent")
+                Log.d(TAG, "IntentToFallbackEvent - reason: $reason")
             }
             convivaVideoAnalytics.reportPlaybackEvent(
                 "intentToFallback",
-                event.reason?.let { flattenErrorObject(it) }
+                mutableMapOf<String, Any>().apply { put("reason", reason) }
             )
         }
 
