@@ -41,7 +41,6 @@ interface ConvivaHandlerBase {
  *
  * https://pulse.conviva.com/learning-center/content/sensor_developer_center/sensor_integration/android/android_stream_sensor.htm
  */
-@Suppress("SpellCheckingInspection")
 class ConvivaHandler(
     appContext: Context,
     private val player: Player,
@@ -453,20 +452,21 @@ class ConvivaHandler(
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "reportMetadata")
         }
-        val playerName = customMetadata[ConvivaSdkConstants.PLAYER_NAME] ?: convivaMetadata[ConvivaSdkConstants.PLAYER_NAME] ?: "THEOplayer"
+        val playerName = customMetadata[ConvivaSdkConstants.PLAYER_NAME]
+            ?: convivaMetadata[ConvivaSdkConstants.PLAYER_NAME] ?: "THEOplayer"
         setContentInfo(
-            mutableMapOf(
-                ConvivaSdkConstants.STREAM_URL to (player.src ?: ""),
-                ConvivaSdkConstants.ASSET_NAME to contentAssetName,
-                ConvivaSdkConstants.PLAYER_NAME to playerName
-            ).apply {
+            buildMap {
+                put(ConvivaSdkConstants.STREAM_URL, player.src ?: "")
+                put(ConvivaSdkConstants.ASSET_NAME, contentAssetName)
+                put(ConvivaSdkConstants.PLAYER_NAME, playerName)
                 putAll(collectPlaybackConfigMetadata(player))
 
                 // Do not override the `isLive` value if already set by the consumer, as the value
                 // is read-only for a given session.
                 // Note: also allow "Conviva.streamType" as metadata key, which is used on other platforms.
-                val configuredStreamType = convivaVideoAnalytics.metadataInfo[ConvivaSdkConstants.IS_LIVE] ?:
-                        convivaVideoAnalytics.metadataInfo["Conviva.streamType"]
+                val metadataInfo: Map<String, Any>? = convivaVideoAnalytics.metadataInfo
+                val configuredStreamType = metadataInfo?.get(ConvivaSdkConstants.IS_LIVE)
+                    ?: metadataInfo?.get("Conviva.streamType")
                 // Only pass `isLive` property if pre-configured, or if we have a valid duration
                 val isLive = configuredStreamType ?: calculateStreamType(player)
                 isLive?.let {
@@ -474,9 +474,9 @@ class ConvivaHandler(
                 }
 
                 // Only pass a finite duration value, never NaN or Infinite.
-                if (player.duration.isFinite()) {
+                player.duration.takeIf { it.isFinite() }?.let { duration ->
                     // Report duration; Int (seconds)
-                    put(ConvivaSdkConstants.DURATION, player.duration.toInt())
+                    put(ConvivaSdkConstants.DURATION, duration.toInt())
                 }
             }
         )

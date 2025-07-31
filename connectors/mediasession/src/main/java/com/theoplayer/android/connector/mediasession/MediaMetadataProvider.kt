@@ -32,7 +32,6 @@ private const val PROP_TRACK_NUMBER = "trackNumber"
 private const val PROP_WRITER = "writer"
 private const val PROP_YEAR = "year"
 
-@Suppress("MemberVisibilityCanBePrivate")
 class MediaMetadataProvider(private val connector: MediaSessionConnector) {
     companion object {
         private val METADATA_EMPTY = MediaMetadataCompat.Builder().build()

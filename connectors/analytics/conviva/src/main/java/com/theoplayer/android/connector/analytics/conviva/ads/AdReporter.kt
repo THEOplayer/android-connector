@@ -36,7 +36,6 @@ fun isAdLinear(ad: Ad?): Boolean {
 
 private const val TAG = "AdReporter"
 
-@Suppress("SpellCheckingInspection")
 class AdReporter(
     private val player: Player,
     private val convivaVideoAnalytics: ConvivaVideoAnalytics,
