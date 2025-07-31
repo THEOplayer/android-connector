@@ -41,7 +41,6 @@ interface ConvivaHandlerBase {
  *
  * https://pulse.conviva.com/learning-center/content/sensor_developer_center/sensor_integration/android/android_stream_sensor.htm
  */
-@Suppress("SpellCheckingInspection")
 class ConvivaHandler(
     appContext: Context,
     private val player: Player,

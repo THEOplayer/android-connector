@@ -9,7 +9,6 @@ import com.theoplayer.android.connector.uplynk.network.UplynkAdBreak
 import java.util.WeakHashMap
 import kotlin.time.Duration
 
-@Suppress("UnstableApiUsage")
 internal class AdHandler(
     private val controller: ServerSideAdIntegrationController,
     private val skipOffset: Int

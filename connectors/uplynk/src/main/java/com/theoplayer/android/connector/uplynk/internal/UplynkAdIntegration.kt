@@ -43,7 +43,6 @@ private class SeekTime {
     }
 }
 
-@Suppress("UnstableApiUsage")
 internal class UplynkAdIntegration(
     private val theoplayerView: THEOplayerView,
     private val controller: ServerSideAdIntegrationController,
