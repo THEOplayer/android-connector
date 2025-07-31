@@ -1,6 +1,7 @@
 package com.theoplayer.android.connector.analytics.conviva.theolive
 
 import android.util.Log
+import com.conviva.sdk.ConvivaSdkConstants
 import com.conviva.sdk.ConvivaVideoAnalytics
 import com.theoplayer.android.api.event.EventListener
 import com.theoplayer.android.api.event.player.theolive.EndpointLoadedEvent
@@ -8,6 +9,7 @@ import com.theoplayer.android.api.event.player.theolive.IntentToFallbackEvent
 import com.theoplayer.android.api.event.player.theolive.TheoLiveEventTypes
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.connector.analytics.conviva.BuildConfig
+import com.theoplayer.android.connector.analytics.conviva.ConvivaMetadata
 
 private const val TAG = "THEOliveReporter"
 
@@ -23,6 +25,11 @@ class THEOliveReporter(val player: Player, val convivaVideoAnalytics: ConvivaVid
                 "endpointLoaded",
                 mutableMapOf<String, Any>().apply { put("endpoint", endpoint) }
             )
+            endpoint.cdn?.let { cdn ->
+                convivaVideoAnalytics.setContentInfo(
+                    mutableMapOf(ConvivaSdkConstants.DEFAULT_RESOURCE to cdn) as ConvivaMetadata
+                )
+            }
         }
     private val onIntentToFallback: EventListener<IntentToFallbackEvent> =
         EventListener<IntentToFallbackEvent> { event ->
