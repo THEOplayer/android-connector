@@ -3,10 +3,10 @@ package com.theoplayer.android.connector.analytics.conviva.utils
 import com.conviva.sdk.ConvivaSdkConstants
 import com.conviva.sdk.ConvivaSdkConstants.StreamType
 import com.theoplayer.android.api.THEOplayerGlobal
-import com.theoplayer.android.api.ads.AdBreak
 import com.theoplayer.android.api.ads.Ad
-import com.theoplayer.android.api.ads.ima.GoogleImaAd
+import com.theoplayer.android.api.ads.AdBreak
 import com.theoplayer.android.api.ads.LinearAd
+import com.theoplayer.android.api.ads.ima.GoogleImaAd
 import com.theoplayer.android.api.event.ads.AdIntegrationKind
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.api.timerange.TimeRanges
@@ -15,7 +15,7 @@ import com.theoplayer.android.connector.analytics.conviva.ConvivaMetadata
 import java.lang.Double.isFinite
 
 fun calculateAdType(ad: Ad): ConvivaSdkConstants.AdType {
-    return when(ad.integration) {
+    return when (ad.integration) {
         // TODO THEOads is a SGAI solution which can't be reported to Conviva as such yet.
         AdIntegrationKind.THEO_ADS -> ConvivaSdkConstants.AdType.SERVER_SIDE
         AdIntegrationKind.GOOGLE_IMA -> ConvivaSdkConstants.AdType.CLIENT_SIDE
@@ -24,7 +24,7 @@ fun calculateAdType(ad: Ad): ConvivaSdkConstants.AdType {
 }
 
 fun calculateAdType(adBreak: AdBreak): ConvivaSdkConstants.AdType {
-    return when(adBreak.integration) {
+    return when (adBreak.integration) {
         // TODO THEOads is a SGAI solution which can't be reported to Conviva as such yet.
         AdIntegrationKind.THEO_ADS -> ConvivaSdkConstants.AdType.SERVER_SIDE
         AdIntegrationKind.GOOGLE_IMA -> ConvivaSdkConstants.AdType.CLIENT_SIDE
@@ -58,18 +58,14 @@ fun calculateCurrentAdBreakInfo(adBreak: AdBreak, adBreakIndex: Int): Map<String
     )
 }
 
-fun calculateConvivaOptions(config: ConvivaConfiguration): Map<String, Any> {
+fun calculateConvivaOptions(config: ConvivaConfiguration): Map<String, Any> = buildMap {
     // No need to set GATEWAY_URL and LOG_LEVEL settings for your production release.
     // The Conviva SDK provides the default values for production
-    val options = mutableMapOf<String, Any>()
     if (config.debug == true) {
-        options[ConvivaSdkConstants.LOG_LEVEL] = ConvivaSdkConstants.LogLevel.DEBUG
+        put(ConvivaSdkConstants.LOG_LEVEL, ConvivaSdkConstants.LogLevel.DEBUG)
     }
     // GATEWAY_URL: once enabled, your Conviva data will appear in Touchstone
-    if (config.gatewayUrl != null) {
-        options[ConvivaSdkConstants.GATEWAY_URL] = config.gatewayUrl
-    }
-    return options
+    config.gatewayUrl?.let { put(ConvivaSdkConstants.GATEWAY_URL, it) }
 }
 
 fun calculateStreamType(player: Player): StreamType? {
@@ -91,17 +87,14 @@ fun collectPlayerInfo(): Map<String, Any> {
     )
 }
 
-fun collectPlaybackConfigMetadata(player: Player): ConvivaMetadata {
-    return mutableMapOf<String, Any>(
-        "targetBuffer" to player.abr.targetBuffer,
-        "abrStrategy" to player.abr.abrStrategy.type.name.lowercase(),
-    ).apply {
-        player.abr.abrStrategy.metadata?.bitrate?.let { abrMetadata ->
-            put("abrMetadata", abrMetadata)
-        }
-        player.source?.sources?.firstOrNull()?.liveOffset?.let { liveOffset ->
-            put("liveOffset", liveOffset)
-        }
+fun collectPlaybackConfigMetadata(player: Player): ConvivaMetadata = buildMap {
+    put("targetBuffer", player.abr.targetBuffer)
+    put("abrStrategy", player.abr.abrStrategy.type.name.lowercase())
+    player.abr.abrStrategy.metadata?.bitrate?.let { abrMetadata ->
+        put("abrMetadata", abrMetadata)
+    }
+    player.source?.sources?.firstOrNull()?.liveOffset?.let { liveOffset ->
+        put("liveOffset", liveOffset)
     }
 }
 

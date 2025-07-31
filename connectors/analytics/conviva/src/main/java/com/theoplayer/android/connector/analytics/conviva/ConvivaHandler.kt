@@ -475,9 +475,9 @@ class ConvivaHandler(
                 }
 
                 // Only pass a finite duration value, never NaN or Infinite.
-                if (player.duration.isFinite()) {
+                player.duration.takeIf { it.isFinite() }?.let { duration ->
                     // Report duration; Int (seconds)
-                    put(ConvivaSdkConstants.DURATION, player.duration.toInt())
+                    put(ConvivaSdkConstants.DURATION, duration.toInt())
                 }
             }
         )
