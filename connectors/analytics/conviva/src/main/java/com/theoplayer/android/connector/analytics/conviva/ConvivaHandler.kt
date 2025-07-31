@@ -465,8 +465,9 @@ class ConvivaHandler(
                 // Do not override the `isLive` value if already set by the consumer, as the value
                 // is read-only for a given session.
                 // Note: also allow "Conviva.streamType" as metadata key, which is used on other platforms.
-                val configuredStreamType = convivaVideoAnalytics.metadataInfo[ConvivaSdkConstants.IS_LIVE] ?:
-                        convivaVideoAnalytics.metadataInfo["Conviva.streamType"]
+                val metadataInfo: Map<String, Any>? = convivaVideoAnalytics.metadataInfo
+                val configuredStreamType = metadataInfo?.get(ConvivaSdkConstants.IS_LIVE)
+                    ?: metadataInfo?.get("Conviva.streamType")
                 // Only pass `isLive` property if pre-configured, or if we have a valid duration
                 val isLive = configuredStreamType ?: calculateStreamType(player)
                 isLive?.let {
