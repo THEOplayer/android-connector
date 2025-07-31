@@ -453,13 +453,13 @@ class ConvivaHandler(
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "reportMetadata")
         }
-        val playerName = customMetadata[ConvivaSdkConstants.PLAYER_NAME] ?: convivaMetadata[ConvivaSdkConstants.PLAYER_NAME] ?: "THEOplayer"
+        val playerName = customMetadata[ConvivaSdkConstants.PLAYER_NAME]
+            ?: convivaMetadata[ConvivaSdkConstants.PLAYER_NAME] ?: "THEOplayer"
         setContentInfo(
-            mutableMapOf(
-                ConvivaSdkConstants.STREAM_URL to (player.src ?: ""),
-                ConvivaSdkConstants.ASSET_NAME to contentAssetName,
-                ConvivaSdkConstants.PLAYER_NAME to playerName
-            ).apply {
+            buildMap {
+                put(ConvivaSdkConstants.STREAM_URL, player.src ?: "")
+                put(ConvivaSdkConstants.ASSET_NAME, contentAssetName)
+                put(ConvivaSdkConstants.PLAYER_NAME, playerName)
                 putAll(collectPlaybackConfigMetadata(player))
 
                 // Do not override the `isLive` value if already set by the consumer, as the value
