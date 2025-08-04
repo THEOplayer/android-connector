@@ -1,3 +1,5 @@
+import java.util.zip.GZIPInputStream
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -31,14 +33,28 @@ android {
 }
 
 // The adscript SDK location should be set by the app and passed in a adscriptSdkDir property.
+def aarFileName = 'AdScriptApiClient_v1.0.10.aar'
 def adscriptSdkDir = rootProject.properties['adscriptSdkDir']
 if (!adscriptSdkDir) {
     logger.warn("⚠️ WARNING: adscriptSdkDir not set.")
 } else if (!rootProject.file(adscriptSdkDir).exists()) {
     logger.warn("⚠️ WARNING: adscriptSdkDir does not exist at: ${adscriptSdkDir}")
 } else {
+    def aarFile = new File(adscriptSdkDir, aarFileName)
+
+    // The Adscript aar file is typically provided as .gz, check if we still need to extract.
+    def gzFile = new File("${aarFile}.gz")
+    if (!aarFile.exists() && gzFile.exists()) {
+        new FileInputStream(gzFile).withCloseable { fis ->
+            new GZIPInputStream(fis).withCloseable { gis ->
+                new FileOutputStream(aarFile).withCloseable { fos ->
+                    fos << gis
+                }
+            }
+        }
+    }
     dependencies {
-        compileOnly fileTree(dir: "${rootProject.file(adscriptSdkDir)}/AdScriptApiClient_v1.0.10.aar", include: ['*.aar', '*.jar'], exclude: [])
+        compileOnly fileTree(dir: "${rootProject.file(adscriptSdkDir)}/$aarFileName", include: ['*.aar', '*.jar'], exclude: [])
     }
 }
 
