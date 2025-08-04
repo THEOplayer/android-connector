@@ -34,4 +34,8 @@ class AdscriptConnector(
     fun updateUser(i12n: AdScriptI12n) {
         adscriptAdapter.updateUser(i12n)
     }
+
+    fun destroy() {
+        adscriptAdapter.destroy()
+    }
 }

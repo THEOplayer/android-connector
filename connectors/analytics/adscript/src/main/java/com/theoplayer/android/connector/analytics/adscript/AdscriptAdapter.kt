@@ -252,7 +252,7 @@ class AdscriptAdapter(
         }
     }
 
-    private fun addEventListeners(){
+    private fun addEventListeners() {
         playerView.player.addEventListener(PlayerEventTypes.PLAY, onPlay)
         playerView.player.addEventListener(PlayerEventTypes.PLAYING, onFirstPlaying)
         playerView.player.addEventListener(PlayerEventTypes.ERROR, onError)
@@ -271,31 +271,28 @@ class AdscriptAdapter(
         playerView.player.ads.addEventListener(AdsEventTypes.AD_END, onAdCompleted)
     }
 
-//    private fun removeEventListeners(){
-//        playerView.player.removeEventListener(PlayerEventTypes.PLAY, onPlay)
-//        playerView.player.removeEventListener(PlayerEventTypes.PLAYING, onFirstPlaying)
-//        playerView.player.removeEventListener(PlayerEventTypes.ERROR, onError)
-//        playerView.player.removeEventListener(PlayerEventTypes.SOURCECHANGE, onSourceChange)
-//        playerView.player.removeEventListener(PlayerEventTypes.ENDED, onEnded)
-//        playerView.player.removeEventListener(PlayerEventTypes.DURATIONCHANGE, onDurationChange)
-//        playerView.player.removeEventListener(PlayerEventTypes.TIMEUPDATE, onTimeUpdate)
-//        playerView.player.removeEventListener(PlayerEventTypes.VOLUMECHANGE, onVolumeChange)
-//        playerView.player.removeEventListener(PlayerEventTypes.RATECHANGE, onRateChange)
-//        playerView.player.removeEventListener(PlayerEventTypes.PRESENTATIONMODECHANGE, onPresentationModeChange)
-//        playerView.player.ads.removeEventListener(AdsEventTypes.AD_BREAK_BEGIN, onAdBreakStarted)
-//        playerView.player.ads.removeEventListener(AdsEventTypes.AD_BEGIN, onAdStarted)
-//        playerView.player.ads.removeEventListener(AdsEventTypes.AD_FIRST_QUARTILE, onAdFirstQuartile)
-//        playerView.player.ads.removeEventListener(AdsEventTypes.AD_MIDPOINT, onAdMidpoint)
-//        playerView.player.ads.removeEventListener(AdsEventTypes.AD_THIRD_QUARTILE, onAdThirdQuartile)
-//        playerView.player.ads.removeEventListener(AdsEventTypes.AD_END, onAdCompleted)
-//    }
+    fun destroy() {
+        removeEventListeners()
+    }
 
-//    window.addEventListener('resize', this.reportPlayerState)
-//    window.addEventListener('blur', this.reportPlayerState)
-//    window.addEventListener('focus', this.reportPlayerState)
-//    document.addEventListener('scroll', this.reportPlayerState)
-//    document.addEventListener('visibilitychange', this.reportPlayerState)
-
+    private fun removeEventListeners(){
+        playerView.player.removeEventListener(PlayerEventTypes.PLAY, onPlay)
+        playerView.player.removeEventListener(PlayerEventTypes.PLAYING, onFirstPlaying)
+        playerView.player.removeEventListener(PlayerEventTypes.ERROR, onError)
+        playerView.player.removeEventListener(PlayerEventTypes.SOURCECHANGE, onSourceChange)
+        playerView.player.removeEventListener(PlayerEventTypes.ENDED, onEnded)
+        playerView.player.removeEventListener(PlayerEventTypes.DURATIONCHANGE, onDurationChange)
+        playerView.player.removeEventListener(PlayerEventTypes.TIMEUPDATE, onTimeUpdate)
+        playerView.player.removeEventListener(PlayerEventTypes.VOLUMECHANGE, onVolumeChange)
+        playerView.player.removeEventListener(PlayerEventTypes.RATECHANGE, onRateChange)
+        playerView.player.removeEventListener(PlayerEventTypes.PRESENTATIONMODECHANGE, onPresentationModeChange)
+        playerView.player.ads.removeEventListener(AdsEventTypes.AD_BREAK_BEGIN, onAdBreakStarted)
+        playerView.player.ads.removeEventListener(AdsEventTypes.AD_BEGIN, onAdStarted)
+        playerView.player.ads.removeEventListener(AdsEventTypes.AD_FIRST_QUARTILE, onAdFirstQuartile)
+        playerView.player.ads.removeEventListener(AdsEventTypes.AD_MIDPOINT, onAdMidpoint)
+        playerView.player.ads.removeEventListener(AdsEventTypes.AD_THIRD_QUARTILE, onAdThirdQuartile)
+        playerView.player.ads.removeEventListener(AdsEventTypes.AD_END, onAdCompleted)
+    }
 
     private fun handlePlay(event: PlayEvent) {
         if (configuration.debug) {
