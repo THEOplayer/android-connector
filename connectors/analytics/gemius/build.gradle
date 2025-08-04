@@ -29,12 +29,23 @@ android {
     }
 }
 
+// The Gemius SDK location should be set by the app and passed in a gemiusSdkDir property.
+def gemiusSdkDir = rootProject.properties['gemiusSdkDir']
+if (!gemiusSdkDir) {
+    logger.warn("⚠️ WARNING: gemiusSdkDir not set.")
+} else if (!rootProject.file(gemiusSdkDir).exists()) {
+    logger.warn("⚠️ WARNING: gemiusSdkDir does not exist at: ${gemiusSdkDir}")
+} else {
+    dependencies {
+        compileOnly files("${rootProject.file(gemiusSdkDir)}/GemiusSDK_2.0.8.aar")
+    }
+}
+
 dependencies {
 
     implementation libs.androidx.core.ktx
     implementation libs.androidx.appcompat
     implementation libs.material
-    compileOnly fileTree(dir: './libs/GemiusSDK_2.0.8.aar', include: ['*.aar', '*.jar'], exclude: [])
     compileOnly "com.theoplayer.theoplayer-sdk-android:core:$sdkVersion"
     compileOnly "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:$sdkVersion"
     testImplementation libs.junit
