@@ -112,6 +112,10 @@ class GemiusAdapter(
         this.programData = programData
     }
 
+    fun destroy() {
+        removeEventListeners()
+    }
+
     private fun computeVolume(): Int {
         return if (playerView.player.isMuted) -1 else (playerView.player.volume * 100).toInt()
     }
@@ -133,6 +137,25 @@ class GemiusAdapter(
         playerView.player.ads.addEventListener(AdsEventTypes.AD_END, onAdEnd)
         playerView.player.ads.addEventListener(AdsEventTypes.AD_SKIP, onAdSkip)
         playerView.player.ads.addEventListener(AdsEventTypes.AD_BREAK_END, onAdBreakEnded)
+    }
+
+    private fun removeEventListeners() {
+        playerView.player.removeEventListener(PlayerEventTypes.SOURCECHANGE, onSourceChange)
+        playerView.player.removeEventListener(PlayerEventTypes.PLAYING, onFirstPlaying)
+//        playerView.player.removeEventListener(PlayerEventTypes.PLAY, onPlay)
+        playerView.player.removeEventListener(PlayerEventTypes.PAUSE, onPause)
+        playerView.player.removeEventListener(PlayerEventTypes.WAITING, onWaiting)
+        playerView.player.removeEventListener(PlayerEventTypes.SEEKING, onSeeking)
+        playerView.player.removeEventListener(PlayerEventTypes.ERROR, onError)
+        playerView.player.removeEventListener(PlayerEventTypes.ENDED, onEnded)
+        playerView.player.removeEventListener(PlayerEventTypes.VOLUMECHANGE, onVolumeChange)
+        playerView.player.videoTracks.removeEventListener(VideoTrackListEventTypes.ADDTRACK, onAddVideoTrack)
+        playerView.player.videoTracks.removeEventListener(VideoTrackListEventTypes.REMOVETRACK, onRemoveVideoTrack)
+        playerView.player.ads.removeEventListener(AdsEventTypes.AD_BREAK_BEGIN, onAdBreakBegin)
+        playerView.player.ads.removeEventListener(AdsEventTypes.AD_BEGIN, onAdBegin)
+        playerView.player.ads.removeEventListener(AdsEventTypes.AD_END, onAdEnd)
+        playerView.player.ads.removeEventListener(AdsEventTypes.AD_SKIP, onAdSkip)
+        playerView.player.ads.removeEventListener(AdsEventTypes.AD_BREAK_END, onAdBreakEnded)
     }
 
     private fun handleSourceChange(event: SourceChangeEvent) {

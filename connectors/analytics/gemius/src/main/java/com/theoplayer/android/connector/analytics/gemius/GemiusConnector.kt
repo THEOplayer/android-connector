@@ -20,4 +20,8 @@ class GemiusConnector(
     fun update(programId: String, programData: ProgramData) {
         gemiusAdapter.update(programId, programData)
     }
+
+    fun destroy() {
+        gemiusAdapter.destroy()
+    }
 }
