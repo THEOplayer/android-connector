@@ -78,6 +78,7 @@ class AdscriptAdapter(
     private val onAdBreakEnded: EventListener<AdBreakEndEvent>
     private val mainHandler = Handler(Looper.getMainLooper())
     private lateinit var lifecycleObserver: LifecycleObserver
+    private var appInBackground: Boolean = false
 
     init {
         Thread(AdScriptRunnable(adScriptCollector, activity)).start()
@@ -105,7 +106,7 @@ class AdscriptAdapter(
         addEventListeners()
     }
 
-    fun start(){
+    fun start() {
         adScriptCollector.sessionStart()
     }
 
@@ -284,8 +285,22 @@ class AdscriptAdapter(
                 // In onResume, you need to call the sessionStart method every time.
                 // {@link https://adscript.admosphere.cz/cz_adScript_Android.html}
                 Lifecycle.Event.ON_RESUME -> {
-                    adScriptCollector.sessionStart()
+                    if (appInBackground) {
+                        if (configuration.debug) {
+                            Log.d(TAG, "onResume")
+                        }
+                        adScriptCollector.sessionStart()
+                    }
+                    appInBackground = false
                 }
+
+                Lifecycle.Event.ON_PAUSE -> {
+                    if (configuration.debug) {
+                        Log.d(TAG, "onPause")
+                    }
+                    appInBackground = true
+                }
+
                 Lifecycle.Event.ON_DESTROY -> destroy()
                 else -> {/*ignore*/
                 }
