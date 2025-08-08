@@ -1,7 +1,13 @@
 package com.theoplayer.android.connector.analytics.adscript
 
 import android.app.Activity
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.ProcessLifecycleOwner
 import com.nad.adscriptapiclient.AdScriptCollector
 import com.nad.adscriptapiclient.AdScriptDataObject
 import com.nad.adscriptapiclient.AdScriptEventEnum
@@ -70,6 +76,8 @@ class AdscriptAdapter(
     private val onAdThirdQuartile: EventListener<AdThirdQuartileEvent>
     private val onAdCompleted: EventListener<AdEndEvent>
     private val onAdBreakEnded: EventListener<AdBreakEndEvent>
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private lateinit var lifecycleObserver: LifecycleObserver
 
     init {
         Thread(AdScriptRunnable(adScriptCollector, activity)).start()
@@ -269,6 +277,23 @@ class AdscriptAdapter(
         playerView.player.ads.addEventListener(AdsEventTypes.AD_MIDPOINT, onAdMidpoint)
         playerView.player.ads.addEventListener(AdsEventTypes.AD_THIRD_QUARTILE, onAdThirdQuartile)
         playerView.player.ads.addEventListener(AdsEventTypes.AD_END, onAdCompleted)
+
+        // Observe app switches between background and foreground
+        lifecycleObserver = LifecycleEventObserver { _, event ->
+            when (event) {
+                // In onResume, you need to call the sessionStart method every time.
+                // {@link https://adscript.admosphere.cz/cz_adScript_Android.html}
+                Lifecycle.Event.ON_RESUME -> {
+                    adScriptCollector.sessionStart()
+                }
+                Lifecycle.Event.ON_DESTROY -> destroy()
+                else -> {/*ignore*/
+                }
+            }
+        }
+        mainHandler.post {
+            ProcessLifecycleOwner.get().lifecycle.addObserver(lifecycleObserver)
+        }
     }
 
     fun destroy() {
@@ -292,6 +317,10 @@ class AdscriptAdapter(
         playerView.player.ads.removeEventListener(AdsEventTypes.AD_MIDPOINT, onAdMidpoint)
         playerView.player.ads.removeEventListener(AdsEventTypes.AD_THIRD_QUARTILE, onAdThirdQuartile)
         playerView.player.ads.removeEventListener(AdsEventTypes.AD_END, onAdCompleted)
+
+        mainHandler.post {
+            ProcessLifecycleOwner.get().lifecycle.removeObserver(lifecycleObserver)
+        }
     }
 
     private fun handlePlay(event: PlayEvent) {
