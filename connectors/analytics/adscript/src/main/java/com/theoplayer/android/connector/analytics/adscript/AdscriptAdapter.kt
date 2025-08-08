@@ -43,7 +43,7 @@ import com.theoplayer.android.api.player.PresentationMode
 private const val TAG = "AdscriptConnector"
 
 data class LogPoint(
-     val name: AdScriptEventEnum, val cue: Double
+    val name: AdScriptEventEnum, val cue: Double
 )
 
 class AdscriptAdapter(
@@ -118,7 +118,7 @@ class AdscriptAdapter(
         adScriptCollector.i12n = i12n
     }
 
-    private fun reportPlayerState(){
+    private fun reportPlayerState() {
         reportFullscreen(playerView.fullScreenManager.isFullScreen)
         reportDimensions(playerView.player.videoWidth, playerView.player.videoHeight)
         reportPlaybackSpeed(playerView.player.playbackRate)
@@ -151,17 +151,20 @@ class AdscriptAdapter(
     private fun reportVolumeAndMuted(isMuted: Boolean, volume: Double) {
         if (isMuted || volume == 0.0) {
             if (configuration.debug) {
-                Log.i(TAG,"Reporting muted (1) & volume (0)")
+                Log.i(TAG, "Reporting muted (1) & volume (0)")
             }
             this.adScriptCollector.playerState.set(AdScriptPlayerState.FIELD_muted, 1)
             this.adScriptCollector.playerState.set(AdScriptPlayerState.FIELD_volume, 0)
         } else {
             val volumePercentage = (volume * 100).toInt()
             if (configuration.debug) {
-                Log.i(TAG,"Reporting muted (0) & volume ($volumePercentage)")
+                Log.i(TAG, "Reporting muted (0) & volume ($volumePercentage)")
             }
             this.adScriptCollector.playerState.set(AdScriptPlayerState.FIELD_muted, 0)
-            this.adScriptCollector.playerState.set(AdScriptPlayerState.FIELD_volume, volumePercentage)
+            this.adScriptCollector.playerState.set(
+                AdScriptPlayerState.FIELD_volume,
+                volumePercentage
+            )
         }
     }
 
@@ -198,7 +201,7 @@ class AdscriptAdapter(
             return
         }
         val nextLogPoint = contentLogPoints.firstOrNull()
-        if (nextLogPoint != null && currentTime >= nextLogPoint.cue ) {
+        if (nextLogPoint != null && currentTime >= nextLogPoint.cue) {
             reportLogPoint(nextLogPoint.name)
             contentLogPoints.removeFirst()
         }
@@ -210,14 +213,15 @@ class AdscriptAdapter(
         when (currentAd?.integration) {
             AdIntegrationKind.GOOGLE_IMA -> {
                 if (currentTime >= 1) {
-                    adScriptCollector.push(AdScriptEventEnum.PROGRESS1,adMetadata)
+                    adScriptCollector.push(AdScriptEventEnum.PROGRESS1, adMetadata)
                     waitingForFirstSecondOfAd = false
                 }
             }
+
             AdIntegrationKind.GOOGLE_DAI -> {
                 val waitingSince = waitingForFirstSecondOfSsaiAdSince
-                if (waitingSince != null && currentTime >= waitingSince + 1.0){
-                    adScriptCollector.push(AdScriptEventEnum.PROGRESS1,adMetadata)
+                if (waitingSince != null && currentTime >= waitingSince + 1.0) {
+                    adScriptCollector.push(AdScriptEventEnum.PROGRESS1, adMetadata)
                     waitingForFirstSecondOfAd = false
                     waitingForFirstSecondOfSsaiAdSince = null
                 }
@@ -235,9 +239,11 @@ class AdscriptAdapter(
             0 -> {
                 AdScriptDataObject.OBJ_TYPE_preroll
             }
+
             -1, playerView.player.duration.toInt() -> {
                 AdScriptDataObject.OBJ_TYPE_postroll
             }
+
             else -> {
                 AdScriptDataObject.OBJ_TYPE_midroll
             }
@@ -256,7 +262,10 @@ class AdscriptAdapter(
             }
             currentAdMetadata.set(AdScriptDataObject.FIELD_title, ad?.id)
 //            currentAdMetadata.set(AdScriptDataObject.FIELD_asmea, "TODO")
-            currentAdMetadata.set(AdScriptDataObject.FIELD_attribute, AdScriptDataObject.ATTRIBUTE_Commercial)
+            currentAdMetadata.set(
+                AdScriptDataObject.FIELD_attribute,
+                AdScriptDataObject.ATTRIBUTE_Commercial
+            )
             adMetadata = currentAdMetadata
         }
     }
@@ -271,7 +280,10 @@ class AdscriptAdapter(
         playerView.player.addEventListener(PlayerEventTypes.TIMEUPDATE, onTimeUpdate)
         playerView.player.addEventListener(PlayerEventTypes.VOLUMECHANGE, onVolumeChange)
         playerView.player.addEventListener(PlayerEventTypes.RATECHANGE, onRateChange)
-        playerView.player.addEventListener(PlayerEventTypes.PRESENTATIONMODECHANGE, onPresentationModeChange)
+        playerView.player.addEventListener(
+            PlayerEventTypes.PRESENTATIONMODECHANGE,
+            onPresentationModeChange
+        )
         playerView.player.ads.addEventListener(AdsEventTypes.AD_BREAK_BEGIN, onAdBreakStarted)
         playerView.player.ads.addEventListener(AdsEventTypes.AD_BEGIN, onAdStarted)
         playerView.player.ads.addEventListener(AdsEventTypes.AD_FIRST_QUARTILE, onAdFirstQuartile)
@@ -315,7 +327,7 @@ class AdscriptAdapter(
         removeEventListeners()
     }
 
-    private fun removeEventListeners(){
+    private fun removeEventListeners() {
         playerView.player.removeEventListener(PlayerEventTypes.PLAY, onPlay)
         playerView.player.removeEventListener(PlayerEventTypes.PLAYING, onFirstPlaying)
         playerView.player.removeEventListener(PlayerEventTypes.ERROR, onError)
@@ -325,12 +337,21 @@ class AdscriptAdapter(
         playerView.player.removeEventListener(PlayerEventTypes.TIMEUPDATE, onTimeUpdate)
         playerView.player.removeEventListener(PlayerEventTypes.VOLUMECHANGE, onVolumeChange)
         playerView.player.removeEventListener(PlayerEventTypes.RATECHANGE, onRateChange)
-        playerView.player.removeEventListener(PlayerEventTypes.PRESENTATIONMODECHANGE, onPresentationModeChange)
+        playerView.player.removeEventListener(
+            PlayerEventTypes.PRESENTATIONMODECHANGE,
+            onPresentationModeChange
+        )
         playerView.player.ads.removeEventListener(AdsEventTypes.AD_BREAK_BEGIN, onAdBreakStarted)
         playerView.player.ads.removeEventListener(AdsEventTypes.AD_BEGIN, onAdStarted)
-        playerView.player.ads.removeEventListener(AdsEventTypes.AD_FIRST_QUARTILE, onAdFirstQuartile)
+        playerView.player.ads.removeEventListener(
+            AdsEventTypes.AD_FIRST_QUARTILE,
+            onAdFirstQuartile
+        )
         playerView.player.ads.removeEventListener(AdsEventTypes.AD_MIDPOINT, onAdMidpoint)
-        playerView.player.ads.removeEventListener(AdsEventTypes.AD_THIRD_QUARTILE, onAdThirdQuartile)
+        playerView.player.ads.removeEventListener(
+            AdsEventTypes.AD_THIRD_QUARTILE,
+            onAdThirdQuartile
+        )
         playerView.player.ads.removeEventListener(AdsEventTypes.AD_END, onAdCompleted)
 
         mainHandler.post {
@@ -350,7 +371,7 @@ class AdscriptAdapter(
         }
         if (playerView.player.ads.isPlaying) {
             adScriptCollector.push(AdScriptEventEnum.START, adMetadata)
-        } else if (waitingforFirstPlayingOfContent){
+        } else if (waitingforFirstPlayingOfContent) {
             adScriptCollector.push(AdScriptEventEnum.START, contentMetadata)
             waitingforFirstPlayingOfContent = false // workaround for double playing event
         }
@@ -359,7 +380,10 @@ class AdscriptAdapter(
 
     private fun handleError(event: ErrorEvent) {
         if (configuration.debug) {
-            Log.d(TAG, "Player Event: ${event.type} : code = ${event.errorObject.code} ; message = ${event.errorObject.message}")
+            Log.d(
+                TAG,
+                "Player Event: ${event.type} : code = ${event.errorObject.code} ; message = ${event.errorObject.message}"
+            )
         }
     }
 

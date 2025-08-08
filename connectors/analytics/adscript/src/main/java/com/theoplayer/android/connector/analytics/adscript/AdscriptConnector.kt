@@ -17,7 +17,8 @@ class AdscriptConnector(
     contentMetadata: AdScriptDataObject,
     adProcessor: AdProcessor?
 ) {
-    private val adscriptAdapter = AdscriptAdapter(activity, configuration, playerView, contentMetadata, adProcessor)
+    private val adscriptAdapter =
+        AdscriptAdapter(activity, configuration, playerView, contentMetadata, adProcessor)
 
     init {
         adscriptAdapter.start()
