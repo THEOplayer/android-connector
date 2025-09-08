@@ -9,7 +9,7 @@ apply from: "$rootDir/connectors/publish.gradle"
 
 android {
     namespace 'com.theoplayer.android.connector.analytics.nielsen'
-    compileSdk 35
+    compileSdk 36
 
     defaultConfig {
         minSdk 23

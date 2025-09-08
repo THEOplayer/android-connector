@@ -10,7 +10,7 @@ apply from: "$rootDir/connectors/publish.gradle"
 
 android {
     namespace 'com.theoplayer.android.connector.uplynk'
-    compileSdk 35
+    compileSdk 36
 
     defaultConfig {
         minSdk 23
