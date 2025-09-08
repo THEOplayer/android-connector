@@ -1,6 +1,6 @@
 [versions]
 androidGradlePlugin = "8.8.0"
-kotlin = "1.8.10"
+kotlin = "2.2.10"
 kotlinxSerialization = "1.9.25"
 kotlinxSerializationJson = "1.6.3"
 dokka = "1.9.20"
@@ -57,5 +57,6 @@ yospace = { group = "com.yospace", name = "admanagement-sdk", version.ref = "yos
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinxSerialization" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
