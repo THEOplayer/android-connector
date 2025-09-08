@@ -41,7 +41,6 @@ dependencies {
     implementation libs.androidx.core.ktx
     implementation libs.androidx.appcompat
     implementation libs.kotlinx.coroutines.android
-    implementation libs.theoplayer.android.ui
 
     def composeBom = platform(libs.androidx.compose.bom)
     implementation(composeBom)
