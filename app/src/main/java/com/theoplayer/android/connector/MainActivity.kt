@@ -42,8 +42,6 @@ import com.theoplayer.android.api.ads.ima.GoogleImaIntegrationFactory
 import com.theoplayer.android.api.event.ads.AdBreakEvent
 import com.theoplayer.android.api.event.ads.AdsEventTypes
 import com.theoplayer.android.api.event.ads.SingleAdEvent
-import com.theoplayer.android.api.source.PlaybackPipeline
-import com.theoplayer.android.api.source.SourceDescription
 import com.theoplayer.android.connector.analytics.comscore.ComscoreConfiguration
 import com.theoplayer.android.connector.analytics.comscore.ComscoreConnector
 import com.theoplayer.android.connector.analytics.comscore.ComscoreMediaType
@@ -273,26 +271,10 @@ fun MainContent(
 ) {
     val player = rememberPlayer(theoplayerView)
     var source by rememberSaveable(stateSaver = SourceSaver) { mutableStateOf(sources.first()) }
-    var playbackPipeline by rememberSaveable { mutableStateOf(PlaybackPipeline.MEDIA3) }
     var sourceMenuOpen by remember { mutableStateOf(false) }
-    var pipelineMenuOpen by remember { mutableStateOf(false) }
 
-    LaunchedEffect(player, source, playbackPipeline) {
-        // Clone source description with selected playback pipeline
-        var sourceDescription = source.sourceDescription
-        sourceDescription = SourceDescription.Builder(
-            *sourceDescription.sources
-                .map { it.copy(playbackPipeline = playbackPipeline) }
-                .toTypedArray()
-        ).apply {
-            ads(*sourceDescription.ads.toTypedArray())
-            textTracks(*sourceDescription.textTracks.toTypedArray())
-            sourceDescription.poster?.let { poster(it) }
-            sourceDescription.metadata?.let { metadata(it) }
-            sourceDescription.timeServer?.let { timeServer(it) }
-        }.build()
-
-        player.source = sourceDescription
+    LaunchedEffect(player, source) {
+        player.source = source.sourceDescription
         nielsenConnector.updateMetadata(source.nielsenMetadata)
     }
 
@@ -318,9 +300,6 @@ fun MainContent(
                     }
                     TextButton(onClick = { sourceMenuOpen = true }) {
                         Text("set source")
-                    }
-                    TextButton(onClick = { pipelineMenuOpen = true }) {
-                        Text("backend")
                     }
                     TextButton(onClick = {
                         if (player.paused) player.play() else player.pause()
@@ -351,17 +330,6 @@ fun MainContent(
                         sourceMenuOpen = false
                     },
                     onDismissRequest = { sourceMenuOpen = false }
-                )
-            }
-
-            if (pipelineMenuOpen) {
-                SelectBackendDialog(
-                    currentPipeline = playbackPipeline,
-                    onSelectPipeline = {
-                        playbackPipeline = it
-                        pipelineMenuOpen = false
-                    },
-                    onDismissRequest = { pipelineMenuOpen = false }
                 )
             }
         }
@@ -398,48 +366,6 @@ fun SelectSourceDialog(
                             },
                             modifier = Modifier.clickable(onClick = {
                                 onSelectSource(source)
-                            })
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun SelectBackendDialog(
-    currentPipeline: PlaybackPipeline,
-    onSelectPipeline: (PlaybackPipeline) -> Unit,
-    onDismissRequest: () -> Unit,
-) {
-    val backends = listOf(
-        PlaybackPipeline.LEGACY to "Legacy",
-        PlaybackPipeline.MEDIA3 to "Media3"
-    )
-    Dialog(onDismissRequest = onDismissRequest) {
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = "Select a backend",
-                    style = MaterialTheme.typography.headlineSmall
-                )
-                LazyColumn {
-                    items(count = backends.size) { index ->
-                        val (pipeline, name) = backends[index]
-                        ListItem(
-                            headlineContent = { Text(text = name) },
-                            leadingContent = {
-                                RadioButton(
-                                    selected = (currentPipeline == pipeline),
-                                    onClick = null
-                                )
-                            },
-                            modifier = Modifier.clickable(onClick = {
-                                onSelectPipeline(pipeline)
                             })
                         )
                     }
