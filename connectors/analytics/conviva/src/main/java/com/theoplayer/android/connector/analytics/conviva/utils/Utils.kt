@@ -9,6 +9,7 @@ import com.theoplayer.android.api.ads.LinearAd
 import com.theoplayer.android.api.ads.ima.GoogleImaAd
 import com.theoplayer.android.api.event.ads.AdIntegrationKind
 import com.theoplayer.android.api.player.Player
+import com.theoplayer.android.api.source.SourceType
 import com.theoplayer.android.api.timerange.TimeRanges
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConfiguration
 import com.theoplayer.android.connector.analytics.conviva.ConvivaMetadata
@@ -77,6 +78,16 @@ fun calculateStreamType(player: Player): StreamType? {
         }
     } else {
         null
+    }
+}
+
+fun calculateEncodingType(player: Player): String? {
+    return when (player.source?.sources?.get(0)?.type) {
+        SourceType.DASH -> "DASH"
+        SourceType.HLS, SourceType.HLSX -> "HLS"
+        // for HESP: determine once endpoint has been loaded.
+        // ignore other encodings.
+        else -> null
     }
 }
 
