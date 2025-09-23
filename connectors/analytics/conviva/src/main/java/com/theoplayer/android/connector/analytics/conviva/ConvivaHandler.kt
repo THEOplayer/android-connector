@@ -24,11 +24,13 @@ import com.theoplayer.android.connector.analytics.conviva.theolive.THEOliveRepor
 import com.theoplayer.android.connector.analytics.conviva.utils.ErrorReportBuilder
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateBufferLength
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateConvivaOptions
+import com.theoplayer.android.connector.analytics.conviva.utils.calculateEncodingType
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateStreamType
 import com.theoplayer.android.connector.analytics.conviva.utils.collectPlaybackConfigMetadata
 import com.theoplayer.android.connector.analytics.conviva.utils.collectPlayerInfo
 
 private const val TAG = "ConvivaHandler"
+private const val ENCODING_TYPE = "encoding_type"
 
 interface ConvivaHandlerBase {
     val contentAssetName: String
@@ -475,6 +477,15 @@ class ConvivaHandler(
                 player.duration.takeIf { it.isFinite() }?.let { duration ->
                     // Report duration; Int (seconds)
                     put(ConvivaSdkConstants.DURATION, duration.toInt())
+                }
+
+                // Do not override `encoding_type` value if already set by the customer.
+                // For type HESP, defer until the endpoint has been loaded in THEOliveReporter.
+                val configuredEncodingType =  metadataInfo?.get(ENCODING_TYPE)
+                    ?: metadataInfo?.get(ENCODING_TYPE)
+                val encodingType = configuredEncodingType?: calculateEncodingType(player)
+                encodingType?.let {
+                    put(ENCODING_TYPE, it)
                 }
             }
         )
