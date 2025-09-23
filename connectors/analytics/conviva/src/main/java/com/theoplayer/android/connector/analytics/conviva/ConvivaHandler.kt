@@ -20,14 +20,17 @@ import com.theoplayer.android.api.event.player.*
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.api.source.SourceDescription
 import com.theoplayer.android.connector.analytics.conviva.ads.AdReporter
+import com.theoplayer.android.connector.analytics.conviva.theolive.THEOliveReporter
 import com.theoplayer.android.connector.analytics.conviva.utils.ErrorReportBuilder
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateBufferLength
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateConvivaOptions
+import com.theoplayer.android.connector.analytics.conviva.utils.calculateEncodingType
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateStreamType
 import com.theoplayer.android.connector.analytics.conviva.utils.collectPlaybackConfigMetadata
 import com.theoplayer.android.connector.analytics.conviva.utils.collectPlayerInfo
 
 private const val TAG = "ConvivaHandler"
+private const val ENCODING_TYPE = "encoding_type"
 
 interface ConvivaHandlerBase {
     val contentAssetName: String
@@ -55,6 +58,8 @@ class ConvivaHandler(
     private var convivaAdAnalytics: ConvivaAdAnalytics
 
     private var adReporter: AdReporter? = null
+
+    private var theoliveReporter: THEOliveReporter? = null
 
     private var currentSource: SourceDescription? = null
     private var playbackRequested: Boolean = false
@@ -95,6 +100,8 @@ class ConvivaHandler(
             this,
             adEventsExtension,
             )
+
+        theoliveReporter = THEOliveReporter(player, convivaVideoAnalytics)
 
         onPlay = EventListener<PlayEvent> {
             if (BuildConfig.DEBUG) {
@@ -471,6 +478,15 @@ class ConvivaHandler(
                     // Report duration; Int (seconds)
                     put(ConvivaSdkConstants.DURATION, duration.toInt())
                 }
+
+                // Do not override `encoding_type` value if already set by the customer.
+                // For type HESP, defer until the endpoint has been loaded in THEOliveReporter.
+                val configuredEncodingType =  metadataInfo?.get(ENCODING_TYPE)
+                    ?: metadataInfo?.get(ENCODING_TYPE)
+                val encodingType = configuredEncodingType?: calculateEncodingType(player)
+                encodingType?.let {
+                    put(ENCODING_TYPE, it)
+                }
             }
         )
     }
@@ -485,6 +501,7 @@ class ConvivaHandler(
         maybeReportPlaybackEnded()
         removeEventListeners()
 
+        theoliveReporter?.destroy()
         adReporter?.destroy()
         customMetadata = mapOf()
         convivaAdAnalytics.release()
