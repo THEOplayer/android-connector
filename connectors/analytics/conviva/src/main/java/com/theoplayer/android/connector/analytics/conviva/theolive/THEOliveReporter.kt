@@ -9,6 +9,7 @@ import com.theoplayer.android.api.event.player.theolive.TheoLiveEventTypes
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.connector.analytics.conviva.BuildConfig
 import com.theoplayer.android.connector.analytics.conviva.ConvivaMetadata
+import com.theoplayer.android.connector.analytics.conviva.utils.contentProtectionConfigurationToMetadata
 import com.theoplayer.android.connector.analytics.conviva.utils.flattenErrorObject
 
 private const val TAG = "THEOliveReporter"
@@ -23,6 +24,24 @@ class THEOliveReporter(val player: Player, val convivaVideoAnalytics: ConvivaVid
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "onEndPointLoaded - endpoint: $endpoint")
         }
+
+        convivaVideoAnalytics.reportPlaybackEvent(
+            "endPointLoaded",
+            mutableMapOf<String, Any>().apply {
+                put("endpoint", mutableMapOf<String, Any>().apply {
+                    put("weight", endpoint.weight)
+                    endpoint.cdn?.let { put("cdn", it) }
+                    endpoint.hespSrc?.let { put("hespSrc", it) }
+                    endpoint.hlsSrc?.let { put("hlsSrc", it) }
+                    endpoint.adSrc?.let { put("adSrc", it) }
+                    endpoint.targetLatency?.let { put("targetLatency", it) }
+                    endpoint.daiAssetKey?.let { put("daiAssetKey", it) }
+                    endpoint.contentProtection?.let {
+                        put("contentProtection", contentProtectionConfigurationToMetadata(it))
+                    }
+                })
+            }
+        )
 
         convivaVideoAnalytics.setContentInfo(
             mutableMapOf<String, String>().apply {

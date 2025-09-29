@@ -12,6 +12,7 @@ import com.theoplayer.android.api.event.ads.AdIntegrationKind
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.api.source.SourceType
 import com.theoplayer.android.api.source.TypedSource
+import com.theoplayer.android.api.theolive.ContentProtectionConfiguration
 import com.theoplayer.android.api.timerange.TimeRanges
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConfiguration
 import com.theoplayer.android.connector.analytics.conviva.ConvivaMetadata
@@ -224,4 +225,20 @@ fun calculateBufferLength(player: Player): Long {
 
 fun bufferedToString(buffered: TimeRanges): String {
     return "[${buffered.joinToString(",") { timeRange -> "${timeRange.start}-${timeRange.end}" }}]"
+}
+
+fun contentProtectionConfigurationToMetadata(config: ContentProtectionConfiguration): Map<String, Any> {
+    return mutableMapOf<String, Any>().apply {
+        config.integration?.let { put("integration", it) }
+        config.widevine?.let { widevine ->
+            put("widevine", mutableMapOf<String, Any>().apply {
+                widevine.licenseUrl?.let { put("licenseUrl", it) }
+            })
+        }
+        config.playready?.let { playready ->
+            put("playready", mutableMapOf<String, Any>().apply {
+                playready.licenseUrl?.let { put("licenseUrl", it) }
+            })
+        }
+    }
 }
