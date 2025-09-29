@@ -1,5 +1,6 @@
 package com.theoplayer.android.connector.analytics.conviva.utils
 
+import androidx.core.net.toUri
 import com.conviva.sdk.ConvivaSdkConstants
 import com.conviva.sdk.ConvivaSdkConstants.StreamType
 import com.theoplayer.android.api.THEOplayerGlobal
@@ -87,7 +88,16 @@ fun calculateEncodingType(source: TypedSource?): String? {
         SourceType.DASH -> "DASH"
         SourceType.HLS, SourceType.HLSX -> "HLS"
         SourceType.HESP -> "HESP"
-        else -> null
+        else -> {
+            // No type given, check for known extension.
+            source?.src?.toUri()?.lastPathSegment?.let { pathSegment ->
+                when {
+                    pathSegment.endsWith(".mpd") -> "DASH"
+                    pathSegment.endsWith(".m3u8") -> "HLS"
+                    else -> null
+                }
+            }
+        }
     }
 }
 
