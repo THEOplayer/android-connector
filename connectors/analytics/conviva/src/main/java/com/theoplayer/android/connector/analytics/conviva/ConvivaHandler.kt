@@ -18,7 +18,6 @@ import com.theoplayer.android.api.event.EventListener
 import com.theoplayer.android.api.event.ads.AdEvent
 import com.theoplayer.android.api.event.player.*
 import com.theoplayer.android.api.player.Player
-import com.theoplayer.android.api.source.SourceDescription
 import com.theoplayer.android.connector.analytics.conviva.ads.AdReporter
 import com.theoplayer.android.connector.analytics.conviva.theolive.THEOliveReporter
 import com.theoplayer.android.connector.analytics.conviva.utils.ErrorReportBuilder
@@ -64,7 +63,6 @@ class ConvivaHandler(
 
     private var theoliveReporter: THEOliveReporter? = null
 
-    private var currentSource: SourceDescription? = null
     private var playbackRequested: Boolean = false
 
     private val onPlay: EventListener<PlayEvent>
@@ -180,7 +178,6 @@ class ConvivaHandler(
                 Log.d(TAG, "onSourceChange")
             }
             maybeReportPlaybackEnded()
-            currentSource = player.source
             customMetadata = mapOf("playbackPipeline" to "media3")
         }
 
