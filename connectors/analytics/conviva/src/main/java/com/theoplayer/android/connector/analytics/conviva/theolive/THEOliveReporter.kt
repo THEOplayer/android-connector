@@ -9,6 +9,7 @@ import com.theoplayer.android.api.event.player.theolive.TheoLiveEventTypes
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.connector.analytics.conviva.BuildConfig
 import com.theoplayer.android.connector.analytics.conviva.ConvivaMetadata
+import com.theoplayer.android.connector.analytics.conviva.extension.queueOrReportPlaybackEvent
 import com.theoplayer.android.connector.analytics.conviva.utils.contentProtectionConfigurationToMetadata
 import com.theoplayer.android.connector.analytics.conviva.utils.flattenErrorObject
 
@@ -25,7 +26,7 @@ class THEOliveReporter(val player: Player, val convivaVideoAnalytics: ConvivaVid
             Log.d(TAG, "onEndPointLoaded - endpoint: $endpoint")
         }
 
-        convivaVideoAnalytics.reportPlaybackEvent(
+        convivaVideoAnalytics.queueOrReportPlaybackEvent(
             "endPointLoaded",
             mutableMapOf<String, Any>().apply {
                 put("endpoint", mutableMapOf<String, Any>().apply {
@@ -57,7 +58,7 @@ class THEOliveReporter(val player: Player, val convivaVideoAnalytics: ConvivaVid
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "IntentToFallbackEvent - reason: ${reason ?: "NA"}")
         }
-        convivaVideoAnalytics.reportPlaybackEvent(
+        convivaVideoAnalytics.queueOrReportPlaybackEvent(
             "intentToFallback",
             mutableMapOf<String, Any>().apply {
                 reason?.let {

@@ -19,6 +19,8 @@ import com.theoplayer.android.api.event.ads.AdEvent
 import com.theoplayer.android.api.event.player.*
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.connector.analytics.conviva.ads.AdReporter
+import com.theoplayer.android.connector.analytics.conviva.extension.reportQueuedPlaybackEvents
+import com.theoplayer.android.connector.analytics.conviva.extension.queuedEvents
 import com.theoplayer.android.connector.analytics.conviva.theolive.THEOliveReporter
 import com.theoplayer.android.connector.analytics.conviva.utils.ErrorReportBuilder
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateBufferLength
@@ -55,7 +57,6 @@ class ConvivaHandler(
     private lateinit var lifecycleObserver: LifecycleObserver
     private val mainHandler = Handler(Looper.getMainLooper())
     private var customMetadata: ConvivaMetadata = mapOf()
-
     private var convivaVideoAnalytics: ConvivaVideoAnalytics
     private var convivaAdAnalytics: ConvivaAdAnalytics
 
@@ -101,7 +102,7 @@ class ConvivaHandler(
             convivaAdAnalytics,
             this,
             adEventsExtension,
-            )
+        )
 
         theoliveReporter = THEOliveReporter(player, convivaVideoAnalytics)
 
@@ -179,6 +180,7 @@ class ConvivaHandler(
             }
             maybeReportPlaybackEnded()
             customMetadata = mapOf("playbackPipeline" to "media3")
+            convivaVideoAnalytics.queuedEvents.clear()
         }
 
         onCurrentSourceChange = EventListener<CurrentSourceChangeEvent> { event ->
@@ -281,7 +283,10 @@ class ConvivaHandler(
         // Report error and cleanup immediately.
         // The contentInfo provides metadata for the failed video.
         if (player.duration.isNaN()) {
-            convivaVideoAnalytics.reportPlaybackFailed(errorMessage, mapOf<String, Any>(ConvivaSdkConstants.DURATION to -1))
+            convivaVideoAnalytics.reportPlaybackFailed(
+                errorMessage,
+                mapOf(ConvivaSdkConstants.DURATION to -1)
+            )
         } else {
             convivaVideoAnalytics.reportPlaybackFailed(errorMessage)
         }
@@ -317,12 +322,14 @@ class ConvivaHandler(
                     }
                     ConvivaAnalytics.reportAppBackgrounded()
                 }
+
                 Lifecycle.Event.ON_START -> {
                     if (BuildConfig.DEBUG) {
                         Log.d(TAG, "reportAppForegrounded")
                     }
                     ConvivaAnalytics.reportAppForegrounded()
                 }
+
                 Lifecycle.Event.ON_DESTROY -> destroy()
                 else -> {/*ignore*/
                 }
@@ -430,6 +437,9 @@ class ConvivaHandler(
             reportMetadata()
 
             convivaVideoAnalytics.reportPlaybackRequested(convivaMetadata)
+
+            // Report any event that was queued between a source change and session start.
+            convivaVideoAnalytics.reportQueuedPlaybackEvents()
         }
     }
 
