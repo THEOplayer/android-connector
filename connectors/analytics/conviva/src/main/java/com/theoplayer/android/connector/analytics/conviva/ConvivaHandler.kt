@@ -30,12 +30,15 @@ import com.theoplayer.android.connector.analytics.conviva.utils.collectPlaybackC
 import com.theoplayer.android.connector.analytics.conviva.utils.collectPlayerInfo
 
 private const val TAG = "ConvivaHandler"
-private const val ENCODING_TYPE = "encoding_type"
 
 interface ConvivaHandlerBase {
     val contentAssetName: String
 
     fun maybeReportPlaybackRequested()
+}
+
+object CustomConstants {
+    const val ENCODING_TYPE = "encoding_type"
 }
 
 /**
@@ -72,6 +75,7 @@ class ConvivaHandler(
     private val onSeeked: EventListener<SeekedEvent>
     private val onError: EventListener<ErrorEvent>
     private val onSegmentNotFound: EventListener<SegmentNotFoundEvent>
+    private val onCurrentSourceChange: EventListener<CurrentSourceChangeEvent>
     private val onSourceChange: EventListener<SourceChangeEvent>
     private val onEnded: EventListener<EndedEvent>
     private val onDurationChange: EventListener<DurationChangeEvent>
@@ -178,6 +182,19 @@ class ConvivaHandler(
             maybeReportPlaybackEnded()
             currentSource = player.source
             customMetadata = mapOf("playbackPipeline" to "media3")
+        }
+
+        onCurrentSourceChange = EventListener<CurrentSourceChangeEvent> { event ->
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "onCurrentSourceChange ${event.currentSource?.src}")
+            }
+            // Do not override `encoding_type` value if already set by the customer.
+            val configuredEncodingType = customMetadata[CustomConstants.ENCODING_TYPE] ?:
+            convivaMetadata[CustomConstants.ENCODING_TYPE]
+            val encodingType = configuredEncodingType ?: calculateEncodingType(event.currentSource)
+            encodingType?.let {
+                setContentInfo(mutableMapOf(CustomConstants.ENCODING_TYPE to encodingType))
+            }
         }
 
         onEnded = EventListener<EndedEvent> {
@@ -290,6 +307,7 @@ class ConvivaHandler(
         player.addEventListener(PlayerEventTypes.ERROR, onError)
         player.addEventListener(PlayerEventTypes.SEGMENTNOTFOUND, onSegmentNotFound)
         player.addEventListener(PlayerEventTypes.SOURCECHANGE, onSourceChange)
+        player.addEventListener(PlayerEventTypes.CURRENTSOURCECHANGE, onCurrentSourceChange)
         player.addEventListener(PlayerEventTypes.ENDED, onEnded)
         player.addEventListener(PlayerEventTypes.DURATIONCHANGE, onDurationChange)
 
@@ -333,6 +351,7 @@ class ConvivaHandler(
         player.removeEventListener(PlayerEventTypes.ERROR, onError)
         player.removeEventListener(PlayerEventTypes.SEGMENTNOTFOUND, onSegmentNotFound)
         player.removeEventListener(PlayerEventTypes.SOURCECHANGE, onSourceChange)
+        player.removeEventListener(PlayerEventTypes.CURRENTSOURCECHANGE, onCurrentSourceChange)
         player.removeEventListener(PlayerEventTypes.ENDED, onEnded)
         player.removeEventListener(PlayerEventTypes.DURATIONCHANGE, onDurationChange)
 
@@ -477,15 +496,6 @@ class ConvivaHandler(
                 player.duration.takeIf { it.isFinite() }?.let { duration ->
                     // Report duration; Int (seconds)
                     put(ConvivaSdkConstants.DURATION, duration.toInt())
-                }
-
-                // Do not override `encoding_type` value if already set by the customer.
-                // For type HESP, defer until the endpoint has been loaded in THEOliveReporter.
-                val configuredEncodingType =  metadataInfo?.get(ENCODING_TYPE)
-                    ?: metadataInfo?.get(ENCODING_TYPE)
-                val encodingType = configuredEncodingType?: calculateEncodingType(player)
-                encodingType?.let {
-                    put(ENCODING_TYPE, it)
                 }
             }
         )
