@@ -18,11 +18,12 @@ import com.theoplayer.android.api.event.EventListener
 import com.theoplayer.android.api.event.ads.AdEvent
 import com.theoplayer.android.api.event.player.*
 import com.theoplayer.android.api.player.Player
-import com.theoplayer.android.api.source.SourceDescription
 import com.theoplayer.android.connector.analytics.conviva.ads.AdReporter
+import com.theoplayer.android.connector.analytics.conviva.theolive.THEOliveReporter
 import com.theoplayer.android.connector.analytics.conviva.utils.ErrorReportBuilder
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateBufferLength
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateConvivaOptions
+import com.theoplayer.android.connector.analytics.conviva.utils.calculateEncodingType
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateStreamType
 import com.theoplayer.android.connector.analytics.conviva.utils.collectPlaybackConfigMetadata
 import com.theoplayer.android.connector.analytics.conviva.utils.collectPlayerInfo
@@ -33,6 +34,10 @@ interface ConvivaHandlerBase {
     val contentAssetName: String
 
     fun maybeReportPlaybackRequested()
+}
+
+object CustomConstants {
+    const val ENCODING_TYPE = "encoding_type"
 }
 
 /**
@@ -56,7 +61,8 @@ class ConvivaHandler(
 
     private var adReporter: AdReporter? = null
 
-    private var currentSource: SourceDescription? = null
+    private var theoliveReporter: THEOliveReporter? = null
+
     private var playbackRequested: Boolean = false
 
     private val onPlay: EventListener<PlayEvent>
@@ -67,6 +73,7 @@ class ConvivaHandler(
     private val onSeeked: EventListener<SeekedEvent>
     private val onError: EventListener<ErrorEvent>
     private val onSegmentNotFound: EventListener<SegmentNotFoundEvent>
+    private val onCurrentSourceChange: EventListener<CurrentSourceChangeEvent>
     private val onSourceChange: EventListener<SourceChangeEvent>
     private val onEnded: EventListener<EndedEvent>
     private val onDurationChange: EventListener<DurationChangeEvent>
@@ -95,6 +102,8 @@ class ConvivaHandler(
             this,
             adEventsExtension,
             )
+
+        theoliveReporter = THEOliveReporter(player, convivaVideoAnalytics)
 
         onPlay = EventListener<PlayEvent> {
             if (BuildConfig.DEBUG) {
@@ -169,8 +178,20 @@ class ConvivaHandler(
                 Log.d(TAG, "onSourceChange")
             }
             maybeReportPlaybackEnded()
-            currentSource = player.source
             customMetadata = mapOf("playbackPipeline" to "media3")
+        }
+
+        onCurrentSourceChange = EventListener<CurrentSourceChangeEvent> { event ->
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "onCurrentSourceChange ${event.currentSource?.src}")
+            }
+            // Do not override `encoding_type` value if already set by the customer.
+            val configuredEncodingType = customMetadata[CustomConstants.ENCODING_TYPE] ?:
+            convivaMetadata[CustomConstants.ENCODING_TYPE]
+            val encodingType = configuredEncodingType ?: calculateEncodingType(event.currentSource)
+            encodingType?.let {
+                setContentInfo(mutableMapOf(CustomConstants.ENCODING_TYPE to encodingType))
+            }
         }
 
         onEnded = EventListener<EndedEvent> {
@@ -283,6 +304,7 @@ class ConvivaHandler(
         player.addEventListener(PlayerEventTypes.ERROR, onError)
         player.addEventListener(PlayerEventTypes.SEGMENTNOTFOUND, onSegmentNotFound)
         player.addEventListener(PlayerEventTypes.SOURCECHANGE, onSourceChange)
+        player.addEventListener(PlayerEventTypes.CURRENTSOURCECHANGE, onCurrentSourceChange)
         player.addEventListener(PlayerEventTypes.ENDED, onEnded)
         player.addEventListener(PlayerEventTypes.DURATIONCHANGE, onDurationChange)
 
@@ -326,6 +348,7 @@ class ConvivaHandler(
         player.removeEventListener(PlayerEventTypes.ERROR, onError)
         player.removeEventListener(PlayerEventTypes.SEGMENTNOTFOUND, onSegmentNotFound)
         player.removeEventListener(PlayerEventTypes.SOURCECHANGE, onSourceChange)
+        player.removeEventListener(PlayerEventTypes.CURRENTSOURCECHANGE, onCurrentSourceChange)
         player.removeEventListener(PlayerEventTypes.ENDED, onEnded)
         player.removeEventListener(PlayerEventTypes.DURATIONCHANGE, onDurationChange)
 
@@ -485,6 +508,7 @@ class ConvivaHandler(
         maybeReportPlaybackEnded()
         removeEventListeners()
 
+        theoliveReporter?.destroy()
         adReporter?.destroy()
         customMetadata = mapOf()
         convivaAdAnalytics.release()

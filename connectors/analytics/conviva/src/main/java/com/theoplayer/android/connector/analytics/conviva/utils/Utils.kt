@@ -1,5 +1,6 @@
 package com.theoplayer.android.connector.analytics.conviva.utils
 
+import androidx.core.net.toUri
 import com.conviva.sdk.ConvivaSdkConstants
 import com.conviva.sdk.ConvivaSdkConstants.StreamType
 import com.theoplayer.android.api.THEOplayerGlobal
@@ -9,6 +10,8 @@ import com.theoplayer.android.api.ads.LinearAd
 import com.theoplayer.android.api.ads.ima.GoogleImaAd
 import com.theoplayer.android.api.event.ads.AdIntegrationKind
 import com.theoplayer.android.api.player.Player
+import com.theoplayer.android.api.source.SourceType
+import com.theoplayer.android.api.source.TypedSource
 import com.theoplayer.android.api.timerange.TimeRanges
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConfiguration
 import com.theoplayer.android.connector.analytics.conviva.ConvivaMetadata
@@ -77,6 +80,24 @@ fun calculateStreamType(player: Player): StreamType? {
         }
     } else {
         null
+    }
+}
+
+fun calculateEncodingType(source: TypedSource?): String? {
+    return when (source?.type) {
+        SourceType.DASH -> "DASH"
+        SourceType.HLS, SourceType.HLSX -> "HLS"
+        SourceType.HESP -> "HESP"
+        else -> {
+            // No type given, check for known extension.
+            source?.src?.toUri()?.lastPathSegment?.let { pathSegment ->
+                when {
+                    pathSegment.endsWith(".mpd") -> "DASH"
+                    pathSegment.endsWith(".m3u8") -> "HLS"
+                    else -> null
+                }
+            }
+        }
     }
 }
 

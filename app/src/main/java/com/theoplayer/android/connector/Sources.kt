@@ -7,6 +7,7 @@ import com.theoplayer.android.api.source.SourceType
 import com.theoplayer.android.api.source.TypedSource
 import com.theoplayer.android.api.source.addescription.GoogleImaAdDescription
 import com.theoplayer.android.api.source.metadata.MetadataDescription
+import com.theoplayer.android.api.theolive.TheoLiveSource
 import com.theoplayer.android.connector.uplynk.UplynkAssetType
 import com.theoplayer.android.connector.uplynk.UplynkPingConfiguration
 import com.theoplayer.android.connector.uplynk.UplynkSsaiDescription
@@ -39,6 +40,12 @@ val sources: List<Source> by lazy {
                 "assetid" to "C112233",
                 "program" to "BigBuckBunny with Google IMA ads"
             )
+        ),
+        Source(
+            name = "THEOlive demo",
+            sourceDescription = SourceDescription.Builder(TheoLiveSource(src = "9lwkudxeyjwwm132pukwwhhtk"))
+                .metadata(MetadataDescription(mutableMapOf("title" to "THEOlive demo")))
+                .build()
         ),
         Source(
             name = "Yospace HLS VOD",
