@@ -28,9 +28,9 @@ internal val UplynkSsaiDescription.pingParameters: String
     get() {
         val feature = UplynkPingFeatures.from(this)
         return if (feature == UplynkPingFeatures.NO_PING) {
-            "&ad.pingc=0"
+            ""
         } else {
-            "&ad.pingc=1&ad.pingf=${feature.pingfValue}"
+            "&ad.cping=1&ad.pingf=${feature.pingfValue}"
         }
     }
 
