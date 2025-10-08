@@ -30,7 +30,7 @@ internal val UplynkSsaiDescription.pingParameters: String
         return if (feature == UplynkPingFeatures.NO_PING) {
             ""
         } else {
-            "&ad.pingc=1&ad.pingf=${feature.pingfValue}"
+            "&ad.cping=1&ad.pingf=${feature.pingfValue}"
         }
     }
 
