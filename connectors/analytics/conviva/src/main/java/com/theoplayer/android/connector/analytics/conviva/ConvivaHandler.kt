@@ -225,7 +225,10 @@ class ConvivaHandler(
         maybeReportPlaybackEnded()
 
         // Start new session
-        maybeReportPlaybackRequested()
+        // If play-out was paused, the session will start once play-out resumes.
+        if (!player.isPaused) {
+            maybeReportPlaybackRequested()
+        }
 
         // Pass new metadata
         setContentInfo(metadata)
