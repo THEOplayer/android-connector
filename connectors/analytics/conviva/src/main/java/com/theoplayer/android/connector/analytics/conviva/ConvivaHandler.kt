@@ -237,13 +237,17 @@ class ConvivaHandler(
         // Report current playback state
         convivaVideoAnalytics.reportPlaybackMetric(
             ConvivaSdkConstants.PLAYBACK.PLAYER_STATE,
-            when {
-                player.isEnded -> ConvivaSdkConstants.PlayerState.STOPPED
-                player.isPaused -> ConvivaSdkConstants.PlayerState.PAUSED
-                player.readyState >= ReadyState.HAVE_FUTURE_DATA -> ConvivaSdkConstants.PlayerState.PLAYING
-                else -> ConvivaSdkConstants.PlayerState.BUFFERING
-            }
+            getPlayerState()
         )
+    }
+
+    private fun getPlayerState(): ConvivaSdkConstants.PlayerState {
+        return when {
+            player.isEnded -> ConvivaSdkConstants.PlayerState.STOPPED
+            player.isPaused -> ConvivaSdkConstants.PlayerState.PAUSED
+            player.readyState >= ReadyState.HAVE_FUTURE_DATA -> ConvivaSdkConstants.PlayerState.PLAYING
+            else -> ConvivaSdkConstants.PlayerState.BUFFERING
+        }
     }
 
     fun setContentInfo(metadata: ConvivaMetadata) {
