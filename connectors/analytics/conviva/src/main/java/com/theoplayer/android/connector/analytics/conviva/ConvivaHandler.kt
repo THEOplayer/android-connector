@@ -18,6 +18,7 @@ import com.theoplayer.android.api.event.EventListener
 import com.theoplayer.android.api.event.ads.AdEvent
 import com.theoplayer.android.api.event.player.*
 import com.theoplayer.android.api.player.Player
+import com.theoplayer.android.api.player.ReadyState
 import com.theoplayer.android.connector.analytics.conviva.ads.AdReporter
 import com.theoplayer.android.connector.analytics.conviva.theolive.THEOliveReporter
 import com.theoplayer.android.connector.analytics.conviva.utils.ErrorReportBuilder
@@ -224,21 +225,25 @@ class ConvivaHandler(
         // End current session if one had already started
         maybeReportPlaybackEnded()
 
-        // Start new session
-        // If play-out was paused, the session will start once play-out resumes.
+        // If play-out was paused, the new session will start once play-out resumes.
         if (!player.isPaused) {
+            // Start new session
             maybeReportPlaybackRequested()
         }
 
         // Pass new metadata
         setContentInfo(metadata)
 
-        // Notify current playback state
-        if (player.isPaused) {
-            reportPause()
-        } else {
-            reportPlaying()
-        }
+        // Report current playback state
+        convivaVideoAnalytics.reportPlaybackMetric(
+            ConvivaSdkConstants.PLAYBACK.PLAYER_STATE,
+            when {
+                player.isEnded -> ConvivaSdkConstants.PlayerState.STOPPED
+                player.isPaused -> ConvivaSdkConstants.PlayerState.PAUSED
+                player.readyState >= ReadyState.HAVE_FUTURE_DATA -> ConvivaSdkConstants.PlayerState.PLAYING
+                else -> ConvivaSdkConstants.PlayerState.BUFFERING
+            }
+        )
     }
 
     fun setContentInfo(metadata: ConvivaMetadata) {
