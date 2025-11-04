@@ -122,10 +122,13 @@ fun collectPlaybackConfigMetadata(player: Player): ConvivaMetadata = buildMap {
 
 fun collectAdDescriptionMetadata(player: Player): Map<String, String> {
     return mutableMapOf<String, String>().apply {
-        player.source?.ads?.firstNotNullOfOrNull { (it as? TheoAdDescription)?.streamActivityMonitorId }
-            ?.let {
-                put("streamActivityMonitorId", it)
-            }
+        try {
+            player.source?.ads
+                ?.firstNotNullOfOrNull { (it as? TheoAdDescription)?.streamActivityMonitorId }
+                ?.let { put("streamActivityMonitorId", it) }
+        } catch (_: NoClassDefFoundError) {
+            // THEOads is not integrated, ignore.
+        }
     }
 }
 
