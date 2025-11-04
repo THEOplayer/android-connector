@@ -28,6 +28,7 @@ import com.theoplayer.android.connector.analytics.conviva.utils.calculateEncodin
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateStreamType
 import com.theoplayer.android.connector.analytics.conviva.utils.collectPlaybackConfigMetadata
 import com.theoplayer.android.connector.analytics.conviva.utils.collectPlayerInfo
+import com.theoplayer.android.connector.analytics.conviva.utils.collectAdDescriptionMetadata
 
 private const val TAG = "ConvivaHandler"
 
@@ -488,6 +489,7 @@ class ConvivaHandler(
                 put(ConvivaSdkConstants.ASSET_NAME, contentAssetName)
                 put(ConvivaSdkConstants.PLAYER_NAME, playerName)
                 putAll(collectPlaybackConfigMetadata(player))
+                putAll(collectAdDescriptionMetadata(player))
 
                 // Do not override the `isLive` value if already set by the consumer, as the value
                 // is read-only for a given session.

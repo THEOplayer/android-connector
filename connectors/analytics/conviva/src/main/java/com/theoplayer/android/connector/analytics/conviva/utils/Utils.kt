@@ -8,6 +8,7 @@ import com.theoplayer.android.api.ads.Ad
 import com.theoplayer.android.api.ads.AdBreak
 import com.theoplayer.android.api.ads.LinearAd
 import com.theoplayer.android.api.ads.ima.GoogleImaAd
+import com.theoplayer.android.api.ads.theoads.TheoAdDescription
 import com.theoplayer.android.api.event.ads.AdIntegrationKind
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.api.source.SourceType
@@ -116,6 +117,15 @@ fun collectPlaybackConfigMetadata(player: Player): ConvivaMetadata = buildMap {
     }
     player.source?.sources?.firstOrNull()?.liveOffset?.let { liveOffset ->
         put("liveOffset", liveOffset)
+    }
+}
+
+fun collectAdDescriptionMetadata(player: Player): Map<String, String> {
+    return mutableMapOf<String, String>().apply {
+        player.source?.ads?.firstNotNullOfOrNull { (it as? TheoAdDescription)?.streamActivityMonitorId }
+            ?.let {
+                put("streamActivityMonitorId", it)
+            }
     }
 }
 
