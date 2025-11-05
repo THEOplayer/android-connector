@@ -8,10 +8,12 @@ import com.theoplayer.android.api.ads.Ad
 import com.theoplayer.android.api.ads.AdBreak
 import com.theoplayer.android.api.ads.LinearAd
 import com.theoplayer.android.api.ads.ima.GoogleImaAd
+import com.theoplayer.android.api.ads.theoads.TheoAdDescription
 import com.theoplayer.android.api.event.ads.AdIntegrationKind
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.api.source.SourceType
 import com.theoplayer.android.api.source.TypedSource
+import com.theoplayer.android.api.source.ssai.GoogleDaiConfiguration
 import com.theoplayer.android.api.timerange.TimeRanges
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConfiguration
 import com.theoplayer.android.connector.analytics.conviva.ConvivaMetadata
@@ -116,6 +118,24 @@ fun collectPlaybackConfigMetadata(player: Player): ConvivaMetadata = buildMap {
     }
     player.source?.sources?.firstOrNull()?.liveOffset?.let { liveOffset ->
         put("liveOffset", liveOffset)
+    }
+}
+
+fun collectAdDescriptionMetadata(player: Player): Map<String, String> {
+    return mutableMapOf<String, String>().apply {
+        player.source?.let { src ->
+            // Extract streamActivityMonitorId from either THEOads or Google DAI configuration
+            val streamActivityMonitorId = try {
+                src.ads.firstNotNullOfOrNull { (it as? TheoAdDescription)?.streamActivityMonitorId }
+            } catch (_: NoClassDefFoundError) {
+                // THEOads is not integrated, ignore missing class.
+                null
+            } ?: (src.sources.firstOrNull()?.ssai as? GoogleDaiConfiguration)?.streamActivityMonitorID
+
+            streamActivityMonitorId?.let {
+                put("streamActivityMonitorId", it)
+            }
+        }
     }
 }
 

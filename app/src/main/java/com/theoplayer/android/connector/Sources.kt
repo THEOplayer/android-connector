@@ -2,17 +2,20 @@ package com.theoplayer.android.connector
 
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.SaverScope
+import com.theoplayer.android.api.source.GoogleDaiTypedSource
 import com.theoplayer.android.api.source.SourceDescription
 import com.theoplayer.android.api.source.SourceType
 import com.theoplayer.android.api.source.TypedSource
 import com.theoplayer.android.api.source.addescription.GoogleImaAdDescription
 import com.theoplayer.android.api.source.metadata.MetadataDescription
+import com.theoplayer.android.api.source.ssai.dai.GoogleDaiVodConfiguration
 import com.theoplayer.android.api.theolive.TheoLiveSource
 import com.theoplayer.android.connector.uplynk.UplynkAssetType
 import com.theoplayer.android.connector.uplynk.UplynkPingConfiguration
 import com.theoplayer.android.connector.uplynk.UplynkSsaiDescription
 import com.theoplayer.android.connector.yospace.YospaceSsaiDescription
 import com.theoplayer.android.connector.yospace.YospaceStreamType
+import java.util.Collections
 
 data class Source(
     val name: String,
@@ -40,6 +43,24 @@ val sources: List<Source> by lazy {
                 "assetid" to "C112233",
                 "program" to "BigBuckBunny with Google IMA ads"
             )
+        ),
+        Source(
+            name = "BigBuckBunny with Google DAI ads",
+            sourceDescription = SourceDescription.Builder(
+                GoogleDaiTypedSource.Builder(
+                    GoogleDaiVodConfiguration.Builder(
+                        "null",
+                        "2474148",
+                        "bbb-clear"
+                    ).apply {
+                        adTagParameters(Collections.singletonMap("npa", "1"))
+                        streamActivityMonitorID("test-stream-activity-monitor-id")
+                    }.build()
+                )
+                    .type(SourceType.DASH)
+                    .build()
+            )
+                .build()
         ),
         Source(
             name = "THEOlive demo",
