@@ -60,6 +60,7 @@ dependencies {
 
     implementation "com.theoplayer.theoplayer-sdk-android:core:$sdkVersion"
     implementation "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:$sdkVersion"
+    implementation "com.theoplayer.theoplayer-sdk-android:integration-ads-dai:$sdkVersion"
     implementation libs.theoplayer.android.ui
 
     implementation project(":connectors:analytics:conviva")
