@@ -172,7 +172,7 @@ fun updateAdMetadataForGoogleIma(ad: GoogleImaAd, metadata: ConvivaMetadata): Co
 fun collectAdMetadata(ad: Ad): ConvivaMetadata {
     // AssetName should never be an empty string
     return mutableMapOf(
-        ConvivaSdkConstants.DURATION to if (ad is LinearAd) ad.duration else 0,
+        ConvivaSdkConstants.DURATION to if (ad is LinearAd) ad.durationAsDouble else 0.0,
         ConvivaSdkConstants.ASSET_NAME to ad.id,
 
         // [Required] This Ad ID is from the Ad Server that actually has the ad creative.
