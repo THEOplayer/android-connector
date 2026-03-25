@@ -8,21 +8,34 @@ import kotlin.time.Duration
 internal class UplynkSsaiDescriptionConverter {
     private val DEFAULT_PREFIX = "https://content.uplynk.com"
 
-    fun buildPreplayVodUrl(ssaiDescription: UplynkSsaiDescription): Uri = with(ssaiDescription) {
-        val prefix = prefix ?: DEFAULT_PREFIX
+    fun buildPreplayVodUrl(ssaiDescription: UplynkSsaiDescription): Uri =
+        with(ssaiDescription) {
+            return (prefix ?: DEFAULT_PREFIX).toUri().buildUpon().apply {
+                appendEncodedPath("preplay/$urlAssetId")
+                appendQueryParameter("v", "2")
+                drmParameters.forEach { (key, value) -> appendQueryParameter(key, value) }
+                pingParameters.forEach { (key, value) -> appendQueryParameter(key, value) }
+                preplayParameters.forEach { (key, value) -> appendQueryParameter(key, value) }
+            }.build()
+        }
 
-        return "$prefix/preplay/$urlAssetId?v=2$drmParameters$pingParameters$urlParameters".toUri()
-    }
+    fun buildPreplayLiveUrl(ssaiDescription: UplynkSsaiDescription): Uri =
+        with(ssaiDescription) {
+            return (prefix ?: DEFAULT_PREFIX).toUri().buildUpon().apply {
+                appendEncodedPath("preplay/$urlAssetType/$urlAssetId")
+                appendQueryParameter("v", "2")
+                drmParameters.forEach { (key, value) -> appendQueryParameter(key, value) }
+                pingParameters.forEach { (key, value) -> appendQueryParameter(key, value) }
+                preplayParameters.forEach { (key, value) -> appendQueryParameter(key, value) }
+            }.build()
+        }
 
-    fun buildPreplayLiveUrl(ssaiDescription: UplynkSsaiDescription): Uri = with(ssaiDescription) {
-        val prefix = prefix ?: DEFAULT_PREFIX
-
-        return "$prefix/preplay/$urlAssetType/$urlAssetId?v=2$drmParameters$pingParameters$urlParameters".toUri()
-    }
-
-    fun buildPlaybackUrl(playUrl: String, ssaiDescription: UplynkSsaiDescription): Uri = with(ssaiDescription) {
-        return "$playUrl$playUrlParameters".toUri()
-    }
+    fun buildPlaybackUrl(playUrl: String, ssaiDescription: UplynkSsaiDescription): Uri =
+        with(ssaiDescription) {
+            return playUrl.toUri().buildUpon().apply {
+                playbackUrlParameters.forEach { (key, value) -> appendQueryParameter(key, value) }
+            }.build()
+        }
 
     fun buildAssetInfoUrls(
         ssaiDescription: UplynkSsaiDescription,
@@ -43,19 +56,39 @@ internal class UplynkSsaiDescriptionConverter {
         return if (sessionId.isBlank()) {
             urlList
         } else {
-            urlList.map { "$it?pbs=$sessionId".toUri() }
+            urlList.map { url ->
+                url.buildUpon().apply {
+                    appendQueryParameter("pbs", sessionId)
+                }.build()
+            }
         }
     }
 
     fun buildSeekedPingUrl(
-        prefix: String, sessionId: String, currentTime: Duration, seekStartTime: Duration
-    ) = (buildPingUrl(prefix, sessionId, currentTime).toString() + "&ev=seek&ft=${seekStartTime.inWholeSeconds}").toUri()
+        prefix: String,
+        sessionId: String,
+        currentTime: Duration,
+        seekStartTime: Duration
+    ): Uri = buildPingUrl(prefix, sessionId, currentTime).buildUpon().apply {
+        appendQueryParameter("ev", "seek")
+        appendQueryParameter("ft", seekStartTime.inWholeSeconds.toString())
+    }.build()
 
     fun buildStartPingUrl(
-        prefix: String, sessionId: String, currentTime: Duration
-    ) = (buildPingUrl(prefix, sessionId, currentTime).toString() + "&ev=start").toUri()
+        prefix: String,
+        sessionId: String,
+        currentTime: Duration
+    ): Uri = buildPingUrl(prefix, sessionId, currentTime).buildUpon().apply {
+        appendQueryParameter("ev", "start")
+    }.build()
 
     fun buildPingUrl(
-        prefix: String, sessionId: String, currentTime: Duration
-    ) = "$prefix/session/ping/$sessionId.json?v=3&pt=${currentTime.inWholeSeconds}".toUri()
+        prefix: String,
+        sessionId: String,
+        currentTime: Duration
+    ): Uri = prefix.toUri().buildUpon().apply {
+        appendEncodedPath("session/ping/$sessionId.json")
+        appendQueryParameter("v", "3")
+        appendQueryParameter("pt", currentTime.inWholeSeconds.toString())
+    }.build()
 }
