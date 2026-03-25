@@ -13,8 +13,6 @@ import com.theoplayer.android.api.theolive.TheoLiveSource
 import com.theoplayer.android.connector.uplynk.UplynkAssetType
 import com.theoplayer.android.connector.uplynk.UplynkPingConfiguration
 import com.theoplayer.android.connector.uplynk.UplynkSsaiDescription
-import com.theoplayer.android.connector.yospace.YospaceSsaiDescription
-import com.theoplayer.android.connector.yospace.YospaceStreamType
 import java.util.Collections
 
 data class Source(
@@ -68,6 +66,8 @@ val sources: List<Source> by lazy {
                 .metadata(MetadataDescription(mutableMapOf("title" to "THEOlive demo")))
                 .build()
         ),
+        // FIXME Re-enable Yospace connector
+        /*
         Source(
             name = "Yospace HLS VOD",
             sourceDescription = SourceDescription
@@ -133,6 +133,7 @@ val sources: List<Source> by lazy {
                 )
                 .build()
         ),
+        */
         Source(
             name = "Uplynk Ads",
             sourceDescription = SourceDescription
