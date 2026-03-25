@@ -6,8 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlin.time.Duration
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
+import kotlin.time.Duration.Companion.seconds
 
 internal class PingScheduler(
     private val uplynkApi: UplynkApi,
@@ -17,7 +16,7 @@ internal class PingScheduler(
     private val eventDispatcher: UplynkEventDispatcher,
     private val adScheduler: UplynkAdScheduler
 ) {
-    private val NEGATIVE_TIME = (-1).toDuration(DurationUnit.SECONDS)
+    private val NEGATIVE_TIME = (-1).seconds
 
     private var nextRequestTime: Duration = NEGATIVE_TIME
     private var seekStart: Duration = NEGATIVE_TIME

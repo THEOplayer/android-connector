@@ -9,8 +9,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.MockitoAnnotations
 import org.robolectric.RobolectricTestRunner
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
+import kotlin.time.Duration.Companion.seconds
 
 @RunWith(RobolectricTestRunner::class)
 class UplynkSsaiDescriptionConverterTest {
@@ -164,22 +163,22 @@ class UplynkSsaiDescriptionConverterTest {
 
     @Test
     fun buildStartPingUrl_always_hasStartParameter() {
-        val result = converter.buildStartPingUrl("prefix", "sessionId", 200.toDuration(DurationUnit.SECONDS))
+        val result = converter.buildStartPingUrl("prefix", "sessionId", 200.seconds)
 
         assertEquals(listOf("start"), result.getQueryParameters("ev"))
     }
 
     @Test
     fun buildStartPingUrl_always_startsTheSameAsNormalPingRequest() {
-        val result = converter.buildStartPingUrl("prefix", "sessionId", 200.toDuration(DurationUnit.SECONDS)).toString()
-        val pingUrl = converter.buildPingUrl("prefix", "sessionId", 200.toDuration(DurationUnit.SECONDS)).toString()
+        val result = converter.buildStartPingUrl("prefix", "sessionId", 200.seconds).toString()
+        val pingUrl = converter.buildPingUrl("prefix", "sessionId", 200.seconds).toString()
 
         assertTrue(result.startsWith(pingUrl))
     }
 
     @Test
     fun buildSeekedPingUrl_always_hasSeekParameters() {
-        val result = converter.buildSeekedPingUrl("prefix", "sessionId", 200.toDuration(DurationUnit.SECONDS), 180.toDuration(DurationUnit.SECONDS))
+        val result = converter.buildSeekedPingUrl("prefix", "sessionId", 200.seconds, 180.seconds)
 
         assertEquals(listOf("seek"), result.getQueryParameters("ev"))
         assertEquals(listOf("180"), result.getQueryParameters("ft"))
@@ -187,8 +186,8 @@ class UplynkSsaiDescriptionConverterTest {
 
     @Test
     fun buildSeekedPingUrl_always_startsTheSameAsNormalPingRequest() {
-        val result = converter.buildSeekedPingUrl("prefix", "sessionId", 200.toDuration(DurationUnit.SECONDS), 180.toDuration(DurationUnit.SECONDS)).toString()
-        val pingUrl = converter.buildPingUrl("prefix", "sessionId", 200.toDuration(DurationUnit.SECONDS)).toString()
+        val result = converter.buildSeekedPingUrl("prefix", "sessionId", 200.seconds, 180.seconds).toString()
+        val pingUrl = converter.buildPingUrl("prefix", "sessionId", 200.seconds).toString()
 
         assertTrue(result.startsWith(pingUrl))
     }
@@ -196,7 +195,7 @@ class UplynkSsaiDescriptionConverterTest {
     @Test
     fun buildPingUrl_always_followsThePingTemplate() {
         val currentTime = 200
-        val result = converter.buildPingUrl("prefix", "sessionId", currentTime.toDuration(DurationUnit.SECONDS)).toString()
+        val result = converter.buildPingUrl("prefix", "sessionId", currentTime.seconds).toString()
 
         assertEquals(result, "prefix/session/ping/sessionId.json?v=3&pt=200")
     }
