@@ -3,7 +3,9 @@ package com.theoplayer.android.connector.uplynk.internal
 import com.theoplayer.android.connector.uplynk.UplynkAssetType
 import com.theoplayer.android.connector.uplynk.UplynkSsaiDescription
 
-internal val UplynkSsaiDescription.drmParameters: List<Pair<String, String>>
+internal typealias QueryParameter = Pair<String, String>
+
+internal val UplynkSsaiDescription.drmParameters: List<QueryParameter>
     get() = if (contentProtected) {
         listOf(
             "manifest" to "mpd",
@@ -13,7 +15,7 @@ internal val UplynkSsaiDescription.drmParameters: List<Pair<String, String>>
         listOf()
     }
 
-internal val UplynkSsaiDescription.pingParameters: List<Pair<String, String>>
+internal val UplynkSsaiDescription.pingParameters: List<QueryParameter>
     get() {
         val feature = UplynkPingFeatures.from(this)
         return if (feature == UplynkPingFeatures.NO_PING) {
