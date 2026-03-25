@@ -226,7 +226,7 @@ internal class UplynkAdIntegration(
         }
 
         val playUrl = uplynkDescriptionConverter.buildPlaybackUrl(minimalResponse.playURL, ssaiDescription)
-        var newUplynkSource = uplynkSource.copy(src = playUrl)
+        var newUplynkSource = uplynkSource.copy(src = playUrl.toString())
 
         minimalResponse.drm?.let { drm ->
             if (drm.required) {
@@ -259,7 +259,7 @@ internal class UplynkAdIntegration(
                 .buildAssetInfoUrls(ssaiDescription, minimalResponse.sid, minimalResponse.prefix)
                 .mapNotNull {
                     try {
-                        uplynkApi.assetInfo(it)
+                        uplynkApi.assetInfo(it.toString())
                     } catch (e: Exception) {
                         eventDispatcher.dispatchAssetInfoFailure(e)
                         controller.error(e)
@@ -275,7 +275,7 @@ internal class UplynkAdIntegration(
     private suspend fun requestLive(ssaiDescription: UplynkSsaiDescription): PreplayInternalLiveResponse {
         return uplynkDescriptionConverter
             .buildPreplayLiveUrl(ssaiDescription)
-            .let { uplynkApi.preplayLive(it) }
+            .let { uplynkApi.preplayLive(it.toString()) }
             .also {
                 try {
                     val response = it.parseExternalResponse()
@@ -291,7 +291,7 @@ internal class UplynkAdIntegration(
     private suspend fun requestVod(ssaiDescription: UplynkSsaiDescription): PreplayInternalVodResponse {
         return uplynkDescriptionConverter
             .buildPreplayVodUrl(ssaiDescription)
-            .let { uplynkApi.preplayVod(it) }
+            .let { uplynkApi.preplayVod(it.toString()) }
             .also {
                 try {
                     val response = it.parseExternalResponse()

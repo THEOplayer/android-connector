@@ -5,11 +5,14 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
 import org.mockito.MockitoAnnotations
+import org.robolectric.RobolectricTestRunner
 import kotlin.test.assertContains
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
+@RunWith(RobolectricTestRunner::class)
 class UplynkSsaiDescriptionConverterTest {
     private lateinit var ssaiDescription: UplynkSsaiDescription
 
@@ -28,7 +31,7 @@ class UplynkSsaiDescriptionConverterTest {
 
     @Test
     fun buildPreplayVodUrl_whenPrefixIsNotNull_startsUrlFromPrefix() {
-        val result = converter.buildPreplayVodUrl(ssaiDescription)
+        val result = converter.buildPreplayVodUrl(ssaiDescription).toString()
 
         assertTrue(result.startsWith("preplayprefix"))
     }
@@ -37,14 +40,14 @@ class UplynkSsaiDescriptionConverterTest {
     fun buildPreplayVodUrl_whenPrefixIsNull_startsUrlFromPrefix() {
         ssaiDescription = ssaiDescription.copy(prefix = null)
 
-        val result = converter.buildPreplayVodUrl(ssaiDescription)
+        val result = converter.buildPreplayVodUrl(ssaiDescription).toString()
 
         assertTrue(result.startsWith("https://content.uplynk.com"))
     }
 
     @Test
     fun buildPreplayVodUrl_whenAssetIdHasMultipleValues_addsThemAsCommaSeparatedList() {
-        val result = converter.buildPreplayVodUrl(ssaiDescription)
+        val result = converter.buildPreplayVodUrl(ssaiDescription).toString()
 
         assertTrue(result.contains("/asset1,asset2,asset3/"))
     }
@@ -53,7 +56,7 @@ class UplynkSsaiDescriptionConverterTest {
     fun buildPreplayVodUrl_whenAssetIdHasSingleValue_usesItAsJsonFilename() {
         ssaiDescription = ssaiDescription.copy(assetIds = listOf("singleasset"))
 
-        val result = converter.buildPreplayVodUrl(ssaiDescription)
+        val result = converter.buildPreplayVodUrl(ssaiDescription).toString()
 
         assertTrue(result.contains("/singleasset.json"))
     }
@@ -64,7 +67,7 @@ class UplynkSsaiDescriptionConverterTest {
             assetIds = listOf(), externalIds = listOf("extId1", "extId2"), userId = "userId"
         )
 
-        val result = converter.buildPreplayVodUrl(ssaiDescription)
+        val result = converter.buildPreplayVodUrl(ssaiDescription).toString()
 
         assertTrue(result.contains("userId"))
         assertTrue(result.contains("extId1,extId2/multiple.json"))
@@ -76,7 +79,7 @@ class UplynkSsaiDescriptionConverterTest {
             assetIds = listOf(), externalIds = listOf("extId1"), userId = "userId"
         )
 
-        val result = converter.buildPreplayVodUrl(ssaiDescription)
+        val result = converter.buildPreplayVodUrl(ssaiDescription).toString()
 
         assertTrue(result.contains("userId"))
         assertTrue(result.contains("extId1.json"))
@@ -84,7 +87,7 @@ class UplynkSsaiDescriptionConverterTest {
 
     @Test
     fun buildPreplayVodUrl_always_followsTheTemplate() {
-        val result = converter.buildPreplayVodUrl(ssaiDescription)
+        val result = converter.buildPreplayVodUrl(ssaiDescription).toString()
 
         val items = result.split("/", "?")
         assertEquals("preplayprefix", items[0])
@@ -98,20 +101,21 @@ class UplynkSsaiDescriptionConverterTest {
     fun buildAssetInfoUrls_withoutSid_doesNotContainPbsParameter() {
         val result = converter.buildAssetInfoUrls(ssaiDescription, "", "prefix")
 
-        assertTrue(result.none { it.contains("pbs=") })
+        assertTrue(result.none { it.toString().contains("pbs=") })
     }
 
     @Test
     fun buildAssetInfoUrls_withSid_hasPbsParameter() {
         val result = converter.buildAssetInfoUrls(ssaiDescription, "sessionId", "prefix")
 
-        assertTrue(result.all { it.contains("pbs=sessionId") })
+        assertTrue(result.all { it.toString().contains("pbs=sessionId") })
     }
 
     @Test
     fun buildAssetInfoUrls_whenAssetIdIsEmptyAndExternalIdIsEmpty_returnsEmptyUrl() {
         ssaiDescription = UplynkSsaiDescription(
-            assetIds = listOf(), externalIds = listOf()
+            assetIds = listOf(),
+            externalIds = listOf()
         )
 
         val result = converter.buildAssetInfoUrls(ssaiDescription, "", "prefix")
@@ -121,7 +125,7 @@ class UplynkSsaiDescriptionConverterTest {
 
     @Test
     fun buildAssetInfoUrls_whenAssetIdHasValues_returnsAssetInfoUrls() {
-        val result = converter.buildAssetInfoUrls(ssaiDescription, "", "prefix")
+        val result = converter.buildAssetInfoUrls(ssaiDescription, "", "prefix").map { it.toString() }
 
         assertEquals(3, result.size)
 
@@ -138,7 +142,7 @@ class UplynkSsaiDescriptionConverterTest {
             userId = "userId"
         )
 
-        val result = converter.buildAssetInfoUrls(ssaiDescription, "", "prefix")
+        val result = converter.buildAssetInfoUrls(ssaiDescription, "", "prefix").map { it.toString() }
 
         assertEquals(2, result.size)
 
@@ -148,22 +152,22 @@ class UplynkSsaiDescriptionConverterTest {
 
     @Test
     fun buildStartPingUrl_always_hasStartParameter() {
-        val result = converter.buildStartPingUrl("prefix", "sessionId", 200.toDuration(DurationUnit.SECONDS))
+        val result = converter.buildStartPingUrl("prefix", "sessionId", 200.toDuration(DurationUnit.SECONDS)).toString()
 
         assertContains(result, "ev=start")
     }
 
     @Test
     fun buildStartPingUrl_always_startsTheSameAsNormalPingRequest() {
-        val result = converter.buildStartPingUrl("prefix", "sessionId", 200.toDuration(DurationUnit.SECONDS))
-        val pingUrl = converter.buildPingUrl("prefix", "sessionId", 200.toDuration(DurationUnit.SECONDS))
+        val result = converter.buildStartPingUrl("prefix", "sessionId", 200.toDuration(DurationUnit.SECONDS)).toString()
+        val pingUrl = converter.buildPingUrl("prefix", "sessionId", 200.toDuration(DurationUnit.SECONDS)).toString()
 
         assertContains(result, pingUrl)
     }
 
     @Test
     fun buildSeekedPingUrl_always_hasSeekParameters() {
-        val result = converter.buildSeekedPingUrl("prefix", "sessionId", 200.toDuration(DurationUnit.SECONDS), 180.toDuration(DurationUnit.SECONDS))
+        val result = converter.buildSeekedPingUrl("prefix", "sessionId", 200.toDuration(DurationUnit.SECONDS), 180.toDuration(DurationUnit.SECONDS)).toString()
 
         assertContains(result, "ev=seek")
         assertContains(result, "ft=180")
@@ -171,8 +175,8 @@ class UplynkSsaiDescriptionConverterTest {
 
     @Test
     fun buildSeekedPingUrl_always_startsTheSameAsNormalPingRequest() {
-        val result = converter.buildSeekedPingUrl("prefix", "sessionId", 200.toDuration(DurationUnit.SECONDS), 180.toDuration(DurationUnit.SECONDS))
-        val pingUrl = converter.buildPingUrl("prefix", "sessionId", 200.toDuration(DurationUnit.SECONDS))
+        val result = converter.buildSeekedPingUrl("prefix", "sessionId", 200.toDuration(DurationUnit.SECONDS), 180.toDuration(DurationUnit.SECONDS)).toString()
+        val pingUrl = converter.buildPingUrl("prefix", "sessionId", 200.toDuration(DurationUnit.SECONDS)).toString()
 
         assertContains(result, pingUrl)
     }
@@ -180,7 +184,7 @@ class UplynkSsaiDescriptionConverterTest {
     @Test
     fun buildPingUrl_always_followsThePingTemplate() {
         val currentTime = 200
-        val result = converter.buildPingUrl("prefix", "sessionId", currentTime.toDuration(DurationUnit.SECONDS))
+        val result = converter.buildPingUrl("prefix", "sessionId", currentTime.toDuration(DurationUnit.SECONDS)).toString()
 
         assertEquals(result, "prefix/session/ping/sessionId.json?v=3&pt=200")
     }
