@@ -1,5 +1,3 @@
-import org.jetbrains.dokka.gradle.AbstractDokkaLeafTask
-
 plugins {
     alias(libs.plugins.android.connector.library)
     alias(libs.plugins.kotlinx.serialization)
@@ -23,6 +21,6 @@ dependencies {
     androidTestImplementation(libs.androidx.test.espresso.core)
 }
 
-tasks.withType(AbstractDokkaLeafTask::class).configureEach {
+dokka {
     moduleName = "Uplynk Connector"
 }

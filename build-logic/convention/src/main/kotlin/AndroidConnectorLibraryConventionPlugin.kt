@@ -7,7 +7,10 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.register
+import org.jetbrains.dokka.gradle.DokkaExtension
+import org.jetbrains.dokka.gradle.tasks.DokkaGenerateTask
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
@@ -16,6 +19,7 @@ class AndroidConnectorLibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
         apply(plugin = "com.android.library")
         apply(plugin = "org.jetbrains.dokka")
+        apply(plugin = "org.jetbrains.dokka-javadoc")
         apply(plugin = "maven-publish")
 
         extensions.configure<LibraryExtension> {
@@ -61,12 +65,29 @@ class AndroidConnectorLibraryConventionPlugin : Plugin<Project> {
             }
         }
 
-        val dokkaJavadocJar = tasks.register<Jar>("dokkaJavadocJar") {
-            val dokkaJavadoc = tasks.named("dokkaJavadoc")
+        extensions.configure<DokkaExtension> {
+            val connectorVersion = libs.versions.androidConnector
+            version = connectorVersion
 
+            dokkaSourceSets.configureEach {
+                externalDocumentationLinks.register("com.theoplayer.android.api") {
+                    url("https://optiview.dolby.com/docs/theoplayer/v10/api-reference/android/")
+                    packageListUrl("https://optiview.dolby.com/docs/theoplayer/v10/api-reference/android/package-list")
+                }
+
+                perPackageOption {
+                    matchingRegex.set("com[.]theoplayer[.]android[.]connector[.].*[.]internal.*")
+                    suppress.set(true)
+                }
+            }
+        }
+
+        // https://kotlinlang.org/docs/dokka-gradle.html#build-javadoc-jar
+        val dokkaGeneratePublicationJavadoc = tasks.named<DokkaGenerateTask>("dokkaGeneratePublicationJavadoc")
+        val dokkaJavadocJar = tasks.register<Jar>("dokkaJavadocJar") {
             group = "documentation"
-            dependsOn(dokkaJavadoc)
-            from(dokkaJavadoc)
+            dependsOn(dokkaGeneratePublicationJavadoc)
+            from(dokkaGeneratePublicationJavadoc)
             archiveClassifier.set("javadoc")
         }
 

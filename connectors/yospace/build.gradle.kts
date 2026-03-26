@@ -1,5 +1,3 @@
-import org.jetbrains.dokka.gradle.AbstractDokkaLeafTask
-
 plugins {
     alias(libs.plugins.android.connector.library)
     alias(libs.plugins.kotlinx.serialization)
@@ -36,7 +34,7 @@ dependencies {
     testImplementation(libs.yospace)
 }
 
-tasks.withType(AbstractDokkaLeafTask::class).configureEach {
+dokka {
     moduleName = "Yospace Connector"
 
     dokkaSourceSets.named("main") {

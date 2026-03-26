@@ -1,5 +1,3 @@
-import org.jetbrains.dokka.gradle.AbstractDokkaLeafTask
-
 plugins {
     alias(libs.plugins.android.connector.library)
 }
@@ -21,6 +19,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.process)
 }
 
-tasks.withType(AbstractDokkaLeafTask::class).configureEach {
+dokka {
     moduleName = "Conviva Connector"
 }

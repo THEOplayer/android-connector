@@ -1,6 +1,5 @@
-import org.jetbrains.dokka.gradle.AbstractDokkaLeafTask
-import org.jetbrains.dokka.gradle.DokkaMultiModuleTask
 import java.time.Year
+import kotlin.text.Typography.copyright
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
@@ -44,68 +43,29 @@ tasks.register("updateVersion") {
     }
 }
 
-tasks.register<Delete>("clean") {
-    delete(rootProject.layout.buildDirectory)
+dependencies {
+    dokka(project(":connectors:analytics:comscore"))
+    dokka(project(":connectors:analytics:conviva"))
+    dokka(project(":connectors:analytics:nielsen"))
+    dokka(project(":connectors:mediasession"))
+    // FIXME Re-enable Yospace connector
+    // dokka(project(":connectors:yospace"))
+    dokka(project(":connectors:uplynk"))
 }
 
-tasks.withType(DokkaMultiModuleTask::class).configureEach {
+dokka {
+    val connectorVersion: String = libs.versions.androidConnector.get()
+
     moduleName = "THEOplayer Connectors for Android"
-
-    val dokkaBaseConfiguration = """
-    {
-      "customAssets": ["${file("assets/logo-icon.svg").path.replace("\\", "\\\\")}"],
-      "footerMessage": "&copy; ${Year.now().value} THEO Technologies"
-    }
-    """
-
-    pluginsMapConfiguration = mapOf(
-        // fully qualified plugin name to json configuration
-        "org.jetbrains.dokka.base.DokkaBase" to dokkaBaseConfiguration
-    )
-}
-
-tasks.dokkaHtmlMultiModule.configure {
-    outputDirectory = rootProject.file("site/api")
-}
-
-val connectorVersion: String = libs.versions.androidConnector.get()
-
-subprojects {
     version = connectorVersion
 
-    tasks.withType(AbstractDokkaLeafTask::class).configureEach {
-        suppressObviousFunctions = true
-        suppressInheritedMembers = true
+    pluginsConfiguration.html {
+        customAssets.from("assets/logo-icon.svg")
+        footerMessage =
+            "$copyright ${Year.now().value} Dolby Laboratories, Inc. All rights reserved."
+    }
 
-        dokkaSourceSets {
-            configureEach {
-                // Use to include or exclude non public members
-                includeNonPublic = false
-                // Do not output deprecated members. Applies globally, can be overridden by packageOptions
-                skipDeprecated = false
-                // Emit warnings about not documented members. Applies globally, also can be overridden by packageOptions
-                reportUndocumented = true
-                // Do not create index pages for empty packages
-                skipEmptyPackages = false
-                // Used for linking to JDK documentation
-                jdkVersion = 11
-                // Use to enable or disable linking to online kotlin-stdlib documentation
-                noStdlibLink = false
-                // Use to enable or disable linking to online JDK documentation
-                noJdkLink = false
-                // Use to enable or disable linking to online Android documentation (only applicable for Android projects)
-                noAndroidSdkLink = false
-
-                externalDocumentationLink {
-                    url = uri("https://www.theoplayer.com/docs/theoplayer/v10/api-reference/android/").toURL()
-                    packageListUrl = uri("https://www.theoplayer.com/docs/theoplayer/v10/api-reference/android/package-list").toURL()
-                }
-
-                perPackageOption {
-                    matchingRegex = "com[.]theoplayer[.]android[.]connector[.].*[.]internal.*"
-                    suppress = true
-                }
-            }
-        }
+    dokkaPublications.html {
+        outputDirectory = rootDir.resolve("site/api")
     }
 }

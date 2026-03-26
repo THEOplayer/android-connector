@@ -1,5 +1,3 @@
-import org.jetbrains.dokka.gradle.AbstractDokkaLeafTask
-
 plugins {
     alias(libs.plugins.android.connector.library)
 }
@@ -16,7 +14,7 @@ dependencies {
     compileOnly(libs.nielsen)
 }
 
-tasks.withType(AbstractDokkaLeafTask::class).configureEach {
+dokka {
     moduleName = "Nielsen Connector"
 }
 
