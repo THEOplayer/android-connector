@@ -23,17 +23,20 @@ plugins {
 }
 
 tasks.register("updateVersion") {
+    val gradleProperties = rootProject.file("gradle.properties")
+    inputs.file(gradleProperties)
+
     val sdkVersion: String by project.ext
     ant.withGroovyBuilder {
         "replaceregexp"(
-            "file" to "gradle.properties",
+            "file" to gradleProperties,
             "match" to "sdkVersion=.*",
             "replace" to "sdkVersion=$sdkVersion",
             "flags" to "g",
             "byline" to true
         )
         "replaceregexp"(
-            "file" to "gradle.properties",
+            "file" to gradleProperties,
             "match" to "connectorVersion=.*",
             "replace" to "connectorVersion=$sdkVersion",
             "flags" to "g",
