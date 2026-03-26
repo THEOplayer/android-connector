@@ -3,8 +3,10 @@ import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.register
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
@@ -41,6 +43,14 @@ class AndroidConnectorLibraryConventionPlugin : Plugin<Project> {
             buildFeatures {
                 buildConfig = true
             }
+
+            publishing {
+                singleVariant("release") {
+                    withSourcesJar()
+                    // We use Dokka for JavaDoc generation, see dokkaJavadocJar below
+                    // withJavadocJar()
+                }
+            }
         }
 
         extensions.configure<KotlinAndroidExtension> {
@@ -66,6 +76,17 @@ class AndroidConnectorLibraryConventionPlugin : Plugin<Project> {
                     credentials {
                         username = System.getenv("GITHUB_ACTOR")
                         password = System.getenv("GITHUB_TOKEN")
+                    }
+                }
+            }
+
+            afterEvaluate {
+                publications {
+                    register<MavenPublication>("release") {
+                        groupId = "com.theoplayer.android-connector"
+                        artifactId = project.name
+                        version = libs.versions.androidConnector
+                        from(components.getByName("release"))
                     }
                 }
             }

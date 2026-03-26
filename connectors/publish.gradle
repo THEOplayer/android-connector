@@ -1,15 +1,5 @@
 apply plugin: 'maven-publish'
 
-android {
-    publishing {
-        singleVariant("release") {
-            withSourcesJar()
-            // We use Dokka for JavaDoc generation, see dokkaJavadocJar below
-            // withJavadocJar()
-        }
-    }
-}
-
 tasks.register("dokkaJavadocJar", Jar) {
     group = "documentation"
     dependsOn(tasks.dokkaJavadoc)
@@ -21,11 +11,7 @@ afterEvaluate {
     publishing {
         publications {
             release(MavenPublication) {
-                groupId project.ext.groupId
-                artifactId project.name
-                version project.ext.connectorVersion
                 artifact(tasks.dokkaJavadocJar)
-                from components.release
             }
         }
     }
