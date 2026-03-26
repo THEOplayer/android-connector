@@ -85,7 +85,7 @@ class AndroidConnectorLibraryConventionPlugin : Plugin<Project> {
         // https://kotlinlang.org/docs/dokka-gradle.html#build-javadoc-jar
         val dokkaGeneratePublicationJavadoc = tasks.named<DokkaGenerateTask>("dokkaGeneratePublicationJavadoc")
         val dokkaJavadocJar = tasks.register<Jar>("dokkaJavadocJar") {
-            group = "documentation"
+            group = "dokka"
             dependsOn(dokkaGeneratePublicationJavadoc)
             from(dokkaGeneratePublicationJavadoc)
             archiveClassifier.set("javadoc")
