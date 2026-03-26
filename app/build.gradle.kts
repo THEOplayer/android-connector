@@ -25,6 +25,18 @@ android {
         }
     }
 
+    flavorDimensions += "player"
+    productFlavors {
+        create("latestPlayer") {
+            // Use the latest supported THEOplayer version
+            dimension = "player"
+        }
+        create("minPlayer") {
+            // Use the minimum supported THEOplayer version
+            dimension = "player"
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -43,6 +55,9 @@ kotlin {
 }
 
 dependencies {
+    val latestPlayerImplementation = configurations.getByName("latestPlayerImplementation")
+    val minPlayerImplementation = configurations.getByName("minPlayerImplementation")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.kotlinx.coroutines.android)
@@ -57,9 +72,26 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     debugImplementation(libs.androidx.compose.ui.tooling)
 
-    implementation(libs.theoplayer)
-    implementation(libs.theoplayer.integration.ima)
-    implementation(libs.theoplayer.integration.dai)
+    latestPlayerImplementation(libs.theoplayer)
+    latestPlayerImplementation(libs.theoplayer.integration.ima)
+    latestPlayerImplementation(libs.theoplayer.integration.dai)
+
+    minPlayerImplementation(libs.theoplayer) {
+        version {
+            strictly(libs.versions.theoplayerMin.get())
+        }
+    }
+    minPlayerImplementation(libs.theoplayer.integration.ima) {
+        version {
+            strictly(libs.versions.theoplayerMin.get())
+        }
+    }
+    minPlayerImplementation(libs.theoplayer.integration.dai) {
+        version {
+            strictly(libs.versions.theoplayerMin.get())
+        }
+    }
+
     implementation(libs.theoplayer.android.ui)
 
     implementation(project(":connectors:analytics:conviva"))
