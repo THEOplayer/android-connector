@@ -30,8 +30,8 @@ tasks.register("updateVersion") {
     ant.withGroovyBuilder {
         "replaceregexp"(
             "file" to versionCatalog,
-            "match" to """^theoplayer = ".+"$""",
-            "replace" to """theoplayer = "$sdkVersion"""",
+            "match" to """^theoplayer = \{(.*) prefer = ".+" (.*)\}$""",
+            "replace" to """theoplayer = {\1 prefer = "$sdkVersion" \2}""",
             "byline" to true
         )
         "replaceregexp"(

@@ -24,8 +24,8 @@ For more details about importing THEOplayer Android SDK check the [documentation
 Notes:
 * The `+` will fetch the latest released version of THEOplayer Android SDK Connector.
 * Android Studio will recommend replacing the `+` with the exact version of THEOplayer Android SDK Connector.
-* The THEOplayer Android SDK and the THEOplayer Android SDK Connectors are stable when using the same version.
-  It's not recommended to use different versions for the Android SDK and the Connectors.
+* THEOplayer Android SDK Connectors are compatible with a THEOplayer SDK with the same major version number.
+  It's not recommended to use different major versions for the Android SDK and the Connectors.
 
 ## Installation
 
