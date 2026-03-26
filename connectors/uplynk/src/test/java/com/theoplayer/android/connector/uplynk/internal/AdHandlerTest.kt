@@ -19,8 +19,7 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import kotlin.time.Duration
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
+import kotlin.time.Duration.Companion.seconds
 
 
 class AdHandlerTest {
@@ -49,8 +48,8 @@ class AdHandlerTest {
             listOf(),
             "",
             "",
-            100.toDuration(DurationUnit.SECONDS),
-            200.toDuration(DurationUnit.SECONDS)
+            100.seconds,
+            200.seconds
         )
 
         adHandler.createAdBreak(adBreak)
@@ -72,8 +71,8 @@ class AdHandlerTest {
             listOf(),
             "",
             "",
-            100.toDuration(DurationUnit.SECONDS),
-            200.toDuration(DurationUnit.SECONDS)
+            100.seconds,
+            200.seconds
         )
 
         adHandler.createAdBreak(adBreak)
@@ -93,7 +92,7 @@ class AdHandlerTest {
                     mapOf(),
                     1f,
                     2f,
-                    100.toDuration(DurationUnit.SECONDS)
+                    100.seconds
                 ),
                 UplynkAd(
                     null,
@@ -103,7 +102,7 @@ class AdHandlerTest {
                     mapOf(),
                     1f,
                     2f,
-                    200.toDuration(DurationUnit.SECONDS)
+                    200.seconds
                 ),
                 UplynkAd(
                     null,
@@ -113,9 +112,9 @@ class AdHandlerTest {
                     mapOf(),
                     1f,
                     2f,
-                    300.toDuration(DurationUnit.SECONDS)
+                    300.seconds
                 ),
-            ), "", "", 400.toDuration(DurationUnit.SECONDS), 500.toDuration(DurationUnit.SECONDS)
+            ), "", "", 400.seconds, 500.seconds
         )
 
         adHandler.createAdBreak(adBreak)
@@ -156,7 +155,7 @@ class AdHandlerTest {
     @Test
     fun onAdBegin_forUnknownAd_throwsAnException() {
         val ad =
-            UplynkAd(null, listOf(), "", "", mapOf(), 1f, 2f, 100.toDuration(DurationUnit.SECONDS))
+            UplynkAd(null, listOf(), "", "", mapOf(), 1f, 2f, 100.seconds)
 
         assertThrows(java.lang.IllegalStateException::class.java) {
             adHandler.onAdBegin(ad)
@@ -166,13 +165,13 @@ class AdHandlerTest {
     @Test
     fun onAdBegin_forCreatedAdBreak_callsBeginAd() {
         val uplynkAd =
-            UplynkAd(null, listOf(), "", "", mapOf(), 1f, 2f, 100.toDuration(DurationUnit.SECONDS))
+            UplynkAd(null, listOf(), "", "", mapOf(), 1f, 2f, 100.seconds)
         val adBreak = UplynkAdBreak(
             listOf(uplynkAd),
             "",
             "",
-            400.toDuration(DurationUnit.SECONDS),
-            500.toDuration(DurationUnit.SECONDS)
+            400.seconds,
+            500.seconds
         )
         adHandler.createAdBreak(adBreak)
 
@@ -184,7 +183,7 @@ class AdHandlerTest {
     @Test
     fun onAdEnd_forUnknownAd_throwsAnException() {
         val ad =
-            UplynkAd(null, listOf(), "", "", mapOf(), 1f, 2f, 100.toDuration(DurationUnit.SECONDS))
+            UplynkAd(null, listOf(), "", "", mapOf(), 1f, 2f, 100.seconds)
 
         assertThrows(java.lang.IllegalStateException::class.java) {
             adHandler.onAdEnd(ad)
@@ -194,13 +193,13 @@ class AdHandlerTest {
     @Test
     fun onAdEnd_forCreatedAdBreak_callsEndAd() {
         val uplynkAd =
-            UplynkAd(null, listOf(), "", "", mapOf(), 1f, 2f, 100.toDuration(DurationUnit.SECONDS))
+            UplynkAd(null, listOf(), "", "", mapOf(), 1f, 2f, 100.seconds)
         val adBreak = UplynkAdBreak(
             listOf(uplynkAd),
             "",
             "",
-            400.toDuration(DurationUnit.SECONDS),
-            500.toDuration(DurationUnit.SECONDS)
+            400.seconds,
+            500.seconds
         )
         adHandler.createAdBreak(adBreak)
 
@@ -212,20 +211,20 @@ class AdHandlerTest {
     @Test
     fun onAdProgressUpdate_forCreatedAdBreak_callsUpdateAdProgress() {
         val uplynkAd =
-            UplynkAd(null, listOf(), "", "", mapOf(), 1f, 2f, 100.toDuration(DurationUnit.SECONDS))
+            UplynkAd(null, listOf(), "", "", mapOf(), 1f, 2f, 100.seconds)
         val adBreak = UplynkAdBreak(
             listOf(uplynkAd),
             "",
             "",
-            400.toDuration(DurationUnit.SECONDS),
-            500.toDuration(DurationUnit.SECONDS)
+            400.seconds,
+            500.seconds
         )
         adHandler.createAdBreak(adBreak)
 
         adHandler.onAdProgressUpdate(
             UplynkAdState(uplynkAd, AdState.STARTED),
             adBreak,
-            450.toDuration(DurationUnit.SECONDS)
+            450.seconds
         )
 
         verify(controller).updateAdProgress(eq(mockAd), eq(0.5))
@@ -234,13 +233,13 @@ class AdHandlerTest {
     @Test
     fun onAdProgressUpdate_forUnknownAd_throwsAnException() {
         val ad =
-            UplynkAd(null, listOf(), "", "", mapOf(), 1f, 2f, 100.toDuration(DurationUnit.SECONDS))
+            UplynkAd(null, listOf(), "", "", mapOf(), 1f, 2f, 100.seconds)
         val adBreak = UplynkAdBreak(
             listOf(ad),
             "",
             "",
-            400.toDuration(DurationUnit.SECONDS),
-            500.toDuration(DurationUnit.SECONDS)
+            400.seconds,
+            500.seconds
         )
 
 

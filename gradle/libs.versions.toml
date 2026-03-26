@@ -23,6 +23,7 @@ mockitoKotlin = "4.1.0"
 androidxEspresso = "3.6.1"
 androidxTestCore = "1.7.0"
 androidxTestExt = "1.3.0"
+robolectric = "4.16.1"
 conviva = "4.0.43"
 nielsen = "9.2.0.0"
 comscore = "6.10.0"
@@ -50,6 +51,7 @@ kotlin-test-junit = { group = "org.jetbrains.kotlin", name = "kotlin-test-junit"
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 mockito-inline = { group = "org.mockito", name = "mockito-inline", version.ref = "mockito" }
 mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockitoKotlin" }
+robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 theoplayer = { group = "com.theoplayer.theoplayer-sdk-android", name = "core", version.ref = "theoplayer" }
 theoplayer-integration-dai = { group = "com.theoplayer.theoplayer-sdk-android", name = "integration-ads-dai", version.ref = "theoplayer" }
 theoplayer-integration-ima = { group = "com.theoplayer.theoplayer-sdk-android", name = "integration-ads-ima", version.ref = "theoplayer" }

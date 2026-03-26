@@ -24,7 +24,7 @@ class UplynkSsaiDescriptionSerializerTests {
         val ssaiDescription = UplynkSsaiDescription(
             prefix = "preplayprefix",
             assetIds = listOf("asset1", "asset2", "asset3"),
-            preplayParameters = LinkedHashMap(mapOf("p1" to "v1", "p2" to "v2", "p3" to "v3"))
+            preplayParameters = linkedMapOf("p1" to "v1", "p2" to "v2", "p3" to "v3")
         )
         val jsonString = UplynkSsaiDescriptionDeserializer.toJson(ssaiDescription)
         val jsonObject = Json.parseToJsonElement(jsonString).jsonObject
@@ -43,7 +43,7 @@ class UplynkSsaiDescriptionSerializerTests {
         val ssaiDescription = UplynkSsaiDescription(
             prefix = "preplayprefix",
             assetIds = listOf("asset1", "asset2", "asset3"),
-            preplayParameters = LinkedHashMap(mapOf("p1" to "v1", "p2" to "v2", "p3" to "v3"))
+            preplayParameters = linkedMapOf("p1" to "v1", "p2" to "v2", "p3" to "v3")
         )
         val jsonString = UplynkSsaiDescriptionDeserializer.toJson(ssaiDescription)
         val deserializedSsaiDescription = UplynkSsaiDescriptionDeserializer.fromJson(jsonString)
