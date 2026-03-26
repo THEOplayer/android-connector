@@ -26,7 +26,7 @@ androidxTestExt = "1.3.0"
 conviva = "4.0.43"
 nielsen = "9.2.0.0"
 comscore = "6.10.0"
-yospace = "3.6.7"
+yospace = { strictly = "[3.6, 4.0)", prefer = "3.6.7" }
 
 [libraries]
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidxAppCompat" }

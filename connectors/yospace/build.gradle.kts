@@ -19,12 +19,7 @@ android {
 dependencies {
     implementation(libs.androidx.core.ktx)
     compileOnly(libs.theoplayer)
-    compileOnly(libs.yospace) {
-        version {
-            strictly("[3.6, 4.0)")
-            prefer(libs.yospace.get().version!!)
-        }
-    }
+    compileOnly(libs.yospace)
     implementation(libs.kotlinx.serialization.json)
 
     // Tests
@@ -37,7 +32,7 @@ dependencies {
 dokka {
     moduleName = "Yospace Connector"
 
-    dokkaSourceSets.named("main") {
-        samples.from(project.fileTree("src/test/java/"))
-    }
+//    dokkaSourceSets.named("main") {
+//        samples.from(project.fileTree("src/test/java/"))
+//    }
 }
