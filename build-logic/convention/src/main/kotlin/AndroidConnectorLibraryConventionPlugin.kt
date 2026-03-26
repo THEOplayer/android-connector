@@ -9,7 +9,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
-abstract class AndroidConnectorLibraryConventionPlugin : Plugin<Project> {
+class AndroidConnectorLibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
         apply(plugin = "com.android.library")
         apply(plugin = "org.jetbrains.dokka")
