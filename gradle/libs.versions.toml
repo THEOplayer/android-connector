@@ -53,9 +53,15 @@ nielsen = { group = "com.nielsenappsdk.global", name = "ad", version.ref = "niel
 comscore = { group = "com.comscore", name = "android-analytics", version.ref = "comscore" }
 yospace = { group = "com.yospace", name = "admanagement-sdk", version.ref = "yospace" }
 
+# build-logic
+kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinxSerialization" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+
+# build-logic
+android-connector-library = { id = "com.theoplayer.android.connector.library" }
