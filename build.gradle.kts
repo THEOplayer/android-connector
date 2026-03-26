@@ -78,14 +78,20 @@ subprojects {
 
         dokkaSourceSets {
             configureEach {
-                includeNonPublic = false     // Use to include or exclude non public members
-                skipDeprecated = false       // Do not output deprecated members. Applies globally, can be overridden by packageOptions
+                // Use to include or exclude non public members
+                includeNonPublic = false
+                // Do not output deprecated members. Applies globally, can be overridden by packageOptions
+                skipDeprecated = false
                 // Emit warnings about not documented members. Applies globally, also can be overridden by packageOptions
                 reportUndocumented = true
-                skipEmptyPackages = false    // Do not create index pages for empty packages
-                jdkVersion = 11              // Used for linking to JDK documentation
-                noStdlibLink = false         // Use to enable or disable linking to online kotlin-stdlib documentation
-                noJdkLink =  false           // Use to enable or disable linking to online JDK documentation
+                // Do not create index pages for empty packages
+                skipEmptyPackages = false
+                // Used for linking to JDK documentation
+                jdkVersion = 11
+                // Use to enable or disable linking to online kotlin-stdlib documentation
+                noStdlibLink = false
+                // Use to enable or disable linking to online JDK documentation
+                noJdkLink = false
                 // Use to enable or disable linking to online Android documentation (only applicable for Android projects)
                 noAndroidSdkLink = false
 
