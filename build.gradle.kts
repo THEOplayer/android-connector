@@ -1,6 +1,5 @@
 import org.jetbrains.dokka.gradle.AbstractDokkaLeafTask
 import org.jetbrains.dokka.gradle.DokkaMultiModuleTask
-import java.net.URL
 import java.time.Year
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
@@ -46,7 +45,7 @@ tasks.register("updateVersion") {
 }
 
 tasks.register<Delete>("clean") {
-    delete(rootProject.buildDir)
+    delete(rootProject.layout.buildDirectory)
 }
 
 tasks.withType(DokkaMultiModuleTask::class).configureEach {
@@ -74,31 +73,31 @@ subprojects {
     version = connectorVersion
 
     tasks.withType(AbstractDokkaLeafTask::class).configureEach {
-        suppressObviousFunctions.set(true)
-        suppressInheritedMembers.set(true)
+        suppressObviousFunctions = true
+        suppressInheritedMembers = true
 
         dokkaSourceSets {
             configureEach {
-                includeNonPublic.set(false)     // Use to include or exclude non public members
-                skipDeprecated.set(false)       // Do not output deprecated members. Applies globally, can be overridden by packageOptions
+                includeNonPublic = false     // Use to include or exclude non public members
+                skipDeprecated = false       // Do not output deprecated members. Applies globally, can be overridden by packageOptions
                 // Emit warnings about not documented members. Applies globally, also can be overridden by packageOptions
-                reportUndocumented.set(true)
-                skipEmptyPackages.set(false)    // Do not create index pages for empty packages
-                jdkVersion.set(11)              // Used for linking to JDK documentation
-                noStdlibLink.set(false)         // Use to enable or disable linking to online kotlin-stdlib documentation
-                noJdkLink.set(false)            // Use to enable or disable linking to online JDK documentation
+                reportUndocumented = true
+                skipEmptyPackages = false    // Do not create index pages for empty packages
+                jdkVersion = 11              // Used for linking to JDK documentation
+                noStdlibLink = false         // Use to enable or disable linking to online kotlin-stdlib documentation
+                noJdkLink =  false           // Use to enable or disable linking to online JDK documentation
                 // Use to enable or disable linking to online Android documentation (only applicable for Android projects)
-                noAndroidSdkLink.set(false)
+                noAndroidSdkLink = false
 
                 externalDocumentationLink {
-                    url.set(URL("https://www.theoplayer.com/docs/theoplayer/v7/api-reference/android/"))
+                    url = uri("https://www.theoplayer.com/docs/theoplayer/v7/api-reference/android/").toURL()
                     // TODO: Fix link to https://www.theoplayer.com/docs/theoplayer/v7/api-reference/android/package-list
-                    packageListUrl.set(URL("https://raw.githubusercontent.com/THEOplayer/documentation/main/theoplayer/static/theoplayer/v7/api-reference/android/package-list"))
+                    packageListUrl = uri("https://raw.githubusercontent.com/THEOplayer/documentation/main/theoplayer/static/theoplayer/v7/api-reference/android/package-list").toURL()
                 }
 
                 perPackageOption {
-                    matchingRegex.set("com[.]theoplayer[.]android[.]connector[.].*[.]internal.*")
-                    suppress.set(true)
+                    matchingRegex = "com[.]theoplayer[.]android[.]connector[.].*[.]internal.*"
+                    suppress = true
                 }
             }
         }
