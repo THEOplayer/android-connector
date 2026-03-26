@@ -38,7 +38,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
       - name: Build API documentation with Dokka
-        run: ./gradlew :dokkaHtmlMultiModule --no-configuration-cache
+        run: ./gradlew :dokkaGenerateHtml
         env:
           YOSPACE_USERNAME: ${{ secrets.YOSPACE_USERNAME }}
           YOSPACE_PASSWORD: ${{ secrets.YOSPACE_PASSWORD }}
