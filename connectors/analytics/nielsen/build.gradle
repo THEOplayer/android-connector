@@ -4,7 +4,6 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
     alias libs.plugins.android.library
-    alias libs.plugins.kotlin.android
     alias libs.plugins.dokka
 }
 apply from: "$rootDir/connectors/publish.gradle"
