@@ -30,15 +30,15 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 
-    kotlin {
-        compilerOptions {
-            apiVersion = KotlinVersion.KOTLIN_2_0
-            jvmTarget = JvmTarget.JVM_1_8
-        }
-    }
-
     buildFeatures {
         compose = true
+    }
+}
+
+kotlin {
+    compilerOptions {
+        apiVersion = KotlinVersion.KOTLIN_2_0
+        jvmTarget = JvmTarget.JVM_1_8
     }
 }
 
