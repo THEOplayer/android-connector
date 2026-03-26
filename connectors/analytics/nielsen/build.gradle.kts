@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.dokka)
+    id("android-connector.library-conventions")
 }
 apply(from = "$rootDir/connectors/publish.gradle")
 
