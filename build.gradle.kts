@@ -1,6 +1,6 @@
 import org.jetbrains.dokka.gradle.AbstractDokkaLeafTask
 import org.jetbrains.dokka.gradle.DokkaMultiModuleTask
-
+import java.net.URL
 import java.time.Year
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
@@ -10,40 +10,55 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath "org.jetbrains.dokka:dokka-gradle-plugin:1.9.20"
+        classpath("org.jetbrains.dokka:dokka-gradle-plugin:1.9.20")
     }
 }
 
 plugins {
-    alias libs.plugins.android.application apply false
-    alias libs.plugins.android.library apply false
-    alias libs.plugins.compose.compiler apply false
-    alias libs.plugins.dokka
-    alias libs.plugins.kotlinx.serialization apply false
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.compose.compiler) apply false
+    alias(libs.plugins.dokka)
+    alias(libs.plugins.kotlinx.serialization) apply false
 }
 
-tasks.register('updateVersion') {
-    def sdkVersion = project.ext.sdkVersion
-    ant.replaceregexp(file: 'gradle.properties', match: 'sdkVersion=.*', replace: "sdkVersion=$sdkVersion", flags: 'g', byline: true)
-    ant.replaceregexp(file: 'gradle.properties', match: 'connectorVersion=.*', replace: "connectorVersion=$sdkVersion", flags: 'g', byline: true)
+tasks.register("updateVersion") {
+    val sdkVersion: String by project.ext
+    ant.withGroovyBuilder {
+        "replaceregexp"(
+            "file" to "gradle.properties",
+            "match" to "sdkVersion=.*",
+            "replace" to "sdkVersion=$sdkVersion",
+            "flags" to "g",
+            "byline" to true
+        )
+        "replaceregexp"(
+            "file" to "gradle.properties",
+            "match" to "connectorVersion=.*",
+            "replace" to "connectorVersion=$sdkVersion",
+            "flags" to "g",
+            "byline" to true
+        )
+    }
 }
 
-tasks.register('clean', Delete) {
-    delete rootProject.buildDir
+tasks.register<Delete>("clean") {
+    delete(rootProject.buildDir)
 }
 
-tasks.withType(DokkaMultiModuleTask.class).configureEach {
+tasks.withType(DokkaMultiModuleTask::class).configureEach {
     moduleName = "THEOplayer Connectors for Android"
 
-    String dokkaBaseConfiguration = """
+    val dokkaBaseConfiguration = """
     {
-      "customAssets": ["${file("assets/logo-icon.svg").path.replace('\\', "\\\\")}"],
+      "customAssets": ["${file("assets/logo-icon.svg").path.replace("\\", "\\\\")}"],
       "footerMessage": "&copy; ${Year.now().value} THEO Technologies"
     }
     """
-    pluginsMapConfiguration.set(
-            // fully qualified plugin name to json configuration
-            ["org.jetbrains.dokka.base.DokkaBase": dokkaBaseConfiguration]
+
+    pluginsMapConfiguration = mapOf(
+        // fully qualified plugin name to json configuration
+        "org.jetbrains.dokka.base.DokkaBase" to dokkaBaseConfiguration
     )
 }
 
@@ -52,9 +67,10 @@ tasks.dokkaHtmlMultiModule.configure {
 }
 
 subprojects {
+    val connectorVersion: String by project.ext
     version = connectorVersion
 
-    tasks.withType(AbstractDokkaLeafTask.class).configureEach {
+    tasks.withType(AbstractDokkaLeafTask::class).configureEach {
         suppressObviousFunctions.set(true)
         suppressInheritedMembers.set(true)
 
@@ -72,9 +88,9 @@ subprojects {
                 noAndroidSdkLink.set(false)
 
                 externalDocumentationLink {
-                    url.set(new URL("https://www.theoplayer.com/docs/theoplayer/v7/api-reference/android/"))
+                    url.set(URL("https://www.theoplayer.com/docs/theoplayer/v7/api-reference/android/"))
                     // TODO: Fix link to https://www.theoplayer.com/docs/theoplayer/v7/api-reference/android/package-list
-                    packageListUrl.set(new URL("https://raw.githubusercontent.com/THEOplayer/documentation/main/theoplayer/static/theoplayer/v7/api-reference/android/package-list"))
+                    packageListUrl.set(URL("https://raw.githubusercontent.com/THEOplayer/documentation/main/theoplayer/static/theoplayer/v7/api-reference/android/package-list"))
                 }
 
                 perPackageOption {
