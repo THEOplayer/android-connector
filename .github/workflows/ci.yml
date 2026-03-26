@@ -26,7 +26,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
       - name: Run unit tests
-        run: ./gradlew testReleaseUnitTest
+        run: ./gradlew test
         env:
           YOSPACE_USERNAME: ${{ secrets.YOSPACE_USERNAME }}
           YOSPACE_PASSWORD: ${{ secrets.YOSPACE_PASSWORD }}
