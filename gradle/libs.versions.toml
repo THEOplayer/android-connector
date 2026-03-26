@@ -13,6 +13,7 @@ androidxComposeBom = "2025.08.01"
 androidxLifecycle = "2.5.1"
 androidxMedia = "1.7.1"
 kotlinxCoroutines = "1.10.2"
+theoplayer = "10.12.1"
 theoplayerAndroidUi = "1.13.0"
 junit = "4.13.2"
 kotlinTestJunit = "2.2.10"
@@ -48,6 +49,10 @@ kotlin-test-junit = { group = "org.jetbrains.kotlin", name = "kotlin-test-junit"
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 mockito-inline = { group = "org.mockito", name = "mockito-inline", version.ref = "mockito" }
 mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockitoKotlin" }
+theoplayer = { group = "com.theoplayer.theoplayer-sdk-android", name = "core", version.ref = "theoplayer" }
+theoplayer-integration-dai = { group = "com.theoplayer.theoplayer-sdk-android", name = "integration-ads-dai", version.ref = "theoplayer" }
+theoplayer-integration-ima = { group = "com.theoplayer.theoplayer-sdk-android", name = "integration-ads-ima", version.ref = "theoplayer" }
+theoplayer-integration-theoads = { group = "com.theoplayer.theoplayer-sdk-android", name = "integration-ads-theoads", version.ref = "theoplayer" }
 theoplayer-android-ui = { group = "com.theoplayer.android-ui", name = "android-ui", version.ref = "theoplayerAndroidUi" }
 conviva = { group = "com.conviva.sdk", name = "conviva-core-sdk", version.ref = "conviva" }
 nielsen = { group = "com.nielsenappsdk.global", name = "ad", version.ref = "nielsen" }

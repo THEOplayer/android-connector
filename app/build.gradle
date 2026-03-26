@@ -57,9 +57,9 @@ dependencies {
     implementation libs.androidx.compose.ui.tooling.preview
     debugImplementation libs.androidx.compose.ui.tooling
 
-    implementation "com.theoplayer.theoplayer-sdk-android:core:$sdkVersion"
-    implementation "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:$sdkVersion"
-    implementation "com.theoplayer.theoplayer-sdk-android:integration-ads-dai:$sdkVersion"
+    implementation libs.theoplayer
+    implementation libs.theoplayer.integration.ima
+    implementation libs.theoplayer.integration.dai
     implementation libs.theoplayer.android.ui
 
     implementation project(":connectors:analytics:conviva")

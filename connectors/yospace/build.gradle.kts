@@ -20,10 +20,8 @@ android {
 }
 
 dependencies {
-    val sdkVersion: String by project.ext
-
     implementation(libs.androidx.core.ktx)
-    compileOnly("com.theoplayer.theoplayer-sdk-android:core:$sdkVersion")
+    compileOnly(libs.theoplayer)
     compileOnly(libs.yospace) {
         version {
             strictly("[3.6, 4.0)")
@@ -35,7 +33,7 @@ dependencies {
     // Tests
     testImplementation(libs.androidx.test.core)
     testImplementation(libs.androidx.test.ext.junit)
-    testImplementation("com.theoplayer.theoplayer-sdk-android:core:$sdkVersion")
+    testImplementation(libs.theoplayer)
     testImplementation(libs.yospace)
 }
 

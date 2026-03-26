@@ -14,10 +14,8 @@ android {
 }
 
 dependencies {
-    val sdkVersion: String by project.ext
-
-    compileOnly("com.theoplayer.theoplayer-sdk-android:core:$sdkVersion")
-    compileOnly("com.theoplayer.theoplayer-sdk-android:integration-ads-ima:$sdkVersion")
+    compileOnly(libs.theoplayer)
+    compileOnly(libs.theoplayer.integration.ima)
 
     compileOnly(libs.comscore)
 }

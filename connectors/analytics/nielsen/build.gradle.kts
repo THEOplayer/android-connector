@@ -10,12 +10,10 @@ android {
 }
 
 dependencies {
-    val sdkVersion: String by project.ext
-
     implementation(libs.androidx.lifecycle.process)
 
-    compileOnly("com.theoplayer.theoplayer-sdk-android:core:$sdkVersion")
-    compileOnly("com.theoplayer.theoplayer-sdk-android:integration-ads-ima:$sdkVersion")
+    compileOnly(libs.theoplayer)
+    compileOnly(libs.theoplayer.integration.ima)
     compileOnly(libs.nielsen)
 }
 

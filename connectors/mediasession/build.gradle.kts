@@ -10,10 +10,8 @@ android {
 }
 
 dependencies {
-    val sdkVersion: String by project.ext
-
     implementation(libs.androidx.media)
-    compileOnly("com.theoplayer.theoplayer-sdk-android:core:$sdkVersion")
+    compileOnly(libs.theoplayer)
 }
 
 tasks.withType(AbstractDokkaLeafTask::class).configureEach {
