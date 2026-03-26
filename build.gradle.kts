@@ -96,9 +96,8 @@ subprojects {
                 noAndroidSdkLink = false
 
                 externalDocumentationLink {
-                    url = uri("https://www.theoplayer.com/docs/theoplayer/v7/api-reference/android/").toURL()
-                    // TODO: Fix link to https://www.theoplayer.com/docs/theoplayer/v7/api-reference/android/package-list
-                    packageListUrl = uri("https://raw.githubusercontent.com/THEOplayer/documentation/main/theoplayer/static/theoplayer/v7/api-reference/android/package-list").toURL()
+                    url = uri("https://www.theoplayer.com/docs/theoplayer/v10/api-reference/android/").toURL()
+                    packageListUrl = uri("https://www.theoplayer.com/docs/theoplayer/v10/api-reference/android/package-list").toURL()
                 }
 
                 perPackageOption {
