@@ -1,0 +1,78 @@
+import org.jetbrains.dokka.gradle.AbstractDokkaLeafTask
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+
+plugins {
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlinx.serialization)
+    alias(libs.plugins.dokka)
+}
+apply(from = "$rootDir/connectors/publish.gradle")
+
+android {
+    namespace = "com.theoplayer.android.connector.yospace"
+    compileSdk = 36
+
+    defaultConfig {
+        val connectorVersion: String by project.ext
+
+        minSdk = 23
+        consumerProguardFiles("consumer-rules.pro")
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "LIBRARY_VERSION", "\"${connectorVersion}\"")
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    kotlin {
+        compilerOptions {
+            apiVersion = KotlinVersion.KOTLIN_2_0
+            jvmTarget = JvmTarget.JVM_1_8
+        }
+    }
+
+    buildFeatures {
+        buildConfig = true
+    }
+}
+
+dependencies {
+    val sdkVersion: String by project.ext
+
+    implementation(libs.androidx.core.ktx)
+    compileOnly("com.theoplayer.theoplayer-sdk-android:core:$sdkVersion")
+    compileOnly(libs.yospace) {
+        version {
+            strictly("[3.6, 4.0)")
+            prefer(libs.yospace.get().version!!)
+        }
+    }
+    implementation(libs.kotlinx.serialization.json)
+
+    // Tests
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.androidx.test.ext.junit)
+    testImplementation("com.theoplayer.theoplayer-sdk-android:core:$sdkVersion")
+    testImplementation(libs.yospace)
+}
+
+tasks.withType(AbstractDokkaLeafTask::class).configureEach {
+    moduleName = "Yospace Connector"
+
+    dokkaSourceSets.named("main") {
+        samples.from(project.fileTree("src/test/java/"))
+    }
+}
