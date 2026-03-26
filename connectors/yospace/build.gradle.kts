@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.android.connector.library)
     alias(libs.plugins.kotlinx.serialization)
 }
-apply(from = "$rootDir/connectors/publish.gradle")
 
 android {
     namespace = "com.theoplayer.android.connector.yospace"

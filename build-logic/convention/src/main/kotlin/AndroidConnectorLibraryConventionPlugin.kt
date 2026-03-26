@@ -4,6 +4,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.register
@@ -60,6 +61,15 @@ class AndroidConnectorLibraryConventionPlugin : Plugin<Project> {
             }
         }
 
+        val dokkaJavadocJar = tasks.register<Jar>("dokkaJavadocJar") {
+            val dokkaJavadoc = tasks.named("dokkaJavadoc")
+
+            group = "documentation"
+            dependsOn(dokkaJavadoc)
+            from(dokkaJavadoc)
+            archiveClassifier.set("javadoc")
+        }
+
         extensions.configure<PublishingExtension> {
             repositories {
                 maven {
@@ -86,6 +96,7 @@ class AndroidConnectorLibraryConventionPlugin : Plugin<Project> {
                         groupId = "com.theoplayer.android-connector"
                         artifactId = project.name
                         version = libs.versions.androidConnector
+                        artifact(dokkaJavadocJar)
                         from(components.getByName("release"))
                     }
                 }
