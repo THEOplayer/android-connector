@@ -25,7 +25,9 @@ tasks.register("updateVersion") {
     val versionCatalog = rootProject.file("gradle/libs.versions.toml")
     inputs.file(versionCatalog)
 
-    val sdkVersion: String by project.ext
+    val sdkVersion: String? by project.ext
+    require(!sdkVersion.isNullOrBlank()) { "Missing sdkVersion" }
+
     ant.withGroovyBuilder {
         "replaceregexp"(
             "file" to versionCatalog,
