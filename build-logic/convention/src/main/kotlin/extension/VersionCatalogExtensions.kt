@@ -1,3 +1,5 @@
+package extension
+
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.api.artifacts.VersionCatalogsExtension
@@ -15,11 +17,11 @@ private fun Project.getVersionCatalog(name: String = "libs"): VersionCatalog {
 internal val VersionCatalog.versions: Versions
     get() = Versions(this)
 
-class Versions(catalog: VersionCatalog) {
+internal class Versions(catalog: VersionCatalog) {
     val androidConnector: String = catalog.findVersionOrThrow("androidConnector")
 }
 
-internal fun VersionCatalog.findVersionOrThrow(name: String): String {
+private fun VersionCatalog.findVersionOrThrow(name: String): String {
     return findVersion(name)
         .orElseThrow { NoSuchElementException("Version $name not found in version catalog") }
         .requiredVersion
