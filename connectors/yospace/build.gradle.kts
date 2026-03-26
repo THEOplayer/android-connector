@@ -9,7 +9,7 @@ android {
     namespace = "com.theoplayer.android.connector.yospace"
 
     defaultConfig {
-        val connectorVersion: String by project.ext
+        val connectorVersion = libs.versions.androidConnector.get()
         buildConfigField("String", "LIBRARY_VERSION", "\"${connectorVersion}\"")
     }
 

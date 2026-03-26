@@ -22,23 +22,21 @@ plugins {
 }
 
 tasks.register("updateVersion") {
-    val gradleProperties = rootProject.file("gradle.properties")
-    inputs.file(gradleProperties)
+    val versionCatalog = rootProject.file("gradle/libs.versions.toml")
+    inputs.file(versionCatalog)
 
     val sdkVersion: String by project.ext
     ant.withGroovyBuilder {
         "replaceregexp"(
-            "file" to gradleProperties,
-            "match" to "sdkVersion=.*",
-            "replace" to "sdkVersion=$sdkVersion",
-            "flags" to "g",
+            "file" to versionCatalog,
+            "match" to """^theoplayer = ".+"$""",
+            "replace" to """theoplayer = "$sdkVersion"""",
             "byline" to true
         )
         "replaceregexp"(
-            "file" to gradleProperties,
-            "match" to "connectorVersion=.*",
-            "replace" to "connectorVersion=$sdkVersion",
-            "flags" to "g",
+            "file" to versionCatalog,
+            "match" to """^androidConnector = ".+"$""",
+            "replace" to """androidConnector = "$sdkVersion"""",
             "byline" to true
         )
     }
@@ -68,8 +66,9 @@ tasks.dokkaHtmlMultiModule.configure {
     outputDirectory = rootProject.file("site/api")
 }
 
+val connectorVersion: String = libs.versions.androidConnector.get()
+
 subprojects {
-    val connectorVersion: String by project.ext
     version = connectorVersion
 
     tasks.withType(AbstractDokkaLeafTask::class).configureEach {
