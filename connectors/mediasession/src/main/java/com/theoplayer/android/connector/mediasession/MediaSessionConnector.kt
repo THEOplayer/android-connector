@@ -77,9 +77,33 @@ class MediaSessionConnector(val mediaSession: MediaSessionCompat) {
             }
         }
 
+    /**
+     * A callback for queue navigation actions. When set, the media session will receive queue
+     * navigation events.
+     */
     var queueNavigator: QueueNavigator? = null
+
+    /**
+     * A callback for rating actions. When set, the media session will receive rating events.
+     */
     var ratingCallback: RatingCallback? = null
+
+    /**
+     * A callback for playback preparation actions.
+     * When set, the media session will receive prepare events.
+     */
     var playbackPreparer: PlaybackPreparer? = null
+
+    /**
+     * A callback for playback actions. When set, the media session will receive playback events,
+     * otherwise default the behavior will be executed for supported actions.
+     */
+    var playbackCallback: PlaybackCallback? = null
+
+    /**
+     * A callback for queue editing actions.
+     * When set, the media session will receive queue editing events.
+     */
     var queueEditor: QueueEditor? = null
         set(value) {
             field = value
@@ -91,6 +115,7 @@ class MediaSessionConnector(val mediaSession: MediaSessionCompat) {
             )
         }
 
+
     var shouldDispatchUnsupportedActions: Boolean = false
 
     /**
@@ -99,7 +124,13 @@ class MediaSessionConnector(val mediaSession: MediaSessionCompat) {
     var shouldDispatchTimeUpdateEvents: Boolean = false
 
     var debug: Boolean = BuildConfig.DEBUG
+
+    /**
+     * The playback actions that are enabled for the media session.
+     * By default, all actions supported by the player are enabled.
+     */
     var enabledPlaybackActions: Long = PlaybackStateProvider.DEFAULT_PLAYBACK_ACTIONS
+
     var customActionProviders: Array<CustomActionProvider> = arrayOf()
 
     /**
@@ -201,4 +232,4 @@ class MediaSessionConnector(val mediaSession: MediaSessionCompat) {
             Log.d(TAG, "MediaSession released")
         }
     }
- }
+}

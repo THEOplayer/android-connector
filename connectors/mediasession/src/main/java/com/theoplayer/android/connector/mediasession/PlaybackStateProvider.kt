@@ -139,7 +139,7 @@ class PlaybackStateProvider(private val connector: MediaSessionConnector) {
     }
 
     private fun buildPlaybackActions(): Long {
-        var playbackActions = DEFAULT_PLAYBACK_ACTIONS
+        var playbackActions = connector.enabledPlaybackActions
 
         // Optionally add queueNavigator actions.
         val queueNavigator = connector.queueNavigator
