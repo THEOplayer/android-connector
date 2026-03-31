@@ -96,7 +96,7 @@ class MediaSessionConnector(val mediaSession: MediaSessionCompat) {
 
     /**
      * A callback for playback actions. When set, the media session will receive playback events,
-     * otherwise default the behavior will be executed for supported actions.
+     * otherwise the default behavior will be executed for supported actions.
      */
     var playbackCallback: PlaybackCallback? = null
 
