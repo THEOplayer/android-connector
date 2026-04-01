@@ -12,6 +12,8 @@ import com.theoplayer.android.api.timerange.TimeRanges
 class MediaSessionCallback(private val connector: MediaSessionConnector) :
     MediaSessionCompat.Callback() {
 
+    // region PlaybackPreparer actions
+
     override fun onPrepare() {
         if (connector.debug) {
             Log.d(TAG, "MediaSessionCallback::onPrepare")
@@ -48,37 +50,6 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         }
     }
 
-    override fun onPlay() {
-        if (connector.debug) {
-            Log.d(TAG, "MediaSessionCallback::onPlay")
-        }
-        connector.player?.let { player ->
-            if (shouldHandlePlaybackAction(ACTION_PLAY)) {
-                player.play()
-
-                // Make sure the session is currently active and ready to receive commands.
-                connector.setActive(true)
-            }
-            connector.listeners.forEach { listener ->
-                listener.onPlay()
-            }
-        }
-    }
-
-    override fun onPause() {
-        if (connector.debug) {
-            Log.d(TAG, "MediaSessionCallback::onPause")
-        }
-        connector.player?.let { player ->
-            if (shouldHandlePlaybackAction(ACTION_PAUSE)) {
-                player.pause()
-            }
-            connector.listeners.forEach { listener ->
-                listener.onPause()
-            }
-        }
-    }
-
     override fun onPlayFromMediaId(mediaId: String?, extras: Bundle?) {
         if (connector.debug) {
             Log.d(TAG, "MediaSessionCallback::onPlayFromMediaId $mediaId")
@@ -106,13 +77,52 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         }
     }
 
+    // endregion
+    // region Playback actions
+
+    override fun onPlay() {
+        if (connector.debug) {
+            Log.d(TAG, "MediaSessionCallback::onPlay")
+        }
+        connector.player?.let { player ->
+            if (shouldHandlePlaybackAction(ACTION_PLAY)) {
+                connector.playbackCallback?.onPlay() ?: {
+                    player.play()
+                }
+                // Make sure the session is currently active and ready to receive commands.
+                connector.setActive(true)
+            }
+            connector.listeners.forEach { listener ->
+                listener.onPlay()
+            }
+        }
+    }
+
+    override fun onPause() {
+        if (connector.debug) {
+            Log.d(TAG, "MediaSessionCallback::onPause")
+        }
+        connector.player?.let { player ->
+            if (shouldHandlePlaybackAction(ACTION_PAUSE)) {
+                connector.playbackCallback?.onPause() ?: {
+                    player.pause()
+                }
+            }
+            connector.listeners.forEach { listener ->
+                listener.onPause()
+            }
+        }
+    }
+
     override fun onStop() {
         if (connector.debug) {
             Log.d(TAG, "MediaSessionCallback::onStop")
         }
         connector.player?.let { player ->
             if (shouldHandlePlaybackAction(ACTION_STOP)) {
-                player.stop()
+                connector.playbackCallback?.onStop() ?: {
+                    player.stop()
+                }
                 connector.setActive(false)
             }
             connector.listeners.forEach { listener ->
@@ -126,7 +136,9 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
             Log.d(TAG, "MediaSessionCallback::onFastForward")
         }
         if (shouldHandlePlaybackAction(ACTION_FAST_FORWARD)) {
-            skip(connector.skipForwardInterval)
+            connector.playbackCallback?.onFastForward() ?: {
+                skip(connector.skipForwardInterval)
+            }
         }
         connector.listeners.forEach { listener ->
             listener.onFastForward()
@@ -138,24 +150,12 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
             Log.d(TAG, "MediaSessionCallback::onRewind")
         }
         if (shouldHandlePlaybackAction(ACTION_REWIND)) {
-            skip(-connector.skipBackwardsInterval)
+            connector.playbackCallback?.onRewind() ?: {
+                skip(-connector.skipBackwardsInterval)
+            }
         }
         connector.listeners.forEach { listener ->
             listener.onRewind()
-        }
-    }
-
-    override fun onSetShuffleMode(@ShuffleMode shuffleMode: Int) {
-        // Unsupported.
-        if (connector.debug) {
-            Log.d(TAG, "MediaSessionCallback::onSetShuffleMode $shuffleMode")
-        }
-    }
-
-    override fun onSetRepeatMode(@RepeatMode mediaSessionRepeatMode: Int) {
-        // Unsupported.
-        if (connector.debug) {
-            Log.d(TAG, "MediaSessionCallback::onSetRepeatMode $mediaSessionRepeatMode")
         }
     }
 
@@ -165,13 +165,34 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         }
         connector.player?.let { player ->
             if (shouldHandlePlaybackAction(ACTION_SET_PLAYBACK_SPEED)) {
-                player.playbackRate = speed.toDouble()
+                connector.playbackCallback?.onSetPlaybackSpeed(speed) ?: {
+                    player.playbackRate = speed.toDouble()
+                }
             }
             connector.listeners.forEach { listener ->
                 listener.onSetPlaybackSpeed(speed)
             }
         }
     }
+
+    override fun onSeekTo(positionMs: Long) {
+        if (connector.debug) {
+            Log.d(TAG, "MediaSessionCallback::onSeekTo $positionMs")
+        }
+        connector.player?.let { player ->
+            if (shouldHandlePlaybackAction(ACTION_SEEK_TO)) {
+                connector.playbackCallback?.onSeekTo(positionMs) ?: {
+                    player.currentTime = 1e-03 * positionMs
+                }
+            }
+            connector.listeners.forEach { listener ->
+                listener.onSeekTo(positionMs)
+            }
+        }
+    }
+
+    // endregion
+    // region QueueNavigator actions
 
     override fun onSkipToNext() {
         if (connector.debug) {
@@ -257,6 +278,9 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         }
     }
 
+    // endregion
+    // region Custom actions
+
     override fun onCustomAction(action: String, extras: Bundle?) {
         if (connector.debug) {
             Log.d(TAG, "MediaSessionCallback::onCustomAction $action")
@@ -273,19 +297,8 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         }
     }
 
-    override fun onSeekTo(positionMs: Long) {
-        if (connector.debug) {
-            Log.d(TAG, "MediaSessionCallback::onSeekTo $positionMs")
-        }
-        connector.player?.let { player ->
-            if (shouldHandlePlaybackAction(ACTION_SEEK_TO)) {
-                player.currentTime = 1e-03 * positionMs
-            }
-            connector.listeners.forEach { listener ->
-                listener.onSeekTo(positionMs)
-            }
-        }
-    }
+    // endregion
+    // region Rating actions
 
     override fun onSetRating(rating: RatingCompat) {
         if (connector.debug) {
@@ -314,6 +327,25 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
             }
         }
     }
+
+    // endregion
+    // region Unsupported actions
+
+    override fun onSetShuffleMode(@ShuffleMode shuffleMode: Int) {
+        // Unsupported.
+        if (connector.debug) {
+            Log.d(TAG, "MediaSessionCallback::onSetShuffleMode $shuffleMode")
+        }
+    }
+
+    override fun onSetRepeatMode(@RepeatMode mediaSessionRepeatMode: Int) {
+        // Unsupported.
+        if (connector.debug) {
+            Log.d(TAG, "MediaSessionCallback::onSetRepeatMode $mediaSessionRepeatMode")
+        }
+    }
+
+    // endregion
 
     private fun skip(skipTime: Double) {
         val player = connector.player ?: return
@@ -349,9 +381,9 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
 
     private fun shouldHandleQueueNavigatorAction(action: Long): Boolean {
         return (connector.player != null && (
-                    connector.queueNavigator != null &&
-                    connector.queueNavigator!!.getSupportedQueueNavigatorActions(connector.player!!) and action != 0L ||
-                    connector.shouldDispatchUnsupportedActions)
+                connector.queueNavigator != null &&
+                        connector.queueNavigator!!.getSupportedQueueNavigatorActions(connector.player!!) and action != 0L ||
+                        connector.shouldDispatchUnsupportedActions)
                 )
     }
 
