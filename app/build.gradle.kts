@@ -103,9 +103,8 @@ dependencies {
     implementation(project(":connectors:analytics:comscore"))
     implementation(libs.comscore)
 
-    // FIXME Re-enable Yospace connector
-    // implementation(project(":connectors:yospace"))
-    // implementation(libs.yospace)
+    implementation(project(":connectors:yospace"))
+    implementation(libs.yospace)
 
     implementation(project(":connectors:uplynk"))
 }

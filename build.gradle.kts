@@ -48,8 +48,7 @@ dependencies {
     dokka(project(":connectors:analytics:conviva"))
     dokka(project(":connectors:analytics:nielsen"))
     dokka(project(":connectors:mediasession"))
-    // FIXME Re-enable Yospace connector
-    // dokka(project(":connectors:yospace"))
+    dokka(project(":connectors:yospace"))
     dokka(project(":connectors:uplynk"))
 }
 

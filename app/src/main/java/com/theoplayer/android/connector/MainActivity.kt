@@ -57,6 +57,7 @@ import com.theoplayer.android.connector.uplynk.network.AssetInfoResponse
 import com.theoplayer.android.connector.uplynk.network.PingResponse
 import com.theoplayer.android.connector.uplynk.network.PreplayLiveResponse
 import com.theoplayer.android.connector.uplynk.network.PreplayVodResponse
+import com.theoplayer.android.connector.yospace.YospaceConnector
 import com.theoplayer.android.ui.DefaultUI
 import com.theoplayer.android.ui.rememberPlayer
 import com.theoplayer.android.ui.theme.THEOplayerTheme
@@ -69,8 +70,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var convivaConnector: ConvivaConnector
     private lateinit var nielsenConnector: NielsenConnector
     private lateinit var comscoreConnector: ComscoreConnector
-    // FIXME Re-enable Yospace connector
-    // private lateinit var yospaceConnector: YospaceConnector
+    private lateinit var yospaceConnector: YospaceConnector
     private lateinit var uplynkConnector: UplynkConnector
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -188,7 +188,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun setupYospace() {
-        // yospaceConnector = YospaceConnector(theoplayerView)
+        yospaceConnector = YospaceConnector(theoplayerView)
     }
 
     private fun setupUplynk() {
