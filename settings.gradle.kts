@@ -34,6 +34,5 @@ include(":connectors:analytics:comscore")
 include(":connectors:analytics:conviva")
 include(":connectors:analytics:nielsen")
 include(":connectors:mediasession")
-// FIXME Re-enable Yospace connector after updating JFrog credentials
-// include(":connectors:yospace")
+include(":connectors:yospace")
 include(":connectors:uplynk")
