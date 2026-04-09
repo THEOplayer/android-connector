@@ -205,11 +205,11 @@ class AdReporter(
         player.removeEventListener(PlayerEventTypes.PAUSE, onPause)
 
         (listOf(player.ads, adEventsExtension)).forEach { ads ->
-            ads?.addEventListener(AdsEventTypes.AD_BEGIN, onAdBegin)
-            ads?.addEventListener(AdsEventTypes.AD_END, onAdEnd)
-            ads?.addEventListener(AdsEventTypes.AD_BREAK_END, onAdBreakEnd)
-            ads?.addEventListener(AdsEventTypes.AD_SKIP, onAdSkip)
-            ads?.addEventListener(AdsEventTypes.AD_ERROR, onAdError)
+            ads?.removeEventListener(AdsEventTypes.AD_BEGIN, onAdBegin)
+            ads?.removeEventListener(AdsEventTypes.AD_END, onAdEnd)
+            ads?.removeEventListener(AdsEventTypes.AD_BREAK_END, onAdBreakEnd)
+            ads?.removeEventListener(AdsEventTypes.AD_SKIP, onAdSkip)
+            ads?.removeEventListener(AdsEventTypes.AD_ERROR, onAdError)
 
             ads?.removeEventListener(GoogleImaAdEventType.STARTED, onImaAdStarted)
             ads?.removeEventListener(GoogleImaAdEventType.COMPLETED, onImaAdCompleted)
