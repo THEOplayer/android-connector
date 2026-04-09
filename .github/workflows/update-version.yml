@@ -1,0 +1,65 @@
+name: Update version
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Player version, e.g. "10.0.0"'
+        required: true
+        type: string
+      dryRun:
+        description: "Dry run: don't actually push anything."
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Create app token
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.THEOPLAYER_BOT_APP_ID }}
+          private-key: ${{ secrets.THEOPLAYER_BOT_PRIVATE_KEY }}
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+      - name: Configure Git user
+        run: |
+          git config user.name 'theoplayer-bot[bot]'
+          git config user.email '873105+theoplayer-bot[bot]@users.noreply.github.com'
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v3
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+      - name: Update version
+        run: ./gradlew :updateVersion -PsdkVersion=$VERSION
+        env:
+          VERSION: ${{ inputs.version }}
+      - name: Commit and tag
+        # language=bash
+        run: |
+          git add .
+          git commit -m "New release $VERSION"
+          git tag "$VERSION"
+        env:
+          VERSION: ${{ inputs.version }}
+      - name: Push to origin
+        if: inputs.dryRun == false
+        # language=bash
+        run: |
+          git push origin
+          git push origin tag "$VERSION"
+        env:
+          VERSION: ${{ inputs.version }}
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
