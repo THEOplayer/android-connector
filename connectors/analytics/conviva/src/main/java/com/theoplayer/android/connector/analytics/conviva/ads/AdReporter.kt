@@ -286,7 +286,6 @@ class AdReporter(
             if (ad is GoogleImaAd) {
                 convivaAdAnalytics.reportAdMetric(
                     ConvivaSdkConstants.PLAYBACK.BITRATE,
-                    player.videoWidth,
                     ad.imaAd.vastMediaBitrate
                 )
             } else {
