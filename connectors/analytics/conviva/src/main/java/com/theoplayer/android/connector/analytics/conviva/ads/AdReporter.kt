@@ -330,7 +330,6 @@ class AdReporter(
                 Log.d(TAG, "reportAdBreakEnded")
             }
             convivaVideoAnalytics.reportAdBreakEnded()
-            currentAdBreak = null
         } else {
             if (BuildConfig.DEBUG) {
                 Log.w(TAG, "handleAdBreakEnd - No current adBreak")
