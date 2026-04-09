@@ -283,17 +283,10 @@ class AdReporter(
                 player.videoWidth,
                 player.videoHeight
             )
-            if (ad is GoogleImaAd) {
-                convivaAdAnalytics.reportAdMetric(
-                    ConvivaSdkConstants.PLAYBACK.BITRATE,
-                    ad.imaAd.vastMediaBitrate
-                )
-            } else {
-                convivaAdAnalytics.reportAdMetric(
-                    ConvivaSdkConstants.PLAYBACK.BITRATE,
-                    player.videoWidth
-                )
-            }
+            convivaAdAnalytics.reportAdMetric(
+                ConvivaSdkConstants.PLAYBACK.BITRATE,
+                if (ad is GoogleImaAd) ad.imaAd.vastMediaBitrate else 0
+            )
 
             // Report playing state in case of SSAI, as the player will not send an additional
             // `playing` event.
