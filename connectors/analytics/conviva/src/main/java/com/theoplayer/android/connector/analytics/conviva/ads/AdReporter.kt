@@ -305,7 +305,7 @@ class AdReporter(
             }
         } else {
             if (BuildConfig.DEBUG) {
-                Log.w(TAG, "handleAdEnd - No valid ad")
+                Log.w(TAG, "handleAdBegin - No valid ad")
             }
         }
     }
