@@ -32,7 +32,7 @@ dependencies {
 dokka {
     moduleName = "Yospace Connector"
 
-//    dokkaSourceSets.named("main") {
-//        samples.from(project.fileTree("src/test/java/"))
-//    }
+    dokkaSourceSets.configureEach {
+        samples.from(project.fileTree("src/test/java/"))
+    }
 }
