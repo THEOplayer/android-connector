@@ -205,11 +205,11 @@ class AdReporter(
         player.removeEventListener(PlayerEventTypes.PAUSE, onPause)
 
         (listOf(player.ads, adEventsExtension)).forEach { ads ->
-            ads?.addEventListener(AdsEventTypes.AD_BEGIN, onAdBegin)
-            ads?.addEventListener(AdsEventTypes.AD_END, onAdEnd)
-            ads?.addEventListener(AdsEventTypes.AD_BREAK_END, onAdBreakEnd)
-            ads?.addEventListener(AdsEventTypes.AD_SKIP, onAdSkip)
-            ads?.addEventListener(AdsEventTypes.AD_ERROR, onAdError)
+            ads?.removeEventListener(AdsEventTypes.AD_BEGIN, onAdBegin)
+            ads?.removeEventListener(AdsEventTypes.AD_END, onAdEnd)
+            ads?.removeEventListener(AdsEventTypes.AD_BREAK_END, onAdBreakEnd)
+            ads?.removeEventListener(AdsEventTypes.AD_SKIP, onAdSkip)
+            ads?.removeEventListener(AdsEventTypes.AD_ERROR, onAdError)
 
             ads?.removeEventListener(GoogleImaAdEventType.STARTED, onImaAdStarted)
             ads?.removeEventListener(GoogleImaAdEventType.COMPLETED, onImaAdCompleted)
@@ -283,18 +283,10 @@ class AdReporter(
                 player.videoWidth,
                 player.videoHeight
             )
-            if (ad is GoogleImaAd) {
-                convivaAdAnalytics.reportAdMetric(
-                    ConvivaSdkConstants.PLAYBACK.BITRATE,
-                    player.videoWidth,
-                    ad.imaAd.vastMediaBitrate
-                )
-            } else {
-                convivaAdAnalytics.reportAdMetric(
-                    ConvivaSdkConstants.PLAYBACK.BITRATE,
-                    player.videoWidth
-                )
-            }
+            convivaAdAnalytics.reportAdMetric(
+                ConvivaSdkConstants.PLAYBACK.BITRATE,
+                if (ad is GoogleImaAd) ad.imaAd.vastMediaBitrate else 0
+            )
 
             // Report playing state in case of SSAI, as the player will not send an additional
             // `playing` event.
@@ -306,7 +298,7 @@ class AdReporter(
             }
         } else {
             if (BuildConfig.DEBUG) {
-                Log.w(TAG, "handleAdEnd - No valid ad")
+                Log.w(TAG, "handleAdBegin - No valid ad")
             }
         }
     }
@@ -331,7 +323,6 @@ class AdReporter(
                 Log.d(TAG, "reportAdBreakEnded")
             }
             convivaVideoAnalytics.reportAdBreakEnded()
-            currentAdBreak = null
         } else {
             if (BuildConfig.DEBUG) {
                 Log.w(TAG, "handleAdBreakEnd - No current adBreak")
