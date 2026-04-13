@@ -40,6 +40,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+        isCoreLibraryDesugaringEnabled = true
     }
 
     buildFeatures {
@@ -71,6 +72,9 @@ dependencies {
     implementation(libs.androidx.compose.ui.ui)
     implementation(libs.androidx.compose.ui.tooling.preview)
     debugImplementation(libs.androidx.compose.ui.tooling)
+
+    // Desugaring for IMA
+    coreLibraryDesugaring(libs.android.tools.desugarjdklibs)
 
     latestPlayerImplementation(libs.theoplayer)
     latestPlayerImplementation(libs.theoplayer.integration.ima)
