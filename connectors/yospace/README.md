@@ -19,9 +19,9 @@ The Yospace connector provides a Yospace integration for THEOplayer.
 3. Add THEOplayer, the Yospace Ad Management SDK and the Yospace Connector as dependencies in your module-level `build.gradle` file:
    ```groovy
    dependencies {
-       implementation "com.theoplayer.theoplayer-sdk-android:core:7.+"
+       implementation "com.theoplayer.theoplayer-sdk-android:core:11.+"
        implementation "com.yospace:admanagement-sdk:3.+"
-       implementation "com.theoplayer.android-connector:yospace:7.+"
+       implementation "com.theoplayer.android-connector:yospace:11.+"
    }
    ```
 
