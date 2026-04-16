@@ -15,7 +15,8 @@ androidxComposeBom = "2025.08.01"
 androidxLifecycle = "2.5.1"
 androidxMedia = "1.7.1"
 kotlinxCoroutines = "1.10.2"
-theoplayer = { strictly = "[11.0.0, 12.0.0)", prefer = "11.0.0" }# Minimum supported THEOplayer version.
+theoplayer = { strictly = "[11.0.0, 12.0.0)", prefer = "11.0.0" }
+# Minimum supported THEOplayer version.
 # Must match the lower version bound of the "theoplayer" version above.
 theoplayerMin = "11.0.0"
 theoplayerAndroidUi = "1.13.0"
