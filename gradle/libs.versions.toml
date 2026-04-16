@@ -2,6 +2,7 @@
 androidConnector = "11.0.0"
 androidGradlePlugin = "9.1.0"
 androidTools = "32.1.0"
+androidToolsDesugarJdkLibs = "2.1.5"
 kotlin = "2.2.10"
 kotlinxSerialization = "2.2.10"
 kotlinxSerializationJson = "1.9.0"
@@ -14,10 +15,10 @@ androidxComposeBom = "2025.08.01"
 androidxLifecycle = "2.5.1"
 androidxMedia = "1.7.1"
 kotlinxCoroutines = "1.10.2"
-theoplayer = { strictly = "[10.2.0, 11.0.0)", prefer = "11.0.0" }
+theoplayer = { strictly = "[11.0.0, 12.0.0)", prefer = "11.0.0" }
 # Minimum supported THEOplayer version.
 # Must match the lower version bound of the "theoplayer" version above.
-theoplayerMin = "10.2.0"
+theoplayerMin = "11.0.0"
 theoplayerAndroidUi = "1.13.0"
 junit = "4.13.2"
 kotlinTestJunit = "2.2.10"
@@ -68,6 +69,7 @@ yospace = { group = "com.yospace", name = "admanagement-sdk", version.ref = "yos
 # build-logic
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle-api", version.ref = "androidGradlePlugin" }
 android-tools-common = { group = "com.android.tools", name = "common", version.ref = "androidTools" }
+android-tools-desugarjdklibs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "androidToolsDesugarJdkLibs" }
 kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 dokka-gradlePlugin = { group = "org.jetbrains.dokka", name = "dokka-gradle-plugin", version.ref = "dokka" }
 
