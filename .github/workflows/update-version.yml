@@ -48,12 +48,11 @@ jobs:
         run: ./gradlew :updateVersion -PsdkVersion=$VERSION
         env:
           VERSION: ${{ inputs.version }}
-      - name: Commit and tag
+      - name: Commit
         # language=bash
         run: |
           git add .
-          git commit -m "New release $VERSION"
-          git tag "$VERSION"
+          git commit -m "Update player to version $VERSION"
         env:
           VERSION: ${{ inputs.version }}
       - name: Push to origin
@@ -61,7 +60,6 @@ jobs:
         # language=bash
         run: |
           git push origin
-          git push origin tag "$VERSION"
         env:
           VERSION: ${{ inputs.version }}
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
