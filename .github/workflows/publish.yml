@@ -18,9 +18,22 @@ jobs:
     permissions:
       contents: write
       packages: write
+      id-token: write
     steps:
+      - name: Create app token
+        uses: actions/create-github-app-token@v3
+        id: app-token
+        with:
+          app-id: ${{ vars.THEOPLAYER_BOT_APP_ID }}
+          private-key: ${{ secrets.THEOPLAYER_BOT_PRIVATE_KEY }}
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+      - name: Configure Git user
+        run: |
+          git config user.name 'theoplayer-bot[bot]'
+          git config user.email '873105+theoplayer-bot[bot]@users.noreply.github.com'
       - name: Setup Java
         uses: actions/setup-java@v5
         with:
@@ -50,4 +63,12 @@ jobs:
           git tag "$VERSION" -m "New release $VERSION"
           git push origin tag "$VERSION"
         env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          VERSION: ${{ steps.get-version.version }}
+      - name: Create GitHub release
+        run: |
+          gh release create "$VERSION" --verify-tag --latest \
+            --title "$VERSION"
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           VERSION: ${{ steps.get-version.version }}
