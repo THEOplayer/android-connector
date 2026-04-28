@@ -1,24 +1,17 @@
-name: Update player version
-run-name: ${{ format('Update player version to {0}', inputs.version) }}${{ inputs.dryRun == true && ' (dry run)' || '' }}
+name: Create release PR
 on:
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
       version:
-        description: 'Player version, e.g. "10.0.0"'
+        description: 'New version'
         required: true
         type: string
-      dryRun:
-        description: "Dry run: don't actually push anything."
-        required: false
-        default: false
-        type: boolean
-
 jobs:
-  update-version:
+  build:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
     steps:
       - name: Create app token
         uses: actions/create-github-app-token@v3
@@ -44,22 +37,22 @@ jobs:
         with:
           # https://github.com/gradle/actions/blob/v6.0.0/README.md#licensing-notice
           cache-disabled: true
-      - name: Update player version
-        run: ./gradlew :updatePlayerVersion -PsdkVersion=$VERSION
+      - name: Update connector version
+        run: ./gradlew :updateVersion -PconnectorVersion=$VERSION
         env:
           VERSION: ${{ inputs.version }}
-      - name: Commit
-        # language=bash
+      - name: Push to release branch
+        shell: bash
         run: |
-          git add .
-          git commit -m "Update player to version $VERSION"
-        env:
-          VERSION: ${{ inputs.version }}
-      - name: Push to origin
-        if: inputs.dryRun == false
-        # language=bash
+          git commit -a -m ${{ inputs.version }}
+          git push origin "HEAD:release/${{ inputs.version }}"
+      - name: Create pull request
+        shell: bash
         run: |
-          git push origin
+          gh pr create \
+            --base main \
+            --head "release/${{ inputs.version }}" \
+            --title "Release ${{ inputs.version }}" \
+            --body "This will release a new version of the Android connectors."
         env:
-          VERSION: ${{ inputs.version }}
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
