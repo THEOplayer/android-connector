@@ -45,7 +45,7 @@ jobs:
           # https://github.com/gradle/actions/blob/v6.0.0/README.md#licensing-notice
           cache-disabled: true
       - name: Update player version
-        run: ./gradlew :updateVersion -PsdkVersion=$VERSION
+        run: ./gradlew :updatePlayerVersion -PsdkVersion=$VERSION
         env:
           VERSION: ${{ inputs.version }}
       - name: Commit
