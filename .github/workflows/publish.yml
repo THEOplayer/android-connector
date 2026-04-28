@@ -1,19 +1,22 @@
 name: Publish release
 on:
-  # Runs whenever a new tag is pushed
-  push:
-    tags:
-      - '*.*.*'
+  # Runs whenever a release PR is merged
+  pull_request:
+    branches:
+      - main
+    types: [ closed ]
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
   # Publish job
   publish:
+    # Run only for "release/x.y.z" PRs, and only when the PR is merged (not abandoned)
+    if: ${{ !github.event.pull_request || (startsWith(github.head_ref, 'release/') && github.event.pull_request.merged) }}
     runs-on: ubuntu-latest
     # Sets permissions of the GITHUB_TOKEN to allow publishing to GitHub Packages
     permissions:
-      contents: read
+      contents: write
       packages: write
     steps:
       - name: Checkout
@@ -28,6 +31,12 @@ jobs:
         with:
           # https://github.com/gradle/actions/blob/v6.0.0/README.md#licensing-notice
           cache-disabled: true
+      - name: Get version
+        id: get-version
+        shell: bash
+        run: |
+          version=$(./gradlew :getVersion --console=plain --quiet)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
       - name: Publish package
         run: ./gradlew publish
         env:
@@ -36,3 +45,9 @@ jobs:
           REPOSILITE_PASSWORD: ${{ secrets.REPOSILITE_PASSWORD }}
           YOSPACE_USERNAME: ${{ secrets.YOSPACE_USERNAME }}
           YOSPACE_PASSWORD: ${{ secrets.YOSPACE_PASSWORD }}
+      - name: Push tag
+        run: |
+          git tag "$VERSION" -m "New release $VERSION"
+          git push origin tag "$VERSION"
+        env:
+          VERSION: ${{ steps.get-version.version }}

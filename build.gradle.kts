@@ -20,6 +20,12 @@ plugins {
     alias(libs.plugins.kotlinx.serialization) apply false
 }
 
+tasks.register("getVersion") {
+    doLast {
+        println(rootProject.version)
+    }
+}
+
 tasks.register("updateVersion") {
     val versionCatalog = rootProject.file("gradle/libs.versions.toml")
     inputs.file(versionCatalog)
