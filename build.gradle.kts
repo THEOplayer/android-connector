@@ -20,26 +20,23 @@ plugins {
     alias(libs.plugins.kotlinx.serialization) apply false
 }
 
-tasks.register("getVersion") {
-    doLast {
-        println(rootProject.version)
-    }
-}
+version = libs.versions.androidConnector
 
 tasks.register("updateVersion") {
     val versionCatalog = rootProject.file("gradle/libs.versions.toml")
     inputs.file(versionCatalog)
 
     val connectorVersion: String? by project.ext
-    require(!connectorVersion.isNullOrBlank()) { "Missing connectorVersion" }
-
-    ant.withGroovyBuilder {
-        "replaceregexp"(
-            "file" to versionCatalog,
-            "match" to """^androidConnector = ".+"$""",
-            "replace" to """androidConnector = "$connectorVersion"""",
-            "byline" to true
-        )
+    doLast {
+        require(!connectorVersion.isNullOrBlank()) { "Missing connectorVersion" }
+        ant.withGroovyBuilder {
+            "replaceregexp"(
+                "file" to versionCatalog,
+                "match" to """^androidConnector = ".+"$""",
+                "replace" to """androidConnector = "$connectorVersion"""",
+                "byline" to true
+            )
+        }
     }
 }
 

@@ -24,6 +24,8 @@ class AndroidConnectorLibraryConventionPlugin : Plugin<Project> {
         apply(plugin = "org.jetbrains.dokka-javadoc")
         apply(plugin = "maven-publish")
 
+        version = libs.versions.androidConnector
+
         extensions.configure<LibraryExtension> {
             compileSdk = 36
 
@@ -68,9 +70,6 @@ class AndroidConnectorLibraryConventionPlugin : Plugin<Project> {
         }
 
         extensions.configure<DokkaExtension> {
-            val connectorVersion = libs.versions.androidConnector
-            version = connectorVersion
-
             dokkaSourceSets.configureEach {
                 externalDocumentationLinks.register("com.theoplayer.android.api") {
                     url("https://optiview.dolby.com/docs/theoplayer/v10/api-reference/android/")

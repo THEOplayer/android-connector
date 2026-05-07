@@ -48,7 +48,7 @@ jobs:
         id: get-version
         shell: bash
         run: |
-          version=$(./gradlew :getVersion --no-daemon --console=plain --quiet)
+          version=$(./gradlew :properties --property version --no-daemon --console=plain --quiet | awk '/^version:/ {print $2}')
           echo "version=$version" >> "$GITHUB_OUTPUT"
       - name: Publish package
         run: ./gradlew publish
