@@ -50,7 +50,7 @@ jobs:
         shell: bash
         # language=bash
         run: |
-          version=$(yq -r '.versions.androidConnector' ./gradle/libs.versions.toml)
+          version=$(yq '.versions.androidConnector' ./gradle/libs.versions.toml)
           echo "version=$version" >> "$GITHUB_OUTPUT"
       - name: Publish package
         run: ./gradlew publish
