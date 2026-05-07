@@ -48,7 +48,7 @@ jobs:
         id: get-version
         shell: bash
         run: |
-          version=$(./gradlew :getVersion --console=plain --quiet)
+          version=$(./gradlew :getVersion --no-daemon --console=plain --quiet)
           echo "version=$version" >> "$GITHUB_OUTPUT"
       - name: Publish package
         run: ./gradlew publish
