@@ -3,7 +3,7 @@ on:
   # Runs whenever a release PR is merged
   pull_request:
     branches:
-      - main
+      - master
     types: [ closed ]
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:

@@ -50,7 +50,7 @@ jobs:
         shell: bash
         run: |
           gh pr create \
-            --base main \
+            --base master \
             --head "release/${{ inputs.version }}" \
             --title "Release ${{ inputs.version }}" \
             --body "This will release a new version of the Android connectors."
