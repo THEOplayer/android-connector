@@ -31,6 +31,7 @@ jobs:
         with:
           token: ${{ steps.app-token.outputs.token }}
       - name: Configure Git user
+        # language=bash
         run: |
           git config user.name 'theoplayer-bot[bot]'
           git config user.email '873105+theoplayer-bot[bot]@users.noreply.github.com'
@@ -47,6 +48,7 @@ jobs:
       - name: Get version
         id: get-version
         shell: bash
+        # language=bash
         run: |
           version=$(./gradlew :properties --property version --no-daemon --console=plain --quiet | awk '/^version:/ {print $2}')
           echo "version=$version" >> "$GITHUB_OUTPUT"
@@ -59,6 +61,7 @@ jobs:
           YOSPACE_USERNAME: ${{ secrets.YOSPACE_USERNAME }}
           YOSPACE_PASSWORD: ${{ secrets.YOSPACE_PASSWORD }}
       - name: Push tag
+        # language=bash
         run: |
           git tag "$VERSION" -m "New release $VERSION"
           git push origin tag "$VERSION"
@@ -66,6 +69,7 @@ jobs:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           VERSION: ${{ steps.get-version.version }}
       - name: Create GitHub release
+        # language=bash
         run: |
           gh release create "$VERSION" --verify-tag --latest \
             --title "$VERSION"
