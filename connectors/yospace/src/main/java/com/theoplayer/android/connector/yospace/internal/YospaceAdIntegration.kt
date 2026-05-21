@@ -186,9 +186,9 @@ internal class YospaceAdIntegration(
     }
 
     private fun removeStreamStartListeners() {
-        player.addEventListener(PlayerEventTypes.LOADEDMETADATA, onSeekableChange)
-        player.addEventListener(PlayerEventTypes.DURATIONCHANGE, onSeekableChange)
-        player.addEventListener(PlayerEventTypes.TIMEUPDATE, onSeekableChange)
+        player.removeEventListener(PlayerEventTypes.LOADEDMETADATA, onSeekableChange)
+        player.removeEventListener(PlayerEventTypes.DURATIONCHANGE, onSeekableChange)
+        player.removeEventListener(PlayerEventTypes.TIMEUPDATE, onSeekableChange)
     }
 
     private val onVolumeChange = EventListener<VolumeChangeEvent> {
