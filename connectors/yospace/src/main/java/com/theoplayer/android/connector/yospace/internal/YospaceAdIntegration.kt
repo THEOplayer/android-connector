@@ -87,7 +87,7 @@ internal class YospaceAdIntegration(
             Session.SessionState.NO_ANALYTICS -> {
                 sourceWithYospace = source
                 // Set up
-                setupSession(session, isLive = ssaiDescription.streamType == YospaceStreamType.LIVE)
+                setupSession(session)
                 // Notify listener
                 listener.onSessionAvailable()
                 // Replace source with playback URL
@@ -116,7 +116,8 @@ internal class YospaceAdIntegration(
         return source
     }
 
-    private fun setupSession(session: Session, isLive: Boolean) {
+    private fun setupSession(session: Session) {
+        val isLive = session.sessionMode == Session.SessionMode.LIVE
         this.session = session
         if (isLive) {
             // Timed metadata is only used for live playback
