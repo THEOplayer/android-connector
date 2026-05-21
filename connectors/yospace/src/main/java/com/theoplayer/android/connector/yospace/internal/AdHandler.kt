@@ -62,13 +62,14 @@ internal class AdHandler(
     }
 
     private fun getAdInit(advert: YospaceAdvert): AdInit {
-        val nonLinearCreative = if (advert.isNonLinear) advert.getNonLinearCreatives(Resource.ResourceType.STATIC).firstOrNull() else null
+        val isNonLinear = advert.linearCreative == null
+        val nonLinearCreative = if (isNonLinear) advert.getNonLinearCreatives(Resource.ResourceType.STATIC).firstOrNull() else null
         return AdInit(
-            type = if (advert.isNonLinear) "nonlinear" else "linear",
+            type = if (isNonLinear) "nonlinear" else "linear",
             skipOffset = if (advert.skipOffset < 0) -1 else (advert.skipOffset / 1000).toInt(),
             id = advert.identifier,
             duration = (advert.duration / 1000).toInt(),
-            clickThrough = if (advert.isNonLinear) nonLinearCreative?.clickThroughUrl else advert.linearCreative?.clickThroughUrl,
+            clickThrough = if (isNonLinear) nonLinearCreative?.clickThroughUrl else advert.linearCreative?.clickThroughUrl,
             resourceURI = nonLinearCreative?.getResource(Resource.ResourceType.STATIC)?.stringData
         )
     }
