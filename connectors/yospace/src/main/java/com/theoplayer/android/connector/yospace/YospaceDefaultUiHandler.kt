@@ -10,6 +10,7 @@ import com.theoplayer.android.api.THEOplayerView
 import com.yospace.admanagement.LinearCreative
 import com.yospace.admanagement.NonLinearCreative
 import com.yospace.admanagement.Resource
+import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -71,12 +72,19 @@ class YospaceDefaultUiHandler(
         val loadJob = scope.launch {
             ensureActive()
             val imageBitmap = withContext(Dispatchers.IO) {
-                URL(imageUrl).openStream().use { BitmapFactory.decodeStream(it) }
+                try {
+                    URL(imageUrl).openStream().use { BitmapFactory.decodeStream(it) }
+                } catch (e: Exception) {
+                    Log.w(TAG, "Failed to load non-linear image: $imageUrl", e)
+                    null
+                }
             }
             ensureActive()
-            imageView.run {
-                setImageBitmap(imageBitmap)
-                visibility = View.VISIBLE
+            if (imageBitmap != null) {
+                imageView.run {
+                    setImageBitmap(imageBitmap)
+                    visibility = View.VISIBLE
+                }
             }
         }
         nonLinearLoadJobs[nonLinearCreative] = NonLinearUiState(imageView = imageView, loadJob = loadJob)
