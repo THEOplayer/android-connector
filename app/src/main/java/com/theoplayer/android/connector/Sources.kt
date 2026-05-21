@@ -86,7 +86,7 @@ val sources: List<Source> by lazy {
             sourceDescription = SourceDescription
                 .Builder(
                     TypedSource.Builder(
-                        "https://csm-e-sdk-validation.bln1.yospace.com/csm/extlive/yospace02,hlssample42.m3u8?yo.br=true&yo.av=4"
+                        "https://csm-e-sdk-validation-eb.bln1.yospace.com/csm/extlive/yosdk02,hls-ts-pre.m3u8?yo.av=5"
                     )
                         .type(SourceType.HLS)
                         .ssai(YospaceSsaiDescription(streamType = YospaceStreamType.LIVE))
@@ -99,7 +99,7 @@ val sources: List<Source> by lazy {
             sourceDescription = SourceDescription
                 .Builder(
                     TypedSource.Builder(
-                        "https://csm-e-sdk-validation.bln1.yospace.com/csm/extlive/yospace02,hlssample42.m3u8?yo.br=true&yo.lp=true&yo.av=4"
+                        "https://csm-e-sdk-validation-eb.bln1.yospace.com/csm/extlive/yosdk02,hls-ts-pre.m3u8?yo.br=false&yo.av=5&yo.lpa=dur"
                     )
                         .type(SourceType.HLS)
                         .ssai(YospaceSsaiDescription(streamType = YospaceStreamType.LIVEPAUSE))
@@ -125,7 +125,7 @@ val sources: List<Source> by lazy {
             sourceDescription = SourceDescription
                 .Builder(
                     TypedSource.Builder(
-                        "https://csm-e-sdk-validation.bln1.yospace.com/csm/extlive/yosdk01,dash.mpd?yo.br=true&yo.lp=true&yo.jt=1000&yo.av=4"
+                        "https://csm-e-sdk-validation-eb.bln1.yospace.com/csm/extlive/yosdk02,dash-mp4-pre.mpd?yo.br=false&yo.av=5&yo.lpa=dur"
                     )
                         .type(SourceType.DASH)
                         .ssai(YospaceSsaiDescription(streamType = YospaceStreamType.LIVEPAUSE))
