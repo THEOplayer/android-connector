@@ -32,7 +32,7 @@ class YospaceSsaiDescriptionSerializerTests {
                 "fireHistoricalBeacons",
                 "applyEncryptedTracking",
                 "excludedCategories",
-                "consecutiveBreakTolerance",
+                "alignConsecutiveBreaks",
                 "token",
                 "customHttpHeaders"
             )

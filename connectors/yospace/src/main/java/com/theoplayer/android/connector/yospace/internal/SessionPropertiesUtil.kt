@@ -19,7 +19,7 @@ internal fun Session.SessionProperties.copy(
     fireHistoricalBeacons: Boolean = this.fireHistoricalBeacons,
     applyEncryptedTracking: Boolean = this.applyEncryptedTracking,
     excludedCategories: Int = this.excludedCategories,
-    consecutiveBreakTolerance: Int = this.consecutiveBreakTolerance,
+    alignConsecutiveBreaks: Boolean = this.alignConsecutiveBreaks,
     token: UUID = this.token,
     customHttpHeaders: Map<String, String> = this.customHttpHeaders,
 ) = Session.SessionProperties().apply {
@@ -32,7 +32,7 @@ internal fun Session.SessionProperties.copy(
     this.fireHistoricalBeacons = fireHistoricalBeacons
     this.applyEncryptedTracking = applyEncryptedTracking
     this.excludeFromSuppression(excludedCategories)
-    this.consecutiveBreakTolerance = consecutiveBreakTolerance
+    this.alignConsecutiveBreaks = alignConsecutiveBreaks
     this.token = token
     this.customHttpHeaders = customHttpHeaders
 }
@@ -48,7 +48,7 @@ internal data class SerializedSessionProperties(
     val fireHistoricalBeacons: Boolean,
     val applyEncryptedTracking: Boolean,
     val excludedCategories: Int,
-    val consecutiveBreakTolerance: Int,
+    val alignConsecutiveBreaks: Boolean,
     val token: String,
     val customHttpHeaders: Map<String, String>,
 )
@@ -63,7 +63,7 @@ internal fun Session.SessionProperties.serialize() = SerializedSessionProperties
     fireHistoricalBeacons = fireHistoricalBeacons,
     applyEncryptedTracking = applyEncryptedTracking,
     excludedCategories = excludedCategories,
-    consecutiveBreakTolerance = consecutiveBreakTolerance,
+    alignConsecutiveBreaks = alignConsecutiveBreaks,
     token = token.toString(),
     customHttpHeaders = customHttpHeaders,
 )
@@ -80,7 +80,7 @@ internal fun SerializedSessionProperties.deserialize(): Session.SessionPropertie
         fireHistoricalBeacons = serialized.fireHistoricalBeacons
         applyEncryptedTracking = serialized.applyEncryptedTracking
         excludeFromSuppression(serialized.excludedCategories)
-        consecutiveBreakTolerance = serialized.consecutiveBreakTolerance
+        alignConsecutiveBreaks = serialized.alignConsecutiveBreaks
         token = UUID.fromString(serialized.token)
         customHttpHeaders = serialized.customHttpHeaders
     }
