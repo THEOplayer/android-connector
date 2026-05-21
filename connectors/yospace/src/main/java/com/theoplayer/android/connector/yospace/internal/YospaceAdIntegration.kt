@@ -117,7 +117,7 @@ internal class YospaceAdIntegration(
     }
 
     private fun setupSession(session: Session) {
-        val isLive = session.playbackMode == Session.PlaybackMode.LIVE
+        val isLive = session.sessionMode == Session.SessionMode.LIVE
         this.session = session
         if (isLive) {
             // Timed metadata is only used for live playback
@@ -186,9 +186,9 @@ internal class YospaceAdIntegration(
     }
 
     private fun removeStreamStartListeners() {
-        player.addEventListener(PlayerEventTypes.LOADEDMETADATA, onSeekableChange)
-        player.addEventListener(PlayerEventTypes.DURATIONCHANGE, onSeekableChange)
-        player.addEventListener(PlayerEventTypes.TIMEUPDATE, onSeekableChange)
+        player.removeEventListener(PlayerEventTypes.LOADEDMETADATA, onSeekableChange)
+        player.removeEventListener(PlayerEventTypes.DURATIONCHANGE, onSeekableChange)
+        player.removeEventListener(PlayerEventTypes.TIMEUPDATE, onSeekableChange)
     }
 
     private val onVolumeChange = EventListener<VolumeChangeEvent> {
