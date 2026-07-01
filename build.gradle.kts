@@ -26,9 +26,12 @@ tasks.register("updateVersion") {
     val versionCatalog = rootProject.file("gradle/libs.versions.toml")
     inputs.file(versionCatalog)
 
-    val connectorVersion: String? by project.ext
     doLast {
+        val connectorVersion = if (project.ext.has("connectorVersion")) {
+            project.ext["connectorVersion"] as String?
+        } else null
         require(!connectorVersion.isNullOrBlank()) { "Missing connectorVersion" }
+
         ant.withGroovyBuilder {
             "replaceregexp"(
                 "file" to versionCatalog,
@@ -44,16 +47,20 @@ tasks.register("updatePlayerVersion") {
     val versionCatalog = rootProject.file("gradle/libs.versions.toml")
     inputs.file(versionCatalog)
 
-    val sdkVersion: String? by project.ext
-    require(!sdkVersion.isNullOrBlank()) { "Missing sdkVersion" }
+    doLast {
+        val sdkVersion = if (project.ext.has("sdkVersion")) {
+            project.ext["sdkVersion"] as String?
+        } else null
+        require(!sdkVersion.isNullOrBlank()) { "Missing sdkVersion" }
 
-    ant.withGroovyBuilder {
-        "replaceregexp"(
-            "file" to versionCatalog,
-            "match" to """^theoplayer = \{(.*) prefer = ".+" (.*)\}$""",
-            "replace" to """theoplayer = {\1 prefer = "$sdkVersion" \2}""",
-            "byline" to true
-        )
+        ant.withGroovyBuilder {
+            "replaceregexp"(
+                "file" to versionCatalog,
+                "match" to """^theoplayer = \{(.*) prefer = ".+" (.*)\}$""",
+                "replace" to """theoplayer = {\1 prefer = "$sdkVersion" \2}""",
+                "byline" to true
+            )
+        }
     }
 }
 
