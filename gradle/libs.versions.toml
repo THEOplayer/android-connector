@@ -1,6 +1,6 @@
 [versions]
 androidConnector = "11.1.0"
-androidGradlePlugin = "9.1.0"
+androidGradlePlugin = "9.2.1"
 androidTools = "32.1.0"
 androidToolsDesugarJdkLibs = "2.1.5"
 kotlin = "2.2.10"
