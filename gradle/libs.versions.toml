@@ -3,14 +3,16 @@ androidConnector = "11.1.1"
 androidGradlePlugin = "9.2.1"
 androidTools = "32.2.1"
 androidToolsDesugarJdkLibs = "2.1.5"
-kotlin = "2.4.0"
-kotlinxSerialization = "2.4.0"
+# NOTE: Kotlin compiler version must be kept in sync with player SDK
+kotlin = "2.2.10"
+kotlinxSerialization = "2.2.10"
 kotlinxSerializationJson = "1.11.0"
 dokka = "2.2.0"
 androidxAppCompat = "1.7.1"
 androidxActivity = "1.13.0"
+# NOTE: AndroidX Core version must be kept in sync with player SDK
 # NOTE: upgrading beyond 1.18.0 requires compileSdk 37
-androidxCore = "1.18.0"
+androidxCore = "1.17.0"
 androidxComposeBom = "2026.06.00"
 # NOTE: upgrading beyond 2.5.1 requires targetSdk 33
 androidxLifecycle = "2.5.1"
