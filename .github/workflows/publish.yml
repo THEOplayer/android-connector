@@ -67,7 +67,7 @@ jobs:
           git push origin tag "$VERSION"
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          VERSION: ${{ steps.get-version.version }}
+          VERSION: ${{ steps.get-version.outputs.version }}
       - name: Create GitHub release
         # language=bash
         run: |
@@ -75,4 +75,4 @@ jobs:
             --title "$VERSION"
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          VERSION: ${{ steps.get-version.version }}
+          VERSION: ${{ steps.get-version.outputs.version }}
