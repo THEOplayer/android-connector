@@ -80,9 +80,9 @@ class YospaceDefaultUiHandler(
                 }
             }
             ensureActive()
-            if (imageBitmap != null) {
+            imageBitmap?.let {
                 imageView.run {
-                    setImageBitmap(imageBitmap)
+                    setImageBitmap(it)
                     visibility = View.VISIBLE
                 }
             }
