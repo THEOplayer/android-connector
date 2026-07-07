@@ -5,7 +5,22 @@ import android.os.Bundle
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.RatingCompat
 import android.support.v4.media.session.MediaSessionCompat
-import android.support.v4.media.session.PlaybackStateCompat.*
+import android.support.v4.media.session.PlaybackStateCompat.ACTION_FAST_FORWARD
+import android.support.v4.media.session.PlaybackStateCompat.ACTION_PAUSE
+import android.support.v4.media.session.PlaybackStateCompat.ACTION_PLAY
+import android.support.v4.media.session.PlaybackStateCompat.ACTION_PREPARE
+import android.support.v4.media.session.PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID
+import android.support.v4.media.session.PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH
+import android.support.v4.media.session.PlaybackStateCompat.ACTION_PREPARE_FROM_URI
+import android.support.v4.media.session.PlaybackStateCompat.ACTION_REWIND
+import android.support.v4.media.session.PlaybackStateCompat.ACTION_SEEK_TO
+import android.support.v4.media.session.PlaybackStateCompat.ACTION_SET_PLAYBACK_SPEED
+import android.support.v4.media.session.PlaybackStateCompat.ACTION_SKIP_TO_NEXT
+import android.support.v4.media.session.PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+import android.support.v4.media.session.PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM
+import android.support.v4.media.session.PlaybackStateCompat.ACTION_STOP
+import android.support.v4.media.session.PlaybackStateCompat.RepeatMode
+import android.support.v4.media.session.PlaybackStateCompat.ShuffleMode
 import android.util.Log
 import com.theoplayer.android.api.timerange.TimeRanges
 
@@ -86,8 +101,9 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         }
         connector.player?.let { player ->
             if (shouldHandlePlaybackAction(ACTION_PLAY)) {
-                connector.playbackCallback?.onPlay() ?: {
-                    player.play()
+                when (val callback = connector.playbackCallback) {
+                    null -> player.play()
+                    else -> callback.onPlay()
                 }
                 // Make sure the session is currently active and ready to receive commands.
                 connector.setActive(true)
@@ -104,8 +120,9 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         }
         connector.player?.let { player ->
             if (shouldHandlePlaybackAction(ACTION_PAUSE)) {
-                connector.playbackCallback?.onPause() ?: {
-                    player.pause()
+                when (val callback = connector.playbackCallback) {
+                    null -> player.pause()
+                    else -> callback.onPause()
                 }
             }
             connector.listeners.forEach { listener ->
@@ -120,8 +137,9 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         }
         connector.player?.let { player ->
             if (shouldHandlePlaybackAction(ACTION_STOP)) {
-                connector.playbackCallback?.onStop() ?: {
-                    player.stop()
+                when (val callback = connector.playbackCallback) {
+                    null -> player.stop()
+                    else -> callback.onStop()
                 }
                 connector.setActive(false)
             }
@@ -136,8 +154,9 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
             Log.d(TAG, "MediaSessionCallback::onFastForward")
         }
         if (shouldHandlePlaybackAction(ACTION_FAST_FORWARD)) {
-            connector.playbackCallback?.onFastForward() ?: {
-                skip(connector.skipForwardInterval)
+            when (val callback = connector.playbackCallback) {
+                null -> skip(connector.skipForwardInterval)
+                else -> callback.onFastForward()
             }
         }
         connector.listeners.forEach { listener ->
@@ -150,8 +169,9 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
             Log.d(TAG, "MediaSessionCallback::onRewind")
         }
         if (shouldHandlePlaybackAction(ACTION_REWIND)) {
-            connector.playbackCallback?.onRewind() ?: {
-                skip(-connector.skipBackwardsInterval)
+            when (val callback = connector.playbackCallback) {
+                null -> skip(-connector.skipBackwardsInterval)
+                else -> callback.onRewind()
             }
         }
         connector.listeners.forEach { listener ->
@@ -165,8 +185,9 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         }
         connector.player?.let { player ->
             if (shouldHandlePlaybackAction(ACTION_SET_PLAYBACK_SPEED)) {
-                connector.playbackCallback?.onSetPlaybackSpeed(speed) ?: {
-                    player.playbackRate = speed.toDouble()
+                when (val callback = connector.playbackCallback) {
+                    null -> player.playbackRate = speed.toDouble()
+                    else -> callback.onSetPlaybackSpeed(speed)
                 }
             }
             connector.listeners.forEach { listener ->
@@ -181,8 +202,9 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         }
         connector.player?.let { player ->
             if (shouldHandlePlaybackAction(ACTION_SEEK_TO)) {
-                connector.playbackCallback?.onSeekTo(positionMs) ?: {
-                    player.currentTime = 1e-03 * positionMs
+                when (val callback = connector.playbackCallback) {
+                    null -> player.currentTime = 1e-03 * positionMs
+                    else -> callback.onSeekTo(positionMs)
                 }
             }
             connector.listeners.forEach { listener ->
