@@ -86,7 +86,7 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         }
         connector.player?.let { player ->
             if (shouldHandlePlaybackAction(ACTION_PLAY)) {
-                connector.playbackCallback?.onPlay() ?: {
+                connector.playbackCallback?.onPlay() ?: run {
                     player.play()
                 }
                 // Make sure the session is currently active and ready to receive commands.
@@ -104,7 +104,7 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         }
         connector.player?.let { player ->
             if (shouldHandlePlaybackAction(ACTION_PAUSE)) {
-                connector.playbackCallback?.onPause() ?: {
+                connector.playbackCallback?.onPause() ?: run {
                     player.pause()
                 }
             }
@@ -120,7 +120,7 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         }
         connector.player?.let { player ->
             if (shouldHandlePlaybackAction(ACTION_STOP)) {
-                connector.playbackCallback?.onStop() ?: {
+                connector.playbackCallback?.onStop() ?: run {
                     player.stop()
                 }
                 connector.setActive(false)
@@ -136,7 +136,7 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
             Log.d(TAG, "MediaSessionCallback::onFastForward")
         }
         if (shouldHandlePlaybackAction(ACTION_FAST_FORWARD)) {
-            connector.playbackCallback?.onFastForward() ?: {
+            connector.playbackCallback?.onFastForward() ?: run {
                 skip(connector.skipForwardInterval)
             }
         }
@@ -150,7 +150,7 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
             Log.d(TAG, "MediaSessionCallback::onRewind")
         }
         if (shouldHandlePlaybackAction(ACTION_REWIND)) {
-            connector.playbackCallback?.onRewind() ?: {
+            connector.playbackCallback?.onRewind() ?: run {
                 skip(-connector.skipBackwardsInterval)
             }
         }
@@ -165,7 +165,7 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         }
         connector.player?.let { player ->
             if (shouldHandlePlaybackAction(ACTION_SET_PLAYBACK_SPEED)) {
-                connector.playbackCallback?.onSetPlaybackSpeed(speed) ?: {
+                connector.playbackCallback?.onSetPlaybackSpeed(speed) ?: run {
                     player.playbackRate = speed.toDouble()
                 }
             }
@@ -181,7 +181,7 @@ class MediaSessionCallback(private val connector: MediaSessionConnector) :
         }
         connector.player?.let { player ->
             if (shouldHandlePlaybackAction(ACTION_SEEK_TO)) {
-                connector.playbackCallback?.onSeekTo(positionMs) ?: {
+                connector.playbackCallback?.onSeekTo(positionMs) ?: run {
                     player.currentTime = 1e-03 * positionMs
                 }
             }
