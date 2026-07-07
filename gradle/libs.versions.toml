@@ -1,5 +1,5 @@
 [versions]
-androidConnector = "11.1.0"
+androidConnector = "11.1.1"
 androidGradlePlugin = "9.2.1"
 androidTools = "32.2.1"
 androidToolsDesugarJdkLibs = "2.1.5"
