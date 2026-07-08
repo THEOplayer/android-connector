@@ -1,6 +1,6 @@
 # THEOplayer Yospace Connector for Android
 
-The Yospace connector provides a Yospace integration for THEOplayer.
+The Yospace connector provides a Yospace Server-Side Ad Insertion (SSAI) integration for THEOplayer.
 
 ## Installation
 
