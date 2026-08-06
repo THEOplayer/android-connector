@@ -10,6 +10,11 @@ import com.theoplayer.android.api.ads.AdBreak
 import com.theoplayer.android.api.ads.ima.GoogleImaAd
 import com.theoplayer.android.api.ads.ima.GoogleImaAdEvent
 import com.theoplayer.android.api.ads.ima.GoogleImaAdEventType
+import com.theoplayer.android.api.ads.theoads.InterstitialType
+import com.theoplayer.android.api.ads.theoads.TheoAdsIntegration
+import com.theoplayer.android.api.ads.theoads.event.InterstitialErrorEvent
+import com.theoplayer.android.api.ads.theoads.event.TheoAdsEventTypes
+import com.theoplayer.android.api.ads.theoads.theoAds
 import com.theoplayer.android.api.event.EventDispatcher
 import com.theoplayer.android.api.event.EventListener
 import com.theoplayer.android.api.event.ads.AdBeginEvent
@@ -63,6 +68,17 @@ class AdReporter(
     private val onAdBreakEnd: EventListener<AdBreakEndEvent>
     private val onAdSkip: EventListener<AdSkipEvent>
     private val onAdError: EventListener<AdErrorEvent>
+    private val onInterstitialError: EventListener<InterstitialErrorEvent>
+
+    private val theoAds: TheoAdsIntegration? = try {
+        player.theoAds
+    } catch (_: IllegalStateException) {
+        // The THEOads integration was not added to the player.
+        null
+    } catch (_: NoClassDefFoundError) {
+        // The THEOads integration is not part of the application.
+        null
+    }
 
     init {
         convivaAdAnalytics.setCallback(this)
@@ -156,6 +172,10 @@ class AdReporter(
             handleAdError()
         }
 
+        onInterstitialError = EventListener<InterstitialErrorEvent> { event ->
+            handleInterstitialError(event)
+        }
+
         addEventListeners()
     }
 
@@ -197,6 +217,8 @@ class AdReporter(
                 onImaContentResume
             )
         }
+
+        theoAds?.addEventListener(TheoAdsEventTypes.INTERSTITIAL_ERROR, onInterstitialError)
     }
 
     private fun removeEventListeners() {
@@ -221,6 +243,8 @@ class AdReporter(
                 onImaContentResume
             )
         }
+
+        theoAds?.removeEventListener(TheoAdsEventTypes.INTERSTITIAL_ERROR, onInterstitialError)
     }
 
     private fun handleAdBreakBegin(adBreak: AdBreak?, isLinearAdBreak: Boolean) {
@@ -348,6 +372,43 @@ class AdReporter(
             Log.d(TAG, "reportAdFailed")
         }
         convivaAdAnalytics.reportAdFailed("Ad Request Failed")
+    }
+
+    /**
+     * A THEOads (SGAI) ad break can fail before any ad is available, for example when the ad server
+     * returns an empty VAST response. In that case no ad break or ad events are dispatched, so report
+     * the attempted ad break as a failed ad to keep Conviva's ad attempt and fill rate metrics correct.
+     */
+    private fun handleInterstitialError(event: InterstitialErrorEvent) {
+        val interstitial = event.interstitial
+        if (interstitial.type != InterstitialType.ADBREAK || currentAdBreak != null) {
+            return
+        }
+
+        // Make sure the session is started
+        convivaHandler.maybeReportPlaybackRequested()
+
+        adBreakCounter++
+        convivaVideoAnalytics.reportAdBreakStarted(
+            ConvivaSdkConstants.AdPlayer.CONTENT,
+            ConvivaSdkConstants.AdType.SERVER_SIDE,
+            mapOf(
+                ConvivaSdkConstants.POD_DURATION to (interstitial.duration ?: 0.0),
+                ConvivaSdkConstants.POD_INDEX to adBreakCounter
+            )
+        )
+        val adMetadata = mapOf(
+            "c3.csid" to convivaVideoAnalytics.sessionId.toString(),
+            "contentAssetName" to convivaHandler.contentAssetName,
+            "c3.ad.technology" to "Server Guided",
+            ConvivaSdkConstants.IS_LIVE to false,
+        )
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "reportAdFailed - ${event.message}")
+        }
+        convivaAdAnalytics.setAdInfo(adMetadata)
+        convivaAdAnalytics.reportAdFailed(event.message ?: "No ad available")
+        convivaVideoAnalytics.reportAdBreakEnded()
     }
 
     fun reset() {
