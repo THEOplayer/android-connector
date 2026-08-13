@@ -8,6 +8,7 @@ import com.theoplayer.android.api.ads.Ad
 import com.theoplayer.android.api.ads.AdBreak
 import com.theoplayer.android.api.ads.LinearAd
 import com.theoplayer.android.api.ads.ima.GoogleImaAd
+import com.theoplayer.android.api.ads.theoads.Interstitial
 import com.theoplayer.android.api.ads.theoads.TheoAdDescription
 import com.theoplayer.android.api.event.ads.AdIntegrationKind
 import com.theoplayer.android.api.player.Player
@@ -37,9 +38,15 @@ fun calculateAdType(adBreak: AdBreak): ConvivaSdkConstants.AdType {
     }
 }
 
+/**
+ * The ad technology reported to Conviva for THEOads (SGAI).
+ * SGAI isn't officially supported by Conviva yet, so we report it with our own string for now.
+ */
+const val SGAI_AD_TYPE = "Server Guided"
+
 fun calculateAdTypeAsString(ad: Ad): String {
     if (ad.integration == AdIntegrationKind.THEO_ADS) {
-        return "Server Guided"
+        return SGAI_AD_TYPE
     }
     return when (calculateAdType(ad)) {
         ConvivaSdkConstants.AdType.SERVER_SIDE -> "Server Side"
@@ -58,7 +65,25 @@ fun calculateCurrentAdBreakPosition(adBreak: AdBreak): String {
 
 fun calculateCurrentAdBreakInfo(adBreak: AdBreak, adBreakIndex: Int): Map<String, Any> {
     return mapOf(
+        ConvivaSdkConstants.POD_POSITION to calculateCurrentAdBreakPosition(adBreak),
         ConvivaSdkConstants.POD_DURATION to adBreak.maxDuration,
+        ConvivaSdkConstants.POD_INDEX to adBreakIndex
+    )
+}
+
+fun calculateInterstitialAdBreakPosition(interstitial: Interstitial): String {
+    val startTime = interstitial.startTime
+    return when {
+        startTime == 0.0 -> "Pre-roll"
+        startTime < 0.0 || !startTime.isFinite() -> "Post-roll"
+        else -> "Mid-roll"
+    }
+}
+
+fun calculateInterstitialAdBreakInfo(interstitial: Interstitial, adBreakIndex: Int): Map<String, Any> {
+    return mapOf(
+        ConvivaSdkConstants.POD_POSITION to calculateInterstitialAdBreakPosition(interstitial),
+        ConvivaSdkConstants.POD_DURATION to (interstitial.duration?.toInt() ?: 0),
         ConvivaSdkConstants.POD_INDEX to adBreakIndex
     )
 }

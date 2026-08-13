@@ -28,9 +28,11 @@ import com.theoplayer.android.api.event.player.*
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.connector.analytics.conviva.BuildConfig
 import com.theoplayer.android.connector.analytics.conviva.ConvivaHandlerBase
+import com.theoplayer.android.connector.analytics.conviva.utils.SGAI_AD_TYPE
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateAdType
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateAdTypeAsString
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateCurrentAdBreakInfo
+import com.theoplayer.android.connector.analytics.conviva.utils.calculateInterstitialAdBreakInfo
 import com.theoplayer.android.connector.analytics.conviva.utils.collectAdMetadata
 import com.theoplayer.android.connector.analytics.conviva.utils.collectPlayerInfo
 import com.theoplayer.android.connector.analytics.conviva.utils.updateAdMetadataForGoogleIma
@@ -247,6 +249,18 @@ class AdReporter(
         theoAds?.removeEventListener(TheoAdsEventTypes.INTERSTITIAL_ERROR, onInterstitialError)
     }
 
+    /**
+     * Ad metadata shared between successful and failed ad reporting.
+     * Every session ad or content has its session ID. In order to “attach” an ad to its respective content session,
+     * there are two tags that are critical:
+     * - `c3.csid`: the content’s sessionID;
+     * - `contentAssetName`: the content's assetName.
+     */
+    private fun collectBaseAdMetadata(): Map<String, Any> = mapOf(
+        "c3.csid" to convivaVideoAnalytics.sessionId.toString(),
+        "contentAssetName" to convivaHandler.contentAssetName,
+    )
+
     private fun handleAdBreakBegin(adBreak: AdBreak?, isLinearAdBreak: Boolean) {
         // Make sure the session is started
         convivaHandler.maybeReportPlaybackRequested()
@@ -279,15 +293,8 @@ class AdReporter(
         }
         if (ad != null && isAdLinear(ad)) {
             currentAd = ad
-            // Every session ad or content has its session ID. In order to “attach” an ad to its respective content session,
-            // there are two tags that are critical:
-            // - `c3.csid`: the content’s sessionID;
-            // - `contentAssetName`: the content's assetName.
-            val contentAssetName = convivaHandler.contentAssetName
             val adTechnology = calculateAdTypeAsString(ad)
-            var adMetadata = collectAdMetadata(ad) + mapOf(
-                "c3.csid" to convivaVideoAnalytics.sessionId.toString(),
-                "contentAssetName" to contentAssetName,
+            var adMetadata = collectAdMetadata(ad) + collectBaseAdMetadata() + mapOf(
                 "c3.ad.technology" to adTechnology,
                 ConvivaSdkConstants.IS_LIVE to false,
             )
@@ -392,15 +399,10 @@ class AdReporter(
         convivaVideoAnalytics.reportAdBreakStarted(
             ConvivaSdkConstants.AdPlayer.CONTENT,
             ConvivaSdkConstants.AdType.SERVER_SIDE,
-            mapOf(
-                ConvivaSdkConstants.POD_DURATION to (interstitial.duration ?: 0.0),
-                ConvivaSdkConstants.POD_INDEX to adBreakCounter
-            )
+            calculateInterstitialAdBreakInfo(interstitial, adBreakCounter)
         )
-        val adMetadata = mapOf(
-            "c3.csid" to convivaVideoAnalytics.sessionId.toString(),
-            "contentAssetName" to convivaHandler.contentAssetName,
-            "c3.ad.technology" to "Server Guided",
+        val adMetadata = collectBaseAdMetadata() + mapOf(
+            "c3.ad.technology" to SGAI_AD_TYPE,
             ConvivaSdkConstants.IS_LIVE to false,
         )
         if (BuildConfig.DEBUG) {
