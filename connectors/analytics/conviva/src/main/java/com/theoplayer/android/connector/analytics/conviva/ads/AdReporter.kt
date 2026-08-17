@@ -10,6 +10,7 @@ import com.theoplayer.android.api.ads.AdBreak
 import com.theoplayer.android.api.ads.ima.GoogleImaAd
 import com.theoplayer.android.api.ads.ima.GoogleImaAdEvent
 import com.theoplayer.android.api.ads.ima.GoogleImaAdEventType
+import com.theoplayer.android.api.ads.theoads.Interstitial
 import com.theoplayer.android.api.ads.theoads.InterstitialType
 import com.theoplayer.android.api.ads.theoads.TheoAdsIntegration
 import com.theoplayer.android.api.ads.theoads.event.InterstitialErrorEvent
@@ -386,9 +387,23 @@ class AdReporter(
      * returns an empty VAST response. In that case no ad break or ad events are dispatched, so report
      * the attempted ad break as a failed ad to keep Conviva's ad attempt and fill rate metrics correct.
      */
+    /**
+     * Whether the interstitial's ad break lies entirely behind the current time, for example a break in
+     * the DVR window of a live stream when tuning in. Such breaks can report an error without ever having
+     * been an actual ad attempt, so they should not be reported as failed ads.
+     */
+    private fun isPastInterstitial(interstitial: Interstitial): Boolean {
+        val startTime = interstitial.startTime
+        if (startTime < 0.0 || startTime.isInfinite()) {
+            // A post-roll is never in the past.
+            return false
+        }
+        return startTime + (interstitial.duration ?: 0.0) < player.currentTime
+    }
+
     private fun handleInterstitialError(event: InterstitialErrorEvent) {
         val interstitial = event.interstitial
-        if (interstitial.type != InterstitialType.ADBREAK || currentAdBreak != null) {
+        if (interstitial.type != InterstitialType.ADBREAK || currentAdBreak != null || isPastInterstitial(interstitial)) {
             return
         }
 
