@@ -95,6 +95,8 @@ received in the app itself, and offers:
 
 - **Send to staging**: also sends the reports to the OptiView staging ingest, through `com.dolby.optiview:lens-sdk-dev`.
   Lens locks its backend at the first join, so switching restarts the app. Off, the OptiView backend is disabled.
+- **Destination**: also sends the reports to an endpoint of your own, such as a test CMCD endpoint, in CMCD
+  (`application/cmcd`) or JSON. Saving restarts the app. The demo allows plain HTTP for such test endpoints.
 - **Run scenario**: plays the scenario the Lens connector demos share across platforms, so their reports can be
   compared in the backend. The source reports the content ID `lens-connector-demo-scenario`:
   1. Load Big Buck Bunny (`https://cdn.theoplayer.com/video/big_buck_bunny/big_buck_bunny.m3u8`)
