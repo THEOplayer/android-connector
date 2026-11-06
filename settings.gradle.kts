@@ -32,6 +32,7 @@ rootProject.name = "THEOplayer Connector"
 include(":app")
 include(":connectors:analytics:comscore")
 include(":connectors:analytics:conviva")
+include(":connectors:analytics:lens")
 include(":connectors:analytics:nielsen")
 include(":connectors:mediasession")
 include(":connectors:yospace")

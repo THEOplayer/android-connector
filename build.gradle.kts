@@ -67,6 +67,7 @@ tasks.register("updatePlayerVersion") {
 dependencies {
     dokka(project(":connectors:analytics:comscore"))
     dokka(project(":connectors:analytics:conviva"))
+    dokka(project(":connectors:analytics:lens"))
     dokka(project(":connectors:analytics:nielsen"))
     dokka(project(":connectors:mediasession"))
     dokka(project(":connectors:yospace"))
