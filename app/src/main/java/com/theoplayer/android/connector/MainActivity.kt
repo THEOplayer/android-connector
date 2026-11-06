@@ -40,7 +40,6 @@ import com.dolby.optiview.lens.LensBackend
 import com.dolby.optiview.lens.LensConfigureOptions
 import com.dolby.optiview.lens.LensDestination
 import com.dolby.optiview.lens.LensFormat
-import com.dolby.optiview.lens.LensJoinOptions
 import com.theoplayer.android.api.THEOplayerConfig
 import com.theoplayer.android.api.THEOplayerView
 import com.theoplayer.android.api.ads.LinearAd
@@ -54,6 +53,7 @@ import com.theoplayer.android.connector.analytics.comscore.ComscoreMediaType
 import com.theoplayer.android.connector.analytics.comscore.ComscoreMetaData
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConfiguration
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConnector
+import com.theoplayer.android.connector.analytics.lens.LensConfiguration
 import com.theoplayer.android.connector.analytics.lens.LensConnector
 import com.theoplayer.android.connector.analytics.nielsen.NielsenConnector
 import com.theoplayer.android.connector.uplynk.SkippedAdStrategy
@@ -137,10 +137,7 @@ class MainActivity : ComponentActivity() {
         Lens.configure(LensConfigureOptions(LensBackend.DISABLED))
         lensConnector = LensConnector(
             theoplayerView,
-            LensJoinOptions(
-                namespace = "demo",
-                destinations = listOf(LensDestination("your_lens_receiver_url", format = LensFormat.JSON))
-            )
+            LensConfiguration(destinations = listOf(LensDestination("your_lens_receiver_url", format = LensFormat.JSON)))
         )
     }
 
