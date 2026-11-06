@@ -88,6 +88,28 @@ The connector ends the session and stops reporting when the player is destroyed,
 lensConnector.destroy()
 ```
 
+## Demo app
+
+The [demo app](../../../app) reports to Lens through this connector. Its Lens panel shows every report Lens sends,
+received in the app itself, and offers:
+
+- **Send to staging**: also sends the reports to the OptiView staging ingest, through `com.dolby.optiview:lens-sdk-dev`.
+  Lens locks its backend at the first join, so switching restarts the app. Off, the OptiView backend is disabled.
+- **Run scenario**: plays the scenario the Lens connector demos share across platforms, so their reports can be
+  compared in the backend. The source reports the content ID `lens-scenario-bbb`:
+  1. Load Big Buck Bunny (`https://cdn.theoplayer.com/video/big_buck_bunny/big_buck_bunny.m3u8`), play 10 s
+  2. Seek to 2:00, play 5 s
+  3. Pause for 3 s
+  4. Resume, play 5 s
+  5. Mute for 3 s, unmute, play 2 s
+  6. Fullscreen for 5 s, exit, play 2 s
+  7. Seek to 10 s before the end
+  8. Play until the end, wait 2 s
+  9. Unload the source
+
+To also send the reports to a receiver on your machine, build with `-PlensReceiverUrl=http://localhost:8787/lens` and
+run `adb reverse tcp:8787 tcp:8787`.
+
 ## Limitations
 
 - THEOplayer exposes the quality being played, not the one being loaded. Lens therefore reports the top and lowest
@@ -97,5 +119,7 @@ lensConnector.destroy()
   moving to the background.
 - Whether the buffer is stable is not reported: THEOplayer Android's ready state never reaches `HAVE_ENOUGH_DATA`. Lens
   derives it from the buffer length and the target buffer.
+- Fullscreen through [Open Video UI for Android](https://github.com/THEOplayer/android-ui) is not reported: it does not
+  go through THEOplayer's presentation mode, which is what the connector observes.
 - Only fatal errors are reported.
 - Ads are not reported as such: Lens sees what the content player does during an ad break.
