@@ -1,6 +1,8 @@
 package com.theoplayer.android.connector
 
+import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -29,6 +31,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -40,6 +43,7 @@ import com.dolby.optiview.lens.LensBackend
 import com.dolby.optiview.lens.LensConfigureOptions
 import com.dolby.optiview.lens.LensDestination
 import com.dolby.optiview.lens.LensFormat
+import com.dolby.optiview.lens.dev.LensDev
 import com.theoplayer.android.api.THEOplayerConfig
 import com.theoplayer.android.api.THEOplayerView
 import com.theoplayer.android.api.ads.LinearAd
@@ -56,6 +60,11 @@ import com.theoplayer.android.connector.analytics.conviva.ConvivaConnector
 import com.theoplayer.android.connector.analytics.lens.LensConfiguration
 import com.theoplayer.android.connector.analytics.lens.LensConnector
 import com.theoplayer.android.connector.analytics.nielsen.NielsenConnector
+import com.theoplayer.android.connector.lens.LENS_CONTENT_ID
+import com.theoplayer.android.connector.lens.LensDemoSettings
+import com.theoplayer.android.connector.lens.LensPanel
+import com.theoplayer.android.connector.lens.LensReportReceiver
+import com.theoplayer.android.connector.lens.LensScenario
 import com.theoplayer.android.connector.uplynk.SkippedAdStrategy
 import com.theoplayer.android.connector.uplynk.UplynkConfiguration
 import com.theoplayer.android.connector.uplynk.UplynkConnector
@@ -68,6 +77,9 @@ import com.theoplayer.android.connector.yospace.YospaceConnector
 import com.theoplayer.android.ui.DefaultUI
 import com.theoplayer.android.ui.rememberPlayer
 import com.theoplayer.android.ui.theme.THEOplayerTheme
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.launch
 
 const val TAG = "MainActivity"
 
@@ -80,6 +92,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var yospaceConnector: YospaceConnector
     private lateinit var uplynkConnector: UplynkConnector
     private lateinit var lensConnector: LensConnector
+    private lateinit var lensReceiver: LensReportReceiver
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,7 +109,13 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             THEOplayerTheme(useDarkTheme = true) {
-                MainContent(theoplayerView, nielsenConnector)
+                MainContent(
+                    theoplayerView,
+                    nielsenConnector,
+                    lensReceiver,
+                    sendToStaging = LensDemoSettings.sendToStaging(this),
+                    onSendToStagingChange = ::setSendToStaging
+                )
             }
         }
     }
@@ -133,12 +152,36 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun setupLens() {
-        // The demo reports to your own receiver only, not to the OptiView backend.
-        Lens.configure(LensConfigureOptions(LensBackend.DISABLED))
-        val destinations = BuildConfig.LENS_RECEIVER_URL.takeIf { it.isNotEmpty() }
-            ?.let { listOf(LensDestination(it, format = LensFormat.JSON)) }
-            .orEmpty()
-        lensConnector = LensConnector(theoplayerView, LensConfiguration(destinations))
+        // Lens locks its backend at the first join: the demo restarts to switch sending to staging on or off.
+        if (LensDemoSettings.sendToStaging(this)) {
+            LensDev.enableDevelopmentBackend()
+        } else {
+            Lens.configure(LensConfigureOptions(LensBackend.DISABLED))
+        }
+        // The in-app receiver shows what Lens sends; -PlensReceiverUrl adds a receiver of your own.
+        lensReceiver = LensReportReceiver()
+        val destinations = listOfNotNull(lensReceiver.url, BuildConfig.LENS_RECEIVER_URL.takeIf { it.isNotEmpty() })
+            .map { LensDestination(it, format = LensFormat.JSON, heartbeat = true) }
+        lensConnector = LensConnector(
+            theoplayerView,
+            LensConfiguration(destinations, contentIdProvider = { it.metadata?.get(LENS_CONTENT_ID) as? String })
+        )
+    }
+
+    private fun setSendToStaging(enabled: Boolean) {
+        LensDemoSettings.setSendToStaging(this, enabled)
+        lensConnector.destroy()
+        // Give Lens a moment to send the session's last report before restarting.
+        Handler(mainLooper).postDelayed({
+            startActivity(Intent.makeRestartActivityTask(componentName))
+            Runtime.getRuntime().exit(0)
+        }, 1_000)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        lensConnector.destroy()
+        lensReceiver.close()
     }
 
     private fun setupComscore() {
@@ -286,10 +329,17 @@ class MainActivity : ComponentActivity() {
 fun MainContent(
     theoplayerView: THEOplayerView,
     nielsenConnector: NielsenConnector,
+    lensReceiver: LensReportReceiver,
+    sendToStaging: Boolean,
+    onSendToStagingChange: (Boolean) -> Unit,
 ) {
     val player = rememberPlayer(theoplayerView)
     var source by rememberSaveable(stateSaver = SourceSaver) { mutableStateOf(sources.first()) }
     var sourceMenuOpen by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val scenario = remember(player) { LensScenario(theoplayerView.player) { player.fullscreen = it } }
+    var scenarioJob by remember { mutableStateOf<Job?>(null) }
+    var scenarioStatus by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(player, source) {
         player.source = source.sourceDescription
@@ -332,12 +382,37 @@ fun MainContent(
                 }
             }
         }) { padding ->
-            DefaultUI(
-                modifier = Modifier
-                    .padding(padding)
-                    .fillMaxSize(1f),
-                player = player
-            )
+            Column(modifier = Modifier.padding(padding).fillMaxSize()) {
+                DefaultUI(
+                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    player = player
+                )
+                LensPanel(
+                    reports = lensReceiver.reports,
+                    sendToStaging = sendToStaging,
+                    onSendToStagingChange = onSendToStagingChange,
+                    scenarioStatus = scenarioStatus,
+                    scenarioRunning = scenarioJob != null,
+                    onRunScenario = {
+                        scenarioJob = scope.launch {
+                            try {
+                                scenario.run { scenarioStatus = "${it + 1}/${scenario.steps.size} ${scenario.steps[it].first}" }
+                                scenarioStatus = "Scenario done"
+                            } catch (e: TimeoutCancellationException) {
+                                scenarioStatus = "Timed out at $scenarioStatus"
+                            } finally {
+                                scenarioJob = null
+                            }
+                        }
+                    },
+                    onStopScenario = {
+                        scenarioJob?.cancel()
+                        scenarioStatus = "Scenario stopped"
+                    },
+                    onClear = { lensReceiver.reports.clear() },
+                    modifier = Modifier.fillMaxWidth().weight(1f)
+                )
+            }
 
             if (sourceMenuOpen) {
                 SelectSourceDialog(

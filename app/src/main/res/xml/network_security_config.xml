@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Debug builds may send Lens reports to a receiver on the development machine, over adb reverse or the emulator host. -->
+<!-- Lens reports go to the in-app receiver, and may go to a receiver on the development machine (adb reverse or the emulator host). -->
 <network-security-config>
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="false">localhost</domain>

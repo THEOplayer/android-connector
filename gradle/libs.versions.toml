@@ -75,6 +75,7 @@ comscore = { group = "com.comscore", name = "android-analytics", version.ref = "
 yospace = { group = "com.yospace", name = "admanagement-sdk", version.ref = "yospace" }
 lens-sdk = { group = "com.dolby.optiview", name = "lens-sdk", version.ref = "lens" }
 lens-sdk-context = { group = "com.dolby.optiview", name = "lens-sdk-context", version.ref = "lens" }
+lens-sdk-dev = { group = "com.dolby.optiview", name = "lens-sdk-dev", version.ref = "lens" }
 
 # build-logic
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle-api", version.ref = "androidGradlePlugin" }

@@ -107,6 +107,8 @@ dependencies {
     implementation(libs.conviva)
 
     implementation(project(":connectors:analytics:lens"))
+    // The staging ingest, which only a demo or development build may depend on.
+    implementation(libs.lens.sdk.dev)
 
     implementation(project(":connectors:analytics:nielsen"))
     implementation(libs.nielsen)
