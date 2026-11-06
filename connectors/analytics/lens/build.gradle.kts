@@ -23,5 +23,5 @@ dependencies {
 }
 
 dokka {
-    moduleName = "OptiView Lens Connector"
+    moduleName = "Lens Connector"
 }

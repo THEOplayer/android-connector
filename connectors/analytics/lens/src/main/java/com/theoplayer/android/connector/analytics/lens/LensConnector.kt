@@ -5,37 +5,49 @@ import com.dolby.optiview.lens.LensHandle
 import com.dolby.optiview.lens.LensJoinOptions
 import com.dolby.optiview.lens.LensPlayerAdapter
 import com.theoplayer.android.api.THEOplayerView
+import com.theoplayer.android.api.event.EventListener
+import com.theoplayer.android.api.event.player.DestroyEvent
+import com.theoplayer.android.api.event.player.PlayerEventTypes
+import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.connector.analytics.lens.internal.THEOplayerLensAdapter
 
 /**
- * Reports a THEOplayer to OptiView Lens.
+ * The connector between a THEOplayer and Dolby OptiView Lens.
  *
- * The connector joins Lens with [joinOptions] on behalf of the player: Lens then starts and ends the player's sessions
- * on its own and reports its playback in the `lens` namespace.
- *
- * Do not configure THEOplayer's own CMCD reporting for a player that Lens observes.
+ * The connector joins Lens with a player adapter for the given player, so Lens reports playback on its own: sessions,
+ * playback states, errors and the player's CMCD keys.
  *
  * @param theoplayerView the view of the player to report.
- * @param joinOptions how to join Lens; its `player` is replaced by this connector's [playerAdapter].
+ * @param joinOptions the options to join Lens with; its `player` is replaced by this connector's [adapter].
+ * @param contentIdProvider returns the content ID to report for a source. Without it, or when it returns null, Lens
+ * derives one from the source URL. Required to report sources without a URL, such as Google DAI streams.
  */
-class LensConnector(
+class LensConnector @JvmOverloads constructor(
     theoplayerView: THEOplayerView,
     joinOptions: LensJoinOptions,
+    contentIdProvider: ContentIdProvider? = null,
 ) {
     /**
-     * The player as Lens sees it. Hand this same adapter to every other SDK that joins Lens for this player, so they
-     * report into the player's session.
+     * The Lens player adapter for the player. Another SDK reporting to Lens joins with this same adapter to share the
+     * player's session.
      */
-    val playerAdapter: LensPlayerAdapter = THEOplayerLensAdapter(theoplayerView)
+    val adapter: LensPlayerAdapter = THEOplayerLensAdapter(theoplayerView, contentIdProvider)
 
-    /** The Lens handle this connector joined with, e.g. to emit the application's own events into the player's session. */
-    val handle: LensHandle = Lens.join(joinOptions.copy(player = playerAdapter))
+    /** The Lens handle the connector joined with. Use it to emit your own events, set consent, or flush. */
+    val handle: LensHandle = Lens.join(joinOptions.copy(player = adapter))
+
+    private val player: Player = theoplayerView.player
+    private val onDestroy = EventListener<DestroyEvent> { destroy() }
+
+    init {
+        player.addEventListener(PlayerEventTypes.DESTROY, onDestroy)
+    }
 
     /**
-     * Leaves Lens, ending the player's session unless another handle joined with [playerAdapter] remains.
-     * The connector can no longer be used afterwards.
+     * Ends the session and stops reporting the player. The connector is destroyed with its player.
      */
     fun destroy() {
+        player.removeEventListener(PlayerEventTypes.DESTROY, onDestroy)
         handle.dispose()
     }
 }

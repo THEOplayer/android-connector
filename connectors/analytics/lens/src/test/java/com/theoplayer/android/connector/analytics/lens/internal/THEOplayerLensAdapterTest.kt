@@ -170,14 +170,15 @@ class THEOplayerLensAdapterTest {
     }
 
     @Test
-    fun sourceChange_namesAnSsaiSourceWithoutUrlByItsAssetKey() {
+    fun sourceChange_takesTheContentIdFromTheProvider() {
+        adapter = THEOplayerLensAdapter(view) { it.sources.single().ssai?.let { "dai-asset" } }
         subscribe()
 
         setSource(SourceDescription(listOf(TypedSource("", type = SourceType.HLS, ssai = GoogleDaiLiveConfiguration.Builder("", "asset-key").build()))))
 
         val source = facts.filterIsInstance<LensPlayerFact.Source>().single().source
         assertNull(source?.url)
-        assertEquals("asset-key", source?.contentId)
+        assertEquals("dai-asset", source?.contentId)
     }
 
     @Test
@@ -196,13 +197,39 @@ class THEOplayerLensAdapterTest {
     }
 
     @Test
-    fun error_isReportedAsFatalWithItsCodeOnOneLine() {
+    fun error_isReportedAsFatalWithItsCodeAndCauseOnOneLine() {
         subscribe()
 
-        val error = THEOplayerException(ErrorCode.MANIFEST_LOAD_ERROR, "Failed to load\n  the manifest")
+        val error = THEOplayerException(ErrorCode.MANIFEST_LOAD_ERROR, "Failed to load\n  the manifest", Exception("HTTP 404"))
         dispatchers.fire(PlayerEventTypes.ERROR, mock<ErrorEvent> { on { errorObject } doReturn error })
 
-        assertEquals(LensPlayerFact.Error(true, ErrorCode.MANIFEST_LOAD_ERROR.id.toString(), "Failed to load the manifest"), facts.last())
+        assertEquals(LensPlayerFact.Error(true, ErrorCode.MANIFEST_LOAD_ERROR.id.toString(), "Failed to load the manifest (HTTP 404)"), facts.last())
+    }
+
+    @Test
+    fun eventsWhileANewSourceIsSet_noLongerBelongToTheOldSource() {
+        whenever(player.source).thenReturn(SourceDescription(listOf(TypedSource("https://cdn.example.com/a.m3u8"))))
+        subscribe()
+
+        whenever(player.source).thenReturn(null)
+        val error = THEOplayerException(ErrorCode.LICENSE_INVALID_SOURCE, "Invalid source")
+        dispatchers.fire(PlayerEventTypes.ERROR, mock<ErrorEvent> { on { errorObject } doReturn error })
+
+        assertNull((facts[1] as LensPlayerFact.Source).source)
+        assertEquals(LensPlayerFact.Error(true, ErrorCode.LICENSE_INVALID_SOURCE.id.toString(), "Invalid source"), facts[2])
+    }
+
+    @Test
+    fun playbackWithoutAPlayEvent_reportsThePlayRequestFirst() {
+        subscribe()
+        setSource(SourceDescription(listOf(TypedSource("https://cdn.example.com/a.mp4"))))
+        facts.clear()
+
+        whenever(player.isPaused).thenReturn(false)
+        dispatchers.fire(PlayerEventTypes.PLAYING)
+        dispatchers.fire(PlayerEventTypes.WAITING)
+
+        assertEquals(listOf(LensPlayerFact.Play, LensPlayerFact.Playing, LensPlayerFact.Waiting), facts)
     }
 
     @Test
@@ -222,16 +249,19 @@ class THEOplayerLensAdapterTest {
     }
 
     @Test
-    fun liveDuration_reportsALowLatencyStreamForHesp() {
+    fun duration_tellsLiveAndLowLatencyFromVod() {
         subscribe()
-        setSource(SourceDescription(listOf(TypedSource("https://cdn.example.com/hesp.json", type = SourceType.HESP))))
+        setSource(SourceDescription(listOf(TypedSource("https://cdn.example.com/ll.m3u8", lowLatency = true))))
 
         whenever(player.duration).thenReturn(Double.POSITIVE_INFINITY)
         dispatchers.fire(PlayerEventTypes.DURATIONCHANGE)
+        val live = (facts.last() as LensPlayerFact.Change).properties
+        whenever(player.duration).thenReturn(60.0)
+        dispatchers.fire(PlayerEventTypes.DURATIONCHANGE)
+        val vod = (facts.last() as LensPlayerFact.Change).properties
 
-        val properties = (facts.last() as LensPlayerFact.Change).properties
-        assertEquals(true, properties.live)
-        assertEquals(true, properties.lowLatency)
+        assertEquals(true to true, live.live to live.lowLatency)
+        assertEquals(false to false, vod.live to vod.lowLatency)
     }
 
     @Test
@@ -256,11 +286,11 @@ class THEOplayerLensAdapterTest {
         assertEquals(
             listOf(
                 LensTrack(
-                    id = "1", kind = LensTrackKind.VIDEO, selected = true,
+                    id = "video-1", kind = LensTrackKind.VIDEO, selected = true,
                     renditions = listOf(LensRendition(id = "7", bitrate = 2_000_000L, combinedBitrate = true, codecs = "avc1.64001f", width = 1280, height = 720)),
                     renderedRenditionId = "7",
                 ),
-                LensTrack(id = "2", kind = LensTrackKind.AUDIO, selected = true, language = "en"),
+                LensTrack(id = "audio-2", kind = LensTrackKind.AUDIO, selected = true, language = "en"),
             ),
             (facts.last() as LensPlayerFact.Change).properties.tracks,
         )

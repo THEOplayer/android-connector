@@ -22,7 +22,6 @@ import com.theoplayer.android.api.event.EventDispatcher
 import com.theoplayer.android.api.event.EventListener
 import com.theoplayer.android.api.event.EventType
 import com.theoplayer.android.api.event.player.PlayerEventTypes
-import com.theoplayer.android.api.event.player.theolive.TheoLiveEventTypes
 import com.theoplayer.android.api.event.track.mediatrack.audio.AudioTrackEventTypes
 import com.theoplayer.android.api.event.track.mediatrack.audio.list.AudioTrackListEventTypes
 import com.theoplayer.android.api.event.track.mediatrack.video.VideoTrackEventTypes
@@ -38,12 +37,9 @@ import com.theoplayer.android.api.player.track.texttrack.TextTrackMode
 import com.theoplayer.android.api.source.SourceDescription
 import com.theoplayer.android.api.source.SourceType
 import com.theoplayer.android.api.source.TypedSource
-import com.theoplayer.android.api.source.ssai.dai.GoogleDaiLiveConfiguration
-import com.theoplayer.android.api.source.ssai.dai.GoogleDaiVodConfiguration
 import com.theoplayer.android.api.timerange.TimeRanges
+import com.theoplayer.android.connector.analytics.lens.ContentIdProvider
 import java.util.concurrent.Executor
-
-private val LOW_LATENCY_TYPES = setOf("application/vnd.theo.hesp+json", "theolive", "millicast")
 
 private val TEXT_KINDS = setOf("subtitles", "captions")
 
@@ -61,21 +57,19 @@ private fun isHls(source: TypedSource?): Boolean {
     return source?.src.orEmpty().substringBefore('?').substringBefore('#').endsWith(".m3u8", ignoreCase = true)
 }
 
-/** An SSAI source has no URL until the player resolves one, which is not public: name it by its asset IDs instead. */
-private fun ssaiContentId(source: TypedSource): String? =
-    when (val dai = source.ssai) {
-        is GoogleDaiLiveConfiguration -> dai.assetKey.orNull()
-        is GoogleDaiVodConfiguration -> if (dai.contentSourceID.isNotEmpty() && dai.videoID.isNotEmpty()) "${dai.contentSourceID}/${dai.videoID}" else null
-        else -> null
-    }
-
-private fun errorFact(error: THEOplayerException, fatal: Boolean) =
-    LensPlayerFact.Error(fatal, error.code.id.toString(), error.message?.replace(Regex("\\s+"), " ")?.trim().orNull())
+private fun errorFact(error: THEOplayerException): LensPlayerFact.Error {
+    val cause = error.cause?.message
+    val message = if (cause != null) "${error.message} ($cause)" else error.message
+    return LensPlayerFact.Error(true, error.code.id.toString(), message?.replace(Regex("\\s+"), " ")?.trim().orNull())
+}
 
 /**
  * Reports a THEOplayer to Lens through its public API. THEOplayer runs on the main thread, and so does everything here.
  */
-internal class THEOplayerLensAdapter(private val playerView: THEOplayerView) : LensPlayerAdapter {
+internal class THEOplayerLensAdapter(
+    private val playerView: THEOplayerView,
+    private val contentIdProvider: ContentIdProvider? = null,
+) : LensPlayerAdapter {
     private val player: Player = playerView.player
     private val mainHandler = Handler(Looper.getMainLooper())
 
@@ -94,6 +88,7 @@ internal class THEOplayerLensAdapter(private val playerView: THEOplayerView) : L
     /** The source THEOplayer chose from the description; `Player.currentSource` is not in every supported version. */
     private var chosen: TypedSource? = null
     private var source: LensPlayerSource? = null
+    private var playRequested = false
     private var presentationMode = PresentationMode.INLINE
     private var lastProperties = LensPlayerProperties()
     private var lastSnapshot = LensPlayerSnapshot(currentTime = 0.0, paused = true, ended = false)
@@ -153,14 +148,12 @@ internal class THEOplayerLensAdapter(private val playerView: THEOplayerView) : L
     }
 
     private fun lensSource(): LensPlayerSource? {
-        val current = currentTypedSource() ?: return null
-        val url = current.src.orNull()
-        val contentId = if (url == null) ssaiContentId(current) else null
-        if (url == null && contentId == null) return null
+        val description = description ?: return null
+        val current = currentTypedSource()
         return LensPlayerSource(
-            url = url,
-            contentId = contentId,
-            mimeType = current.type?.mimeType,
+            url = current?.src.orNull(),
+            contentId = contentIdProvider?.contentId(description),
+            mimeType = current?.type?.mimeType,
             autoplay = player.isAutoplay,
             preload =
                 when (player.preload) {
@@ -181,7 +174,7 @@ internal class THEOplayerLensAdapter(private val playerView: THEOplayerView) : L
             if (track.kind !in TEXT_KINDS) continue
             result +=
                 LensTrack(
-                    id = track.uid.toString(),
+                    id = "text-${track.uid}",
                     kind = LensTrackKind.TEXT,
                     selected = track.mode == TextTrackMode.SHOWING,
                     language = track.language.orNull(),
@@ -213,7 +206,7 @@ internal class THEOplayerLensAdapter(private val playerView: THEOplayerView) : L
                 )
             }
         return LensTrack(
-            id = track.uid.toString(),
+            id = "${kind.name.lowercase()}-${track.uid}",
             kind = kind,
             selected = track.isEnabled,
             language = track.language.orNull(),
@@ -223,18 +216,17 @@ internal class THEOplayerLensAdapter(private val playerView: THEOplayerView) : L
         )
     }
 
-    private fun properties(): LensPlayerProperties {
+    /** Tracks are left out of a source fact: they follow as THEOplayer adds them for the new source. */
+    private fun properties(withTracks: Boolean = true): LensPlayerProperties {
         if (destroyed) return LensPlayerProperties()
         val loaded = description != null
         val duration = player.duration
         val live = if (loaded && !duration.isNaN()) duration.isInfinite() else null
-        val current = currentTypedSource()
-        val lowLatency = current?.lowLatency == true || current?.type?.mimeType?.lowercase() in LOW_LATENCY_TYPES
         val buffered = player.buffered
         return LensPlayerProperties(
             live = live,
-            lowLatency = if (live == true && lowLatency) true else null,
-            tracks = if (loaded) tracks() else null,
+            lowLatency = if (live == false) false else if (live == true && currentTypedSource()?.lowLatency == true) true else null,
+            tracks = if (loaded && withTracks) tracks() else null,
             targetBuffer = player.abr.targetBuffer.toDouble().positive(),
             hasMediaData = if (loaded) (0 until buffered.length()).any { buffered.getEnd(it) > buffered.getStart(it) } else null,
             playbackRate = player.playbackRate,
@@ -249,8 +241,25 @@ internal class THEOplayerLensAdapter(private val playerView: THEOplayerView) : L
         )
     }
 
+    /**
+     * `player.source` turns null as soon as the app sets another source, until the player has loaded it: the events
+     * before `sourcechange`, such as the old source's teardown or a license error, no longer belong to the old one.
+     */
+    private fun syncSource() {
+        if (description == null || player.source != null) return
+        description = null
+        chosen = null
+        announce(continuation = false)
+    }
+
+    private fun fact(fact: LensPlayerFact) {
+        syncSource()
+        emit(fact)
+    }
+
     /** Pushes the properties whole, as the contract asks, but only when one of them changed. */
     private fun change() {
+        syncSource()
         val next = properties()
         if (next != lastProperties) {
             lastProperties = next
@@ -259,9 +268,20 @@ internal class THEOplayerLensAdapter(private val playerView: THEOplayerView) : L
     }
 
     private fun announce(continuation: Boolean) {
+        if (!continuation) playRequested = false
         source = lensSource()
-        lastProperties = properties()
+        lastProperties = properties(withTracks = false)
         emit(LensPlayerFact.Source(source, lastProperties, continuation))
+    }
+
+    private fun onPlay() {
+        playRequested = true
+        fact(LensPlayerFact.Play)
+    }
+
+    /** Playback under way implies a play request, which THEOplayer may not have announced with `play`. */
+    private fun ensurePlayRequested() {
+        if (!playRequested && !player.isPaused) onPlay()
     }
 
     private fun watchTracks() {
@@ -286,14 +306,20 @@ internal class THEOplayerLensAdapter(private val playerView: THEOplayerView) : L
         description = player.source
         source = lensSource()
         presentationMode = playerView.presentationMode
-        player.listen(PlayerEventTypes.PLAY) { emit(LensPlayerFact.Play) }
-        player.listen(PlayerEventTypes.PLAYING) { emit(LensPlayerFact.Playing) }
-        player.listen(PlayerEventTypes.PAUSE) { emit(LensPlayerFact.Pause) }
-        player.listen(PlayerEventTypes.WAITING) { emit(LensPlayerFact.Waiting) }
-        player.listen(PlayerEventTypes.SEEKING) { emit(LensPlayerFact.Seeking) }
-        player.listen(PlayerEventTypes.SEEKED) { emit(LensPlayerFact.Seeked) }
-        player.listen(PlayerEventTypes.ENDED) { emit(LensPlayerFact.Ended) }
-        player.listen(PlayerEventTypes.ERROR) { emit(errorFact(it.errorObject, fatal = true)) }
+        player.listen(PlayerEventTypes.PLAY) { onPlay() }
+        player.listen(PlayerEventTypes.PLAYING) {
+            ensurePlayRequested()
+            fact(LensPlayerFact.Playing)
+        }
+        player.listen(PlayerEventTypes.PAUSE) { fact(LensPlayerFact.Pause) }
+        player.listen(PlayerEventTypes.WAITING) {
+            ensurePlayRequested()
+            fact(LensPlayerFact.Waiting)
+        }
+        player.listen(PlayerEventTypes.SEEKING) { fact(LensPlayerFact.Seeking) }
+        player.listen(PlayerEventTypes.SEEKED) { fact(LensPlayerFact.Seeked) }
+        player.listen(PlayerEventTypes.ENDED) { fact(LensPlayerFact.Ended) }
+        player.listen(PlayerEventTypes.ERROR) { fact(errorFact(it.errorObject)) }
         player.listen(PlayerEventTypes.SOURCECHANGE) {
             description = it.source
             announce(continuation = false)
@@ -330,9 +356,6 @@ internal class THEOplayerLensAdapter(private val playerView: THEOplayerView) : L
             list.listen(TextTrackListEventTypes.ADDTRACK) { change() }
             list.listen(TextTrackListEventTypes.REMOVETRACK) { change() }
             list.listen(TextTrackListEventTypes.TRACKLISTCHANGE) { change() }
-        }
-        player.theoLive?.listen(TheoLiveEventTypes.INTENTTOFALLBACK) { event ->
-            event.reason?.let { emit(errorFact(it, fatal = false)) }
         }
         watchTracks()
     }
