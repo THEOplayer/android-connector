@@ -28,50 +28,57 @@ Gradle resolves one copy of the Lens SDK, shared with any other SDK in your app 
 
 ### Setting up the Lens Connector
 
-Create one connector per player. It takes the options of `Lens.join`; their `player` is set by the connector:
+Create one connector per player:
 
 ```kotlin
 val theoplayerView: THEOplayerView
 
 private fun setupLens() {
-    lensConnector = LensConnector(
-        theoplayerView,
-        LensJoinOptions(
-            namespace = "my_app",
-            destinations = listOf(LensDestination("https://collector.example.com/lens", format = LensFormat.JSON))
-        )
-    )
+    lensConnector = LensConnector(theoplayerView)
 }
 ```
 
-`namespace` names your product in Lens: its heartbeats and your own events carry it. The playback reports themselves
-are sent in Lens's `lens` namespace, so a destination that filters on namespaces must list `lens` to receive them.
+Lens reports to the OptiView ingest by default. The `LensConfiguration` takes the options of `Lens.join`, except
+`namespace` and `player`, for example to add destinations of your own:
 
-Lens reports to the OptiView ingest by default. To report only to your own destinations, call
-`Lens.configure(LensConfigureOptions(LensBackend.DISABLED))` before creating the connector.
+```kotlin
+lensConnector = LensConnector(
+    theoplayerView,
+    LensConfiguration(destinations = listOf(LensDestination("https://collector.example.com/lens", format = LensFormat.JSON)))
+)
+```
+
+To report only to your own destinations, call `Lens.configure(LensConfigureOptions(LensBackend.DISABLED))` before
+creating the connector.
+
+The playback reports are sent in Lens's `lens` namespace, and the connector's heartbeats in the `theoplayer` namespace.
+A destination that filters on namespaces must list them to receive them.
 
 ### Content ID
 
-Lens derives the content ID (`cid`) from the source URL. To report your own, or to report sources without a URL, such
-as Google DAI streams, return it from a `ContentIdProvider`:
+Lens derives the content ID (`cid`) from the source URL, and the connector names a Google DAI source by its asset key,
+or its content source ID and video ID. To report your own, or to report other sources without a URL, return it from a
+`ContentIdProvider`:
 
 ```kotlin
-lensConnector = LensConnector(theoplayerView, joinOptions) { source -> source.metadata?.get("title") as? String }
+lensConnector = LensConnector(
+    theoplayerView,
+    LensConfiguration(contentIdProvider = { source -> source.metadata?.get("title") as? String })
+)
 ```
 
 ### Your own events
 
-`lensConnector.handle` is the Lens handle the connector joined with. Use it to emit your own events, to set consent, or
-to flush:
+To report events of your own, join Lens in your own registered namespace with `lensConnector.adapter`. Lens reports one
+session per player adapter, so your events and the player's playback share that session. Another SDK that reports this
+player to Lens joins with the adapter the same way.
 
 ```kotlin
-lensConnector.handle.emitCustom("chapterStart", LensPayload(custom = mapOf("chapter" to 3)))
+val lens = Lens.join(LensJoinOptions(namespace = "my_namespace", player = lensConnector.adapter))
+lens.emitCustom("chapterStart", LensPayload(custom = mapOf("chapter" to 3)))
 ```
 
-### Other SDKs
-
-Lens reports one session per player adapter. Another SDK that reports this player to Lens should join with
-`lensConnector.adapter`, so that both report into the same session.
+`lensConnector.handle` is the Lens handle the connector joined with. Use it to set consent or to flush.
 
 ### Destroying
 
@@ -86,4 +93,9 @@ lensConnector.destroy()
 - THEOplayer exposes the quality being played, not the one being loaded. Lens therefore reports the top and lowest
   bitrates (`tb`/`lb`, or `tab`/`lab` for HLS), and the playhead bitrate (`pb`) outside HLS, but not the encoded
   bitrate (`br`) or bitrate changes (`bc`).
+- Whether the player's view is visible is not reported: THEOplayer Android does not expose it. Lens only sees the app
+  moving to the background.
+- Whether the buffer is stable is not reported: THEOplayer Android's ready state never reaches `HAVE_ENOUGH_DATA`. Lens
+  derives it from the buffer length and the target buffer.
+- Only fatal errors are reported.
 - Ads are not reported as such: Lens sees what the content player does during an ad break.
