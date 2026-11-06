@@ -135,10 +135,10 @@ class MainActivity : ComponentActivity() {
     private fun setupLens() {
         // The demo reports to your own receiver only, not to the OptiView backend.
         Lens.configure(LensConfigureOptions(LensBackend.DISABLED))
-        lensConnector = LensConnector(
-            theoplayerView,
-            LensConfiguration(destinations = listOf(LensDestination("your_lens_receiver_url", format = LensFormat.JSON)))
-        )
+        val destinations = BuildConfig.LENS_RECEIVER_URL.takeIf { it.isNotEmpty() }
+            ?.let { listOf(LensDestination(it, format = LensFormat.JSON)) }
+            .orEmpty()
+        lensConnector = LensConnector(theoplayerView, LensConfiguration(destinations))
     }
 
     private fun setupComscore() {

@@ -16,6 +16,10 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
+
+        // Where the demo sends its Lens reports, e.g. -PlensReceiverUrl=http://localhost:8787/lens
+        val lensReceiverUrl = providers.gradleProperty("lensReceiverUrl").getOrElse("")
+        buildConfigField("String", "LENS_RECEIVER_URL", "\"$lensReceiverUrl\"")
     }
 
     buildTypes {
@@ -44,6 +48,7 @@ android {
     }
 
     buildFeatures {
+        buildConfig = true
         compose = true
     }
 }
