@@ -1,74 +1,89 @@
-# THEOplayer Android SDK OptiView Lens Connector
+# THEOplayer Android SDK Lens Connector
 
-The OptiView Lens connector reports THEOplayer Android SDK playback to [OptiView Lens](https://optiview.dolby.com/).
+The Lens connector reports playback of THEOplayer to [Dolby OptiView Lens](https://optiview.dolby.com/).
 
-Once connected, Lens observes the player on its own: it starts a session at the first play request on each source,
-ends it when the source changes or the player is destroyed, and reports playback states, errors, bitrates, buffer levels
-and the other player keys it can derive, following CMCD (CTA-5004-B).
+The connector implements a Lens player adapter for THEOplayer and joins Lens with it. Lens then reports playback on its
+own, as CMCD (CTA-5004-B) event-mode reports: a session per source from the first play request, playback states,
+errors, and the player keys it can derive, such as the playhead, buffer length, throughput and bitrates.
 
 ## Prerequisites
 
-The THEOplayer Android SDK OptiView Lens Connector requires the application to import the THEOplayer Android SDK since the connector relies on its public APIs.
+The THEOplayer Android SDK Lens Connector requires the application to import the THEOplayer Android SDK since the connector relies on its public APIs.
 For more details, check out our [Getting started on Android](https://www.theoplayer.com/docs/theoplayer/getting-started/sdks/android/getting-started/) guide.
 
 ## Installation
 
 After setting up the THEOplayer Android SDK, in your **module** level `build.gradle` file add the THEOplayer Android SDK
-OptiView Lens Connector:
+Lens Connector:
 
 ```groovy
 implementation 'com.theoplayer.android-connector:lens:+'
 ```
 
-The connector brings the OptiView Lens SDK (`com.dolby.optiview:lens-sdk`) and its Android add-on
-(`com.dolby.optiview:lens-sdk-context`), which tells Lens about the device and the app moving to the background,
-from the THEOplayer Maven repository:
-
-```groovy
-repositories {
-    maven { url 'https://maven.theoplayer.com/releases/' }
-}
-```
+The connector brings the Lens SDK (`com.dolby.optiview:lens-sdk`) and its Android add-on
+(`com.dolby.optiview:lens-sdk-context`), which tells Lens about the device and the app moving to the background.
+Gradle resolves one copy of the Lens SDK, shared with any other SDK in your app that reports to Lens.
 
 ## Usage
 
-### Setting up the OptiView Lens Connector
+### Setting up the Lens Connector
+
+Create one connector per player. It takes the options of `Lens.join`; their `player` is set by the connector:
 
 ```kotlin
 val theoplayerView: THEOplayerView
 
 private fun setupLens() {
-    lensConnector = LensConnector(theoplayerView, LensJoinOptions(namespace = "my-app"))
+    lensConnector = LensConnector(
+        theoplayerView,
+        LensJoinOptions(
+            namespace = "my_app",
+            destinations = listOf(LensDestination("https://collector.example.com/lens", format = LensFormat.JSON))
+        )
+    )
 }
 ```
 
-`LensJoinOptions` is the Lens SDK's own configuration: the `namespace` names your application, and optional
-`destinations` send the same reports to your own endpoints as well. Its `player` is set by the connector.
+`namespace` names your product in Lens: its heartbeats and your own events carry it. The playback reports themselves
+are sent in Lens's `lens` namespace, so a destination that filters on namespaces must list `lens` to receive them.
 
-The player's reports go to the `lens` namespace. Use the connector's `handle` to report your application's own events
-into the player's session:
+Lens reports to the OptiView ingest by default. To report only to your own destinations, call
+`Lens.configure(LensConfigureOptions(LensBackend.DISABLED))` before creating the connector.
 
-```kotlin
-lensConnector.handle.emitCustom("chapterSelected", LensPayload(custom = mapOf("chapter" to 3)))
-```
+### Content ID
 
-### Sharing the player with other SDKs
-
-Other SDKs that report to Lens for the same player, such as OptiView Ads, should join with the connector's
-`playerAdapter`, so that all reports go into one session:
+Lens derives the content ID (`cid`) from the source URL. To report your own, or to report sources without a URL, such
+as Google DAI streams, return it from a `ContentIdProvider`:
 
 ```kotlin
-Lens.join(LensJoinOptions(namespace = "ads", player = lensConnector.playerAdapter))
+lensConnector = LensConnector(theoplayerView, joinOptions) { source -> source.metadata?.get("title") as? String }
 ```
 
-### Destroying / Cleaning up
+### Your own events
 
-To release listeners and resources, call destroy whenever the OptiView Lens Connector is no longer needed.
+`lensConnector.handle` is the Lens handle the connector joined with. Use it to emit your own events, to set consent, or
+to flush:
+
+```kotlin
+lensConnector.handle.emitCustom("chapterStart", LensPayload(custom = mapOf("chapter" to 3)))
+```
+
+### Other SDKs
+
+Lens reports one session per player adapter. Another SDK that reports this player to Lens should join with
+`lensConnector.adapter`, so that both report into the same session.
+
+### Destroying
+
+The connector ends the session and stops reporting when the player is destroyed, or when you destroy it:
 
 ```kotlin
 lensConnector.destroy()
 ```
 
-Notes:
-* After destroying an OptiView Lens Connector instance, it can no longer be used. If needed, a new instance should be created.
-* Do not configure THEOplayer's own CMCD reporting for a player that Lens observes.
+## Limitations
+
+- THEOplayer exposes the quality being played, not the one being loaded. Lens therefore reports the top and lowest
+  bitrates (`tb`/`lb`, or `tab`/`lab` for HLS), and the playhead bitrate (`pb`) outside HLS, but not the encoded
+  bitrate (`br`) or bitrate changes (`bc`).
+- Ads are not reported as such: Lens sees what the content player does during an ad break.
