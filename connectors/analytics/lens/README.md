@@ -96,16 +96,21 @@ received in the app itself, and offers:
 - **Send to staging**: also sends the reports to the OptiView staging ingest, through `com.dolby.optiview:lens-sdk-dev`.
   Lens locks its backend at the first join, so switching restarts the app. Off, the OptiView backend is disabled.
 - **Run scenario**: plays the scenario the Lens connector demos share across platforms, so their reports can be
-  compared in the backend. The source reports the content ID `lens-scenario-bbb`:
-  1. Load Big Buck Bunny (`https://cdn.theoplayer.com/video/big_buck_bunny/big_buck_bunny.m3u8`), play 10 s
-  2. Seek to 2:00, play 5 s
-  3. Pause for 3 s
-  4. Resume, play 5 s
-  5. Mute for 3 s, unmute, play 2 s
-  6. Fullscreen for 5 s, exit, play 2 s
-  7. Seek to 10 s before the end
-  8. Play until the end, wait 2 s
-  9. Unload the source
+  compared in the backend. The source reports the content ID `lens-connector-demo-scenario`:
+  1. Load Big Buck Bunny (`https://cdn.theoplayer.com/video/big_buck_bunny/big_buck_bunny.m3u8`)
+  2. Play 10 s
+  3. Pause 3 s
+  4. Play 5 s
+  5. Seek to 120 s, play 5 s
+  6. Mute 3 s, unmute 2 s
+  7. Rate x2 5 s, x1 2 s
+  8. Picture-in-picture 5 s, inline 2 s
+  9. Seek to 5 s before the end, play to the end, wait 2 s
+  10. Unload
+
+  Durations count from when the player confirms the step: playing, the seek completed, picture-in-picture entered.
+  Picture-in-picture is Android's system one, with the player in THEOplayer's PiP activity: Android has no in-app
+  picture-in-picture, where the web demo uses the player's in-page one.
 
 To also send the reports to a receiver on your machine, build with `-PlensReceiverUrl=http://localhost:8787/lens` and
 run `adb reverse tcp:8787 tcp:8787`.

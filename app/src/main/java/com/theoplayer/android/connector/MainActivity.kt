@@ -51,6 +51,7 @@ import com.theoplayer.android.api.ads.ima.GoogleImaIntegrationFactory
 import com.theoplayer.android.api.event.ads.AdBreakEvent
 import com.theoplayer.android.api.event.ads.AdsEventTypes
 import com.theoplayer.android.api.event.ads.SingleAdEvent
+import com.theoplayer.android.api.pip.PipConfiguration
 import com.theoplayer.android.connector.analytics.comscore.ComscoreConfiguration
 import com.theoplayer.android.connector.analytics.comscore.ComscoreConnector
 import com.theoplayer.android.connector.analytics.comscore.ComscoreMediaType
@@ -122,6 +123,8 @@ class MainActivity : ComponentActivity() {
 
     private fun setupTHEOplayer() {
         val theoplayerConfig = THEOplayerConfig.Builder()
+            // The Lens scenario uses THEOplayer's in-app picture-in-picture.
+            .pip(PipConfiguration.Builder().build())
             .build()
         theoplayerView = THEOplayerView(this, theoplayerConfig)
         theoplayerView.layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
@@ -337,7 +340,7 @@ fun MainContent(
     var source by rememberSaveable(stateSaver = SourceSaver) { mutableStateOf(sources.first()) }
     var sourceMenuOpen by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    val scenario = remember(player) { LensScenario(theoplayerView.player) { player.fullscreen = it } }
+    val scenario = remember(theoplayerView) { LensScenario(theoplayerView) }
     var scenarioJob by remember { mutableStateOf<Job?>(null) }
     var scenarioStatus by remember { mutableStateOf<String?>(null) }
 
