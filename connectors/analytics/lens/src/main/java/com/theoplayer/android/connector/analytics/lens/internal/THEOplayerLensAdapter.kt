@@ -169,7 +169,7 @@ internal class THEOplayerLensAdapter(
         val current = currentTypedSource()
         return LensPlayerSource(
             url = current?.src.orNull(),
-            contentId = contentIdProvider?.contentId(description) ?: daiContentId(current),
+            contentId = contentIdProvider?.contentId(description)?.ifEmpty { null } ?: daiContentId(current),
             mimeType = current?.type?.mimeType,
             autoplay = player.isAutoplay,
             preload =

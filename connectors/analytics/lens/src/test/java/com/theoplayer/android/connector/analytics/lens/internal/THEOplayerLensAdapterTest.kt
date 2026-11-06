@@ -196,6 +196,15 @@ class THEOplayerLensAdapterTest {
         )
 
         assertEquals("movie-1", facts.filterIsInstance<LensPlayerFact.Source>().single().source?.contentId)
+
+        setSource(
+            SourceDescription(
+                listOf(TypedSource("", type = SourceType.HLS, ssai = GoogleDaiLiveConfiguration.Builder("", "asset-key").build())),
+                metadata = MetadataDescription(mutableMapOf<String, Any?>("title" to "")),
+            ),
+        )
+
+        assertEquals("asset-key", facts.filterIsInstance<LensPlayerFact.Source>().last().source?.contentId)
     }
 
     @Test
