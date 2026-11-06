@@ -37,11 +37,16 @@ import com.theoplayer.android.api.player.track.texttrack.TextTrackMode
 import com.theoplayer.android.api.source.SourceDescription
 import com.theoplayer.android.api.source.SourceType
 import com.theoplayer.android.api.source.TypedSource
+import com.theoplayer.android.api.source.ssai.dai.GoogleDaiLiveConfiguration
+import com.theoplayer.android.api.source.ssai.dai.GoogleDaiVodConfiguration
 import com.theoplayer.android.api.timerange.TimeRanges
 import com.theoplayer.android.connector.analytics.lens.ContentIdProvider
 import java.util.concurrent.Executor
 
 private val TEXT_KINDS = setOf("subtitles", "captions")
+
+/** HESP and Millicast are low-latency by nature; a THEOlive channel can be regular HLS, LL-HLS or HESP. */
+private val LOW_LATENCY_TYPES = setOf("application/vnd.theo.hesp+json", "millicast")
 
 private fun TimeRanges.toLens(): List<LensTimeRange> = (0 until length()).map { LensTimeRange(getStart(it), getEnd(it)) }
 
@@ -56,6 +61,18 @@ private fun isHls(source: TypedSource?): Boolean {
     if (type != null) return type == SourceType.HLS || type == SourceType.HLSX
     return source?.src.orEmpty().substringBefore('?').substringBefore('#').endsWith(".m3u8", ignoreCase = true)
 }
+
+/** A Google DAI source has no URL until the player resolves one, which is not public: name it by its asset IDs instead. */
+private fun daiContentId(source: TypedSource?): String? =
+    when (val dai = source?.ssai) {
+        is GoogleDaiLiveConfiguration -> dai.assetKey.orNull()
+        is GoogleDaiVodConfiguration -> if (dai.contentSourceID.isNotEmpty() && dai.videoID.isNotEmpty()) "${dai.contentSourceID}/${dai.videoID}" else null
+        else -> null
+    }
+
+private fun isLowLatency(source: TypedSource?): Boolean =
+    source != null &&
+        (source.lowLatency == true || source.latencyConfiguration != null || source.type?.mimeType?.lowercase() in LOW_LATENCY_TYPES)
 
 private fun errorFact(error: THEOplayerException): LensPlayerFact.Error {
     val cause = error.cause?.message
@@ -152,7 +169,7 @@ internal class THEOplayerLensAdapter(
         val current = currentTypedSource()
         return LensPlayerSource(
             url = current?.src.orNull(),
-            contentId = contentIdProvider?.contentId(description),
+            contentId = contentIdProvider?.contentId(description) ?: daiContentId(current),
             mimeType = current?.type?.mimeType,
             autoplay = player.isAutoplay,
             preload =
@@ -225,7 +242,7 @@ internal class THEOplayerLensAdapter(
         val buffered = player.buffered
         return LensPlayerProperties(
             live = live,
-            lowLatency = if (live == false) false else if (live == true && currentTypedSource()?.lowLatency == true) true else null,
+            lowLatency = if (isLowLatency(currentTypedSource())) true else null,
             tracks = if (loaded && withTracks) tracks() else null,
             targetBuffer = player.abr.targetBuffer.toDouble().positive(),
             hasMediaData = if (loaded) (0 until buffered.length()).any { buffered.getEnd(it) > buffered.getStart(it) } else null,

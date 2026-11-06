@@ -35,7 +35,10 @@ import com.theoplayer.android.api.player.track.texttrack.TextTrackList
 import com.theoplayer.android.api.source.SourceDescription
 import com.theoplayer.android.api.source.SourceType
 import com.theoplayer.android.api.source.TypedSource
+import com.theoplayer.android.api.source.metadata.MetadataDescription
 import com.theoplayer.android.api.source.ssai.dai.GoogleDaiLiveConfiguration
+import com.theoplayer.android.api.source.ssai.dai.GoogleDaiVodConfiguration
+import com.theoplayer.android.api.theolive.TheoLiveSource
 import com.theoplayer.android.api.timerange.TimeRanges
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -170,15 +173,29 @@ class THEOplayerLensAdapterTest {
     }
 
     @Test
-    fun sourceChange_takesTheContentIdFromTheProvider() {
-        adapter = THEOplayerLensAdapter(view) { it.sources.single().ssai?.let { "dai-asset" } }
+    fun sourceChange_namesAGoogleDaiSourceByItsAssetIds() {
         subscribe()
 
-        setSource(SourceDescription(listOf(TypedSource("", type = SourceType.HLS, ssai = GoogleDaiLiveConfiguration.Builder("", "asset-key").build()))))
+        setSource(SourceDescription(listOf(TypedSource("", type = SourceType.HLS, ssai = GoogleDaiVodConfiguration.Builder("", "2474148", "bbb-clear").build()))))
 
         val source = facts.filterIsInstance<LensPlayerFact.Source>().single().source
         assertNull(source?.url)
-        assertEquals("dai-asset", source?.contentId)
+        assertEquals("2474148/bbb-clear", source?.contentId)
+    }
+
+    @Test
+    fun sourceChange_takesTheContentIdFromTheProviderFirst() {
+        adapter = THEOplayerLensAdapter(view) { it.metadata?.get("title") as? String }
+        subscribe()
+
+        setSource(
+            SourceDescription(
+                listOf(TypedSource("", type = SourceType.HLS, ssai = GoogleDaiLiveConfiguration.Builder("", "asset-key").build())),
+                metadata = MetadataDescription(mutableMapOf<String, Any?>("title" to "movie-1")),
+            ),
+        )
+
+        assertEquals("movie-1", facts.filterIsInstance<LensPlayerFact.Source>().single().source?.contentId)
     }
 
     @Test
@@ -249,19 +266,33 @@ class THEOplayerLensAdapterTest {
     }
 
     @Test
-    fun duration_tellsLiveAndLowLatencyFromVod() {
+    fun lowLatency_followsTheSourceFlagOrItsType() {
         subscribe()
-        setSource(SourceDescription(listOf(TypedSource("https://cdn.example.com/ll.m3u8", lowLatency = true))))
+        val lowLatency = listOf(
+            TypedSource("https://cdn.example.com/ll.m3u8", lowLatency = true),
+            TypedSource("https://cdn.example.com/hesp.json", type = SourceType.HESP),
+            TheoLiveSource(src = "channel-id"),
+            TypedSource("https://cdn.example.com/a.m3u8"),
+        ).map { typed ->
+            setSource(SourceDescription(listOf(typed)))
+            (facts.last() as LensPlayerFact.Source).properties.lowLatency
+        }
+
+        assertEquals(listOf(true, true, null, null), lowLatency)
+    }
+
+    @Test
+    fun duration_tellsLiveFromVod() {
+        subscribe()
+        setSource(SourceDescription(listOf(TypedSource("https://cdn.example.com/a.m3u8"))))
 
         whenever(player.duration).thenReturn(Double.POSITIVE_INFINITY)
         dispatchers.fire(PlayerEventTypes.DURATIONCHANGE)
-        val live = (facts.last() as LensPlayerFact.Change).properties
+        val live = (facts.last() as LensPlayerFact.Change).properties.live
         whenever(player.duration).thenReturn(60.0)
         dispatchers.fire(PlayerEventTypes.DURATIONCHANGE)
-        val vod = (facts.last() as LensPlayerFact.Change).properties
 
-        assertEquals(true to true, live.live to live.lowLatency)
-        assertEquals(false to false, vod.live to vod.lowLatency)
+        assertEquals(true to false, live to (facts.last() as LensPlayerFact.Change).properties.live)
     }
 
     @Test

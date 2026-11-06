@@ -11,6 +11,8 @@ import com.theoplayer.android.api.event.player.PlayerEventTypes
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.connector.analytics.lens.internal.THEOplayerLensAdapter
 
+private const val NAMESPACE = "theoplayer"
+
 /**
  * The connector between a THEOplayer and Dolby OptiView Lens.
  *
@@ -18,23 +20,31 @@ import com.theoplayer.android.connector.analytics.lens.internal.THEOplayerLensAd
  * playback states, errors and the player's CMCD keys.
  *
  * @param theoplayerView the view of the player to report.
- * @param joinOptions the options to join Lens with; its `player` is replaced by this connector's [adapter].
- * @param contentIdProvider returns the content ID to report for a source. Without it, or when it returns null, Lens
- * derives one from the source URL. Required to report sources without a URL, such as Google DAI streams.
+ * @param configuration how to join Lens.
  */
 class LensConnector @JvmOverloads constructor(
     theoplayerView: THEOplayerView,
-    joinOptions: LensJoinOptions,
-    contentIdProvider: ContentIdProvider? = null,
+    configuration: LensConfiguration = LensConfiguration(),
 ) {
     /**
-     * The Lens player adapter for the player. Another SDK reporting to Lens joins with this same adapter to share the
-     * player's session.
+     * The Lens player adapter for the player. To report events of your own, join Lens in your own namespace with this
+     * adapter; another SDK that reports this player to Lens joins with it the same way, to share the player's session.
      */
-    val adapter: LensPlayerAdapter = THEOplayerLensAdapter(theoplayerView, contentIdProvider)
+    val adapter: LensPlayerAdapter = THEOplayerLensAdapter(theoplayerView, configuration.contentIdProvider)
 
-    /** The Lens handle the connector joined with. Use it to emit your own events, set consent, or flush. */
-    val handle: LensHandle = Lens.join(joinOptions.copy(player = adapter))
+    /** The Lens handle the connector joined with, in the `theoplayer` namespace. Use it to set consent or flush. */
+    val handle: LensHandle =
+        LensJoinOptions(NAMESPACE, player = adapter).let { defaults ->
+            Lens.join(
+                defaults.copy(
+                    destinations = configuration.destinations,
+                    consent = configuration.consent,
+                    strict = configuration.strict,
+                    heartbeatMs = configuration.heartbeatMs ?: defaults.heartbeatMs,
+                    batch = configuration.batch,
+                ),
+            )
+        }
 
     private val player: Player = theoplayerView.player
     private val onDestroy = EventListener<DestroyEvent> { destroy() }
