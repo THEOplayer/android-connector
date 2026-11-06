@@ -18,6 +18,7 @@ For more details about importing THEOplayer Android SDK check the [documentation
 | Uplynk       | `uplynk:+`       |     8.0.0      |       [documentation](connectors/uplynk/README.md)       |
 | Comscore     | `comscore:+`     |     6.10.0     | [documentation](connectors/analytics/comscore/README.md) |
 | Conviva      | `conviva:+`      |     4.1.0      | [documentation](connectors/analytics/conviva/README.md)  |
+| OptiView Lens | `lens:+`        |     11.0.0     |   [documentation](connectors/analytics/lens/README.md)   |
 | Nielsen      | `nielsen:+`      |     5.5.0      | [documentation](connectors/analytics/nielsen/README.md)  |
 | MediaSession | `mediasession:+` |     4.8.0      |    [documentation](connectors/mediasession/README.md)    |
 | Yospace      | `yospace:+`      |     8.0.0      |      [documentation](connectors/yospace/README.md)       |
