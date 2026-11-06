@@ -33,7 +33,7 @@ class LensScenario(
         "Mute for 3 s" to suspend { player.isMuted = true; delay(3_000); player.isMuted = false; delay(2_000) },
         "Fullscreen for 5 s" to suspend { setFullscreen(true); delay(5_000); setFullscreen(false); delay(2_000) },
         "Seek to 10 s before the end" to suspend { seek(player.duration - 10) },
-        "Play until the end" to suspend { after(PlayerEventTypes.ENDED, timeoutMs = 30_000) {}; delay(2_000) },
+        "Play until the end" to suspend { after(PlayerEventTypes.ENDED, timeoutMs = 90_000) {}; delay(2_000) },
         "Unload the source" to suspend { player.source = null; delay(2_000) },
     )
 
@@ -57,7 +57,7 @@ class LensScenario(
     private suspend fun seek(time: Double) = after(PlayerEventTypes.SEEKED) { player.currentTime = time }
 
     /** Runs [action] and waits for the player's next [type] event, listening before the action so none is missed. */
-    private suspend fun <E : PlayerEvent<*>> after(type: EventType<E>, timeoutMs: Long = 15_000, action: () -> Unit) {
+    private suspend fun <E : PlayerEvent<*>> after(type: EventType<E>, timeoutMs: Long = 60_000, action: () -> Unit) {
         withTimeout(timeoutMs) {
             suspendCancellableCoroutine { continuation ->
                 lateinit var listener: EventListener<E>

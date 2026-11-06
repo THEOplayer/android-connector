@@ -20,13 +20,14 @@ data class LensReport(val receivedAt: Long, val json: JSONObject)
  * Lens only sends to HTTP destinations, so this is a minimal HTTP endpoint that accepts any POST.
  */
 class LensReportReceiver {
-    private val socket = ServerSocket(0, 16, InetAddress.getLoopbackAddress())
+    // IPv4 loopback explicitly: Android's getLoopbackAddress() is ::1, which `localhost` does not reach first.
+    private val socket = ServerSocket(0, 16, InetAddress.getByName("127.0.0.1"))
     private val mainHandler = Handler(Looper.getMainLooper())
 
     /** The reports received so far, newest first; read and cleared on the main thread. */
     val reports = mutableStateListOf<LensReport>()
 
-    val url = "http://127.0.0.1:${socket.localPort}/lens"
+    val url = "http://localhost:${socket.localPort}/lens"
 
     init {
         thread(name = "LensReportReceiver", isDaemon = true) {
