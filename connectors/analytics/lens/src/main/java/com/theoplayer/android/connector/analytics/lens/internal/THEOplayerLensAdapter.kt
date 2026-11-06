@@ -46,7 +46,7 @@ import java.util.concurrent.Executor
 private val TEXT_KINDS = setOf("subtitles", "captions")
 
 /** HESP and Millicast are low-latency by nature; a THEOlive channel can be regular HLS, LL-HLS or HESP. */
-private val LOW_LATENCY_TYPES = setOf("application/vnd.theo.hesp+json", "millicast")
+private val LOW_LATENCY_TYPES = setOf(SourceType.HESP, SourceType.MILLICAST)
 
 private fun TimeRanges.toLens(): List<LensTimeRange> = (0 until length()).map { LensTimeRange(getStart(it), getEnd(it)) }
 
@@ -72,7 +72,7 @@ private fun daiContentId(source: TypedSource?): String? =
 
 private fun isLowLatency(source: TypedSource?): Boolean =
     source != null &&
-        (source.lowLatency == true || source.latencyConfiguration != null || source.type?.mimeType?.lowercase() in LOW_LATENCY_TYPES)
+        (source.lowLatency == true || source.latencyConfiguration != null || source.type in LOW_LATENCY_TYPES)
 
 private fun errorFact(error: THEOplayerException): LensPlayerFact.Error {
     val cause = error.cause?.message
