@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Lens reports go to the in-app receiver, and may go to a receiver on the development machine (adb reverse or the emulator host). -->
+<!-- The demo may send Lens reports to test receivers over plain HTTP: the in-app one, one on the development machine,
+     or a test endpoint configured in the app. -->
 <network-security-config>
-    <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="false">localhost</domain>
-        <domain includeSubdomains="false">10.0.2.2</domain>
-    </domain-config>
+    <base-config cleartextTrafficPermitted="true" />
 </network-security-config>

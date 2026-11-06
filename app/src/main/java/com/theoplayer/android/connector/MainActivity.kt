@@ -114,8 +114,8 @@ class MainActivity : ComponentActivity() {
                     theoplayerView,
                     nielsenConnector,
                     lensReceiver,
-                    sendToStaging = LensDemoSettings.sendToStaging(this),
-                    onSendToStagingChange = ::setSendToStaging
+                    lensSettings = LensDemoSettings.load(this),
+                    onLensSettingsChange = ::applyLensSettings
                 )
             }
         }
@@ -155,8 +155,9 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun setupLens() {
-        // Lens locks its backend at the first join: the demo restarts to switch sending to staging on or off.
-        if (LensDemoSettings.sendToStaging(this)) {
+        // Lens locks its backend at the first join and its destinations at the join: the demo restarts to apply settings.
+        val settings = LensDemoSettings.load(this)
+        if (settings.sendToStaging) {
             LensDev.enableDevelopmentBackend()
         } else {
             Lens.configure(LensConfigureOptions(LensBackend.DISABLED))
@@ -164,15 +165,15 @@ class MainActivity : ComponentActivity() {
         // The in-app receiver shows what Lens sends; -PlensReceiverUrl adds a receiver of your own.
         lensReceiver = LensReportReceiver()
         val destinations = listOfNotNull(lensReceiver.url, BuildConfig.LENS_RECEIVER_URL.takeIf { it.isNotEmpty() })
-            .map { LensDestination(it, format = LensFormat.JSON, heartbeat = true) }
+            .map { LensDestination(it, format = LensFormat.JSON, heartbeat = true) } + listOfNotNull(settings.destination)
         lensConnector = LensConnector(
             theoplayerView,
             LensConfiguration(destinations, contentIdProvider = { it.metadata?.get(LENS_CONTENT_ID) as? String })
         )
     }
 
-    private fun setSendToStaging(enabled: Boolean) {
-        LensDemoSettings.setSendToStaging(this, enabled)
+    private fun applyLensSettings(settings: LensDemoSettings) {
+        settings.save(this)
         lensConnector.destroy()
         // Give Lens a moment to send the session's last report before restarting.
         Handler(mainLooper).postDelayed({
@@ -333,8 +334,8 @@ fun MainContent(
     theoplayerView: THEOplayerView,
     nielsenConnector: NielsenConnector,
     lensReceiver: LensReportReceiver,
-    sendToStaging: Boolean,
-    onSendToStagingChange: (Boolean) -> Unit,
+    lensSettings: LensDemoSettings,
+    onLensSettingsChange: (LensDemoSettings) -> Unit,
 ) {
     val player = rememberPlayer(theoplayerView)
     var source by rememberSaveable(stateSaver = SourceSaver) { mutableStateOf(sources.first()) }
@@ -392,8 +393,8 @@ fun MainContent(
                 )
                 LensPanel(
                     reports = lensReceiver.reports,
-                    sendToStaging = sendToStaging,
-                    onSendToStagingChange = onSendToStagingChange,
+                    settings = lensSettings,
+                    onSettingsChange = onLensSettingsChange,
                     scenarioStatus = scenarioStatus,
                     scenarioRunning = scenarioJob != null,
                     onRunScenario = {
