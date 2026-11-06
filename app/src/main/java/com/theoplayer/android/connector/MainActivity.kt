@@ -35,6 +35,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.dolby.optiview.lens.Lens
+import com.dolby.optiview.lens.LensBackend
+import com.dolby.optiview.lens.LensConfigureOptions
+import com.dolby.optiview.lens.LensDestination
+import com.dolby.optiview.lens.LensFormat
+import com.dolby.optiview.lens.LensJoinOptions
 import com.theoplayer.android.api.THEOplayerConfig
 import com.theoplayer.android.api.THEOplayerView
 import com.theoplayer.android.api.ads.LinearAd
@@ -48,6 +54,7 @@ import com.theoplayer.android.connector.analytics.comscore.ComscoreMediaType
 import com.theoplayer.android.connector.analytics.comscore.ComscoreMetaData
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConfiguration
 import com.theoplayer.android.connector.analytics.conviva.ConvivaConnector
+import com.theoplayer.android.connector.analytics.lens.LensConnector
 import com.theoplayer.android.connector.analytics.nielsen.NielsenConnector
 import com.theoplayer.android.connector.uplynk.SkippedAdStrategy
 import com.theoplayer.android.connector.uplynk.UplynkConfiguration
@@ -72,6 +79,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var comscoreConnector: ComscoreConnector
     private lateinit var yospaceConnector: YospaceConnector
     private lateinit var uplynkConnector: UplynkConnector
+    private lateinit var lensConnector: LensConnector
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,6 +87,7 @@ class MainActivity : ComponentActivity() {
         setupTHEOplayer()
         setupGoogleImaIntegration()
         setupConviva()
+        setupLens()
         setupComscore()
         setupNielsen()
         setupYospace()
@@ -121,6 +130,18 @@ class MainActivity : ComponentActivity() {
         )
         convivaConnector =
             ConvivaConnector(applicationContext, theoplayerView.player, metadata, config)
+    }
+
+    private fun setupLens() {
+        // The demo reports to your own receiver only, not to the OptiView backend.
+        Lens.configure(LensConfigureOptions(LensBackend.DISABLED))
+        lensConnector = LensConnector(
+            theoplayerView,
+            LensJoinOptions(
+                namespace = "demo",
+                destinations = listOf(LensDestination("your_lens_receiver_url", format = LensFormat.JSON))
+            )
+        )
     }
 
     private fun setupComscore() {

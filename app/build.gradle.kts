@@ -101,6 +101,8 @@ dependencies {
     implementation(project(":connectors:analytics:conviva"))
     implementation(libs.conviva)
 
+    implementation(project(":connectors:analytics:lens"))
+
     implementation(project(":connectors:analytics:nielsen"))
     implementation(libs.nielsen)
 
