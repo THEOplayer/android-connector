@@ -19,6 +19,7 @@ import com.theoplayer.android.api.ads.theoads.theoAds
 import com.theoplayer.android.api.event.EventDispatcher
 import com.theoplayer.android.api.event.EventListener
 import com.theoplayer.android.api.event.ads.AdBeginEvent
+import com.theoplayer.android.api.event.ads.AdBreakBeginEvent
 import com.theoplayer.android.api.event.ads.AdBreakEndEvent
 import com.theoplayer.android.api.event.ads.AdEndEvent
 import com.theoplayer.android.api.event.ads.AdErrorEvent
@@ -33,6 +34,7 @@ import com.theoplayer.android.connector.analytics.conviva.utils.SGAI_AD_TYPE
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateAdType
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateAdTypeAsString
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateCurrentAdBreakInfo
+import com.theoplayer.android.connector.analytics.conviva.utils.calculateFallbackAdBreakInfo
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateInterstitialAdBreakInfo
 import com.theoplayer.android.connector.analytics.conviva.utils.collectAdMetadata
 import com.theoplayer.android.connector.analytics.conviva.utils.collectPlayerInfo
@@ -63,10 +65,10 @@ class AdReporter(
     private val onImaAdCompleted: EventListener<GoogleImaAdEvent>
     private val onImaAdSkip: EventListener<GoogleImaAdEvent>
     private val onImaAdBuffering: EventListener<GoogleImaAdEvent>
-    private val onImaAdError: EventListener<GoogleImaAdEvent>
     private val onImaContentResume: EventListener<GoogleImaAdEvent>
 
     private val onAdBegin: EventListener<AdBeginEvent>
+    private val onAdBreakBegin: EventListener<AdBreakBeginEvent>
     private val onAdEnd: EventListener<AdEndEvent>
     private val onAdBreakEnd: EventListener<AdBreakEndEvent>
     private val onAdSkip: EventListener<AdSkipEvent>
@@ -88,7 +90,7 @@ class AdReporter(
         convivaAdAnalytics.setAdPlayerInfo(collectPlayerInfo())
 
         onPlay = EventListener<PlayEvent> {
-            if (currentAdBreak != null) {
+            if (currentAd != null) {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "reportAdMetric - PlayerState.PLAYING")
                 }
@@ -100,7 +102,7 @@ class AdReporter(
         }
 
         onPlaying = EventListener<PlayingEvent> {
-            if (currentAdBreak != null) {
+            if (currentAd != null) {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "reportAdMetric - PlayerState.PLAYING")
                 }
@@ -112,7 +114,7 @@ class AdReporter(
         }
 
         onPause = EventListener<PauseEvent> {
-            if (currentAdBreak != null) {
+            if (currentAd != null) {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "reportAdMetric - PlayerState.PAUSED")
                 }
@@ -136,7 +138,7 @@ class AdReporter(
         }
 
         onImaAdBuffering = EventListener<GoogleImaAdEvent> {
-            if (currentAdBreak != null) {
+            if (currentAd != null) {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "reportAdMetric - PlayerState.BUFFERING")
                 }
@@ -147,16 +149,16 @@ class AdReporter(
             }
         }
 
-        onImaAdError = EventListener<GoogleImaAdEvent> {
-            handleAdError()
-        }
-
         onImaContentResume = EventListener<GoogleImaAdEvent> {
             handleAdBreakEnd()
         }
 
         onAdBegin = EventListener<AdBeginEvent> { event ->
             handleAdBegin(event.ad)
+        }
+
+        onAdBreakBegin = EventListener<AdBreakBeginEvent> { event ->
+            handleAdBreakBegin(event.adBreak, event.adBreak.ads.isEmpty() || event.adBreak.ads.any(::isAdLinear))
         }
 
         onAdEnd = EventListener<AdEndEvent> { event ->
@@ -171,8 +173,8 @@ class AdReporter(
             handleAdSkip()
         }
 
-        onAdError = EventListener<AdErrorEvent> {
-            handleAdError()
+        onAdError = EventListener<AdErrorEvent> { event ->
+            handleAdError(event.ad?.adBreak, event.error)
         }
 
         onInterstitialError = EventListener<InterstitialErrorEvent> { event ->
@@ -185,7 +187,7 @@ class AdReporter(
     // Update API will be called by Conviva SDK at regular intervals to compute playback
     // metrics. This update callback will be called at the frequency of 1sec
     override fun update() {
-        if (currentAdBreak == null) {
+        if (currentAd == null) {
             return
         }
         convivaAdAnalytics.reportAdMetric(
@@ -205,6 +207,7 @@ class AdReporter(
 
         (listOf(player.ads, adEventsExtension)).forEach { ads ->
             ads?.addEventListener(AdsEventTypes.AD_BEGIN, onAdBegin)
+            ads?.addEventListener(AdsEventTypes.AD_BREAK_BEGIN, onAdBreakBegin)
             ads?.addEventListener(AdsEventTypes.AD_END, onAdEnd)
             ads?.addEventListener(AdsEventTypes.AD_BREAK_END, onAdBreakEnd)
             ads?.addEventListener(AdsEventTypes.AD_SKIP, onAdSkip)
@@ -214,7 +217,6 @@ class AdReporter(
             ads?.addEventListener(GoogleImaAdEventType.COMPLETED, onImaAdCompleted)
             ads?.addEventListener(GoogleImaAdEventType.SKIPPED, onImaAdSkip)
             ads?.addEventListener(GoogleImaAdEventType.AD_BUFFERING, onImaAdBuffering)
-            ads?.addEventListener(GoogleImaAdEventType.AD_ERROR, onImaAdError)
             ads?.addEventListener(
                 GoogleImaAdEventType.CONTENT_RESUME_REQUESTED,
                 onImaContentResume
@@ -231,6 +233,7 @@ class AdReporter(
 
         (listOf(player.ads, adEventsExtension)).forEach { ads ->
             ads?.removeEventListener(AdsEventTypes.AD_BEGIN, onAdBegin)
+            ads?.removeEventListener(AdsEventTypes.AD_BREAK_BEGIN, onAdBreakBegin)
             ads?.removeEventListener(AdsEventTypes.AD_END, onAdEnd)
             ads?.removeEventListener(AdsEventTypes.AD_BREAK_END, onAdBreakEnd)
             ads?.removeEventListener(AdsEventTypes.AD_SKIP, onAdSkip)
@@ -240,7 +243,6 @@ class AdReporter(
             ads?.removeEventListener(GoogleImaAdEventType.COMPLETED, onImaAdCompleted)
             ads?.removeEventListener(GoogleImaAdEventType.SKIPPED, onImaAdSkip)
             ads?.removeEventListener(GoogleImaAdEventType.AD_BUFFERING, onImaAdBuffering)
-            ads?.removeEventListener(GoogleImaAdEventType.AD_ERROR, onImaAdError)
             ads?.removeEventListener(
                 GoogleImaAdEventType.CONTENT_RESUME_REQUESTED,
                 onImaContentResume
@@ -262,30 +264,29 @@ class AdReporter(
         "contentAssetName" to convivaHandler.contentAssetName,
     )
 
+    private fun failedAdMetadata(technology: String): Map<String, Any> = collectBaseAdMetadata() + mapOf(
+        "c3.ad.technology" to technology,
+        ConvivaSdkConstants.IS_LIVE to false,
+    )
+
     private fun handleAdBreakBegin(adBreak: AdBreak?, isLinearAdBreak: Boolean) {
+        if (this.currentAdBreak != null || !isLinearAdBreak || adBreak == null) {
+            return
+        }
+
         // Make sure the session is started
         convivaHandler.maybeReportPlaybackRequested()
 
-        if (this.currentAdBreak != null) {
-            // AdBreak was already set, nothing needs to happen
-            return
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "reportAdBreakStarted - $adBreak")
         }
+        adBreakCounter++
+        convivaVideoAnalytics.reportAdBreakStarted(
+            ConvivaSdkConstants.AdPlayer.CONTENT,
+            calculateAdType(adBreak),
+            calculateCurrentAdBreakInfo(adBreak, adBreakCounter)
+        )
         this.currentAdBreak = adBreak
-        if (isLinearAdBreak && adBreak != null) {
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "reportAdBreakStarted - $adBreak")
-            }
-            adBreakCounter++
-            convivaVideoAnalytics.reportAdBreakStarted(
-                ConvivaSdkConstants.AdPlayer.CONTENT,
-                calculateAdType(adBreak),
-                calculateCurrentAdBreakInfo(adBreak, adBreakCounter)
-            )
-        } else {
-            if (BuildConfig.DEBUG) {
-                Log.w(TAG, "handleAdBreakBegin - No valid adBreak")
-            }
-        }
     }
 
     private fun handleAdBegin(ad: Ad?) {
@@ -355,16 +356,13 @@ class AdReporter(
                 Log.d(TAG, "reportAdBreakEnded")
             }
             convivaVideoAnalytics.reportAdBreakEnded()
-        } else {
-            if (BuildConfig.DEBUG) {
-                Log.w(TAG, "handleAdBreakEnd - No current adBreak")
-            }
         }
         currentAdBreak = null
+        currentAd = null
     }
 
     private fun handleAdSkip() {
-        if (currentAdBreak != null) {
+        if (currentAd != null) {
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "reportAdMetric - PlayerState.STOPPED")
             }
@@ -375,18 +373,39 @@ class AdReporter(
         }
     }
 
-    private fun handleAdError() {
+    private fun handleAdError(adBreak: AdBreak?, message: String?) {
         if (BuildConfig.DEBUG) {
-            Log.d(TAG, "reportAdFailed")
+            Log.d(TAG, "reportAdFailed - $message")
         }
-        convivaAdAnalytics.reportAdFailed("Ad Request Failed")
+        val openBreak = this.currentAdBreak
+        if (openBreak != null) {
+            // An error can now arrive after the pod opened but before the first ad;
+            // attach the failure to the content session with ad info.
+            if (currentAd == null) {
+                convivaAdAnalytics.setAdInfo(failedAdMetadata(calculateAdTypeAsString(openBreak)))
+            }
+            convivaAdAnalytics.reportAdFailed(message ?: "Ad Request Failed")
+            return
+        }
+
+        // Make sure the session is started
+        convivaHandler.maybeReportPlaybackRequested()
+
+        val breakToReport = adBreak ?: player.ads.currentAdBreak
+        adBreakCounter++
+        convivaVideoAnalytics.reportAdBreakStarted(
+            ConvivaSdkConstants.AdPlayer.CONTENT,
+            breakToReport?.let { calculateAdType(it) } ?: ConvivaSdkConstants.AdType.CLIENT_SIDE,
+            breakToReport?.let { calculateCurrentAdBreakInfo(it, adBreakCounter) }
+                ?: calculateFallbackAdBreakInfo(player, adBreakCounter)
+        )
+        convivaAdAnalytics.setAdInfo(
+            failedAdMetadata(breakToReport?.let { calculateAdTypeAsString(it) } ?: "Client Side")
+        )
+        convivaAdAnalytics.reportAdFailed(message ?: "Ad Request Failed")
+        convivaVideoAnalytics.reportAdBreakEnded()
     }
 
-    /**
-     * A THEOads (SGAI) ad break can fail before any ad is available, for example when the ad server
-     * returns an empty VAST response. In that case no ad break or ad events are dispatched, so report
-     * the attempted ad break as a failed ad to keep Conviva's ad attempt and fill rate metrics correct.
-     */
     /**
      * Whether the interstitial's ad break lies entirely behind the current time, for example a break in
      * the DVR window of a live stream when tuning in. Such breaks can report an error without ever having
@@ -401,6 +420,11 @@ class AdReporter(
         return startTime + (interstitial.duration ?: 0.0) < player.currentTime
     }
 
+    /**
+     * A THEOads (SGAI) ad break can fail before any ad is available, for example when the ad server
+     * returns an empty VAST response. In that case no ad break or ad events are dispatched, so report
+     * the attempted ad break as a failed ad to keep Conviva's ad attempt and fill rate metrics correct.
+     */
     private fun handleInterstitialError(event: InterstitialErrorEvent) {
         val interstitial = event.interstitial
         if (interstitial.type != InterstitialType.ADBREAK || currentAdBreak != null || isPastInterstitial(interstitial)) {
@@ -416,10 +440,7 @@ class AdReporter(
             ConvivaSdkConstants.AdType.SERVER_SIDE,
             calculateInterstitialAdBreakInfo(interstitial, adBreakCounter)
         )
-        val adMetadata = collectBaseAdMetadata() + mapOf(
-            "c3.ad.technology" to SGAI_AD_TYPE,
-            ConvivaSdkConstants.IS_LIVE to false,
-        )
+        val adMetadata = failedAdMetadata(SGAI_AD_TYPE)
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "reportAdFailed - ${event.message}")
         }
@@ -446,6 +467,7 @@ class AdReporter(
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "destroy")
         }
+        reset()
         removeEventListeners()
     }
 }
