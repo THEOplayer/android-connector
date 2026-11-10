@@ -69,12 +69,13 @@ lensConnector = LensConnector(
 
 ### Your own events
 
-To report events of your own, join Lens in your own registered namespace with `lensConnector.adapter`. Lens reports one
-session per player adapter, so your events and the player's playback share that session. Another SDK that reports this
-player to Lens joins with the adapter the same way.
+To report events of your own, join Lens in your own registered namespace on the same player: Lens keys sessions on the
+player, so your events and the player's playback share one session. Join with THEOplayer's `Player` itself, the
+`target` of the connector's adapter. Another SDK that reports this player to Lens, such as OptiView Ads, joins the same
+way.
 
 ```kotlin
-val lens = Lens.join(LensJoinOptions(namespace = "my_namespace", player = lensConnector.adapter))
+val lens = Lens.join(LensJoinOptions(namespace = "my_namespace", player = theoplayerView.player))
 lens.emitCustom("chapterStart", LensPayload(custom = mapOf("chapter" to 3)))
 ```
 

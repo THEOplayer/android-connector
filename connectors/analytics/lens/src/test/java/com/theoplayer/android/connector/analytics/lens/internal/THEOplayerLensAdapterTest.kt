@@ -42,6 +42,7 @@ import com.theoplayer.android.api.theolive.TheoLiveSource
 import com.theoplayer.android.api.timerange.TimeRanges
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertSame
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -138,6 +139,11 @@ class THEOplayerLensAdapterTest {
             initial.source,
         )
         assertEquals(LensPresentationMode.INLINE, initial.properties.presentationMode)
+    }
+
+    @Test
+    fun target_isTheTHEOplayerPlayer() {
+        assertSame(player, adapter.target)
     }
 
     @Test

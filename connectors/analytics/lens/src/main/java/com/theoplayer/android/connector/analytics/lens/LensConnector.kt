@@ -27,8 +27,9 @@ class LensConnector @JvmOverloads constructor(
     configuration: LensConfiguration = LensConfiguration(),
 ) {
     /**
-     * The Lens player adapter for the player. To report events of your own, join Lens in your own namespace with this
-     * adapter; another SDK that reports this player to Lens joins with it the same way, to share the player's session.
+     * The Lens player adapter for the player. Its `target` is THEOplayer's `Player`: to report events of your own, join
+     * Lens in your own namespace with that player, and your events share the player's session; another SDK that reports
+     * this player to Lens joins the same way.
      */
     val adapter: LensPlayerAdapter = THEOplayerLensAdapter(theoplayerView, configuration.contentIdProvider)
 

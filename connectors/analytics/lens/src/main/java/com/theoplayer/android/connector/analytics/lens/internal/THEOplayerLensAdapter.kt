@@ -90,6 +90,8 @@ internal class THEOplayerLensAdapter(
     private val player: Player = playerView.player
     private val mainHandler = Handler(Looper.getMainLooper())
 
+    /** THEOplayer's `Player`: an SDK that joins Lens with it as a plain key shares this adapter's session. */
+    override val target: Any = player
     override val playerName = "THEOplayer"
     override val playerVersion: String? = playerView.version
     override val executor = Executor { mainHandler.post(it) }

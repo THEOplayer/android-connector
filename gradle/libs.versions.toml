@@ -37,7 +37,7 @@ conviva = "4.0.51"
 nielsen = "9.2.0.0"
 comscore = "6.14.0"
 yospace = { strictly = "[3.10.0, 4.0)", prefer = "3.11.2" }
-lens = "0.6.0"
+lens = "0.6.2"
 
 [libraries]
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidxAppCompat" }
