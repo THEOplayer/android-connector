@@ -13,6 +13,15 @@ android {
     buildFeatures {
         buildConfig = true
     }
+
+    testOptions {
+        unitTests {
+            isReturnDefaultValues = true
+            all {
+                it.systemProperty("net.bytebuddy.experimental", "true")
+            }
+        }
+    }
 }
 
 dependencies {
@@ -25,6 +34,7 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.theoplayer)
+    testImplementation(libs.theoplayer.integration.ima)
     testImplementation(libs.theoplayer.integration.theoads)
     testImplementation(libs.conviva)
     testImplementation(libs.mockito.inline)
