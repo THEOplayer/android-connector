@@ -11,6 +11,10 @@
 
 ## [Unreleased]
 
+* 💥 **Comscore**: Raised the minimum supported Android API level to 24 (Android 7.0), because the connector relies on the OptiView Player IMA integration, which requires API 24 since OptiView Player 11.11.0. ([#118](https://github.com/THEOplayer/android-connector/pull/118))
+* 💥 **Conviva**: Raised the minimum supported Android API level to 24 (Android 7.0), because the connector relies on the OptiView Player IMA integration, which requires API 24 since OptiView Player 11.11.0. ([#118](https://github.com/THEOplayer/android-connector/pull/118))
+* 💥 **Nielsen**: Raised the minimum supported Android API level to 24 (Android 7.0), because the connector relies on the OptiView Player IMA integration, which requires API 24 since OptiView Player 11.11.0. ([#118](https://github.com/THEOplayer/android-connector/pull/118))
+
 ## [11.1.3] (2026-08-28)
 
 * 🐛 **Conviva**: Fixed an issue where OptiView Ads ad breaks that failed before an ad became available were not reported as failed ad attempts. ([#108](https://github.com/THEOplayer/android-connector/pull/108))
@@ -19,7 +23,7 @@
 
 ## [11.1.2] (2026-07-07)
 
-* 🐛 **All connectors**: Fixed dependency compatibility with THEOplayer by reverting the Kotlin compiler to 2.2.10 and AndroidX Core to 1.17.0. ([#102](https://github.com/THEOplayer/android-connector/pull/102))
+* 🐛 **All connectors**: Fixed dependency compatibility with OptiView Player by reverting the Kotlin compiler to 2.2.10 and AndroidX Core to 1.17.0. ([#102](https://github.com/THEOplayer/android-connector/pull/102))
 
 ## [11.1.1] (2026-07-07)
 
@@ -37,7 +41,7 @@
 
 ## [11.0.1] (2026-04-16)
 
-* 💥 **All connectors**: Added support for THEOplayer 11, which is now the minimum supported THEOplayer version. ([#83](https://github.com/THEOplayer/android-connector/pull/83))
+* 💥 **All connectors**: Added support for OptiView Player 11, which is now the minimum supported OptiView Player version. ([#83](https://github.com/THEOplayer/android-connector/pull/83))
 
 ## [11.0.0] (2026-04-16)
 
