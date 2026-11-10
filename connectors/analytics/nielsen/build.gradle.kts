@@ -4,6 +4,11 @@ plugins {
 
 android {
     namespace = "com.theoplayer.android.connector.analytics.nielsen"
+
+    defaultConfig {
+        // The IMA integration requires API 24.
+        minSdk = 24
+    }
 }
 
 dependencies {
