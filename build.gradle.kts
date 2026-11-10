@@ -1,5 +1,6 @@
 import java.time.Year
 import kotlin.text.Typography.copyright
+import org.jetbrains.changelog.date
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
@@ -17,10 +18,37 @@ plugins {
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.compose.compiler) apply false
     alias(libs.plugins.dokka)
+    alias(libs.plugins.changelog)
     alias(libs.plugins.kotlinx.serialization) apply false
 }
 
 version = libs.versions.androidConnector
+
+changelog {
+    version = libs.versions.androidConnector.get()
+    path = file("CHANGELOG.md").canonicalPath
+    header = provider { "${version.get()} (${date()})" }
+    headerParserRegex = """(\d+\.\d+\.\d+)""".toRegex()
+    introduction =
+        """
+        > **Tags:**
+        > - 💥 Breaking Change
+        > - 🚀 New Feature
+        > - 🐛 Bug Fix
+        > - 👎 Deprecation
+        > - 📝 Documentation
+        > - 🏠 Internal
+        > - 💅 Polish
+        """
+            .trimIndent()
+    itemPrefix = "*"
+    keepUnreleasedSection = true
+    unreleasedTerm = "Unreleased"
+    groups = listOf()
+    lineSeparator = "\n"
+    combinePreReleases = true
+    repositoryUrl = "https://github.com/THEOplayer/android-connector"
+}
 
 tasks.register("updateVersion") {
     val versionCatalog = rootProject.file("gradle/libs.versions.toml")
