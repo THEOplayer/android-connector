@@ -45,7 +45,7 @@ changelog {
     itemPrefix = "*"
     keepUnreleasedSection = true
     unreleasedTerm = "Unreleased"
-    groups = listOf()
+    groups = listOf("All connectors", "Comscore", "Conviva", "MediaSession", "Nielsen", "Uplynk", "Yospace")
     lineSeparator = "\n"
     combinePreReleases = true
     repositoryUrl = "https://github.com/THEOplayer/android-connector"
