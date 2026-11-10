@@ -14,6 +14,7 @@
 ## [11.1.3] (2026-08-28)
 
 * 🐛 **Conviva**: Fixed an issue where OptiView Ads ad breaks that failed before an ad became available were not reported as failed ad attempts. ([#108](https://github.com/THEOplayer/android-connector/pull/108))
+* 🚀 **Conviva**: Added reporting of ad-break position to Conviva. ([#108](https://github.com/THEOplayer/android-connector/pull/108))
 * 📝 **Yospace**: Clarified that the connector provides a Server-Side Ad Insertion (SSAI) integration. ([#93](https://github.com/THEOplayer/android-connector/pull/93))
 
 ## [11.1.2] (2026-07-07)
@@ -24,7 +25,10 @@
 
 * 🐛 **MediaSession**: Fixed an issue where default playback actions no longer worked when no custom playback callback was set. ([#100](https://github.com/THEOplayer/android-connector/pull/100))
 * 🐛 **Yospace**: Fixed an issue where failing to load a non-linear ad image could crash the app. ([#90](https://github.com/THEOplayer/android-connector/pull/90))
-* 💥 **Yospace**: Updated support to Yospace SDK 3.10.0 and higher (below 4.0), replacing `consecutiveBreakTolerance` with `alignConsecutiveBreaks` in session properties. ([#89](https://github.com/THEOplayer/android-connector/pull/89))
+* 🐛 **Yospace**: Fixed an issue where stream-start event listeners were not removed correctly. ([#89](https://github.com/THEOplayer/android-connector/pull/89))
+* 💥 **Yospace**: Raised the minimum supported Yospace SDK version to 3.10.0 and updated session-property handling for newer SDK versions. ([#89](https://github.com/THEOplayer/android-connector/pull/89))
+* 🚀 **Conviva**: Updated the Conviva SDK to 4.0.51. ([#98](https://github.com/THEOplayer/android-connector/pull/98))
+* 🚀 **Comscore**: Updated the Comscore SDK to 6.14.0. ([#98](https://github.com/THEOplayer/android-connector/pull/98))
 
 ## [11.1.0] (2026-05-07)
 
@@ -39,3 +43,11 @@
 
 * 🐛 **Conviva**: Fixed an issue where ad bitrate was reported incorrectly. ([#80](https://github.com/THEOplayer/android-connector/pull/80))
 * 🐛 **Conviva**: Fixed an issue where ad event listeners were not removed when destroying the connector. ([#80](https://github.com/THEOplayer/android-connector/pull/80))
+
+[Unreleased]: https://github.com/THEOplayer/android-connector/compare/11.1.3...HEAD
+[11.1.3]: https://github.com/THEOplayer/android-connector/compare/11.1.2...11.1.3
+[11.1.2]: https://github.com/THEOplayer/android-connector/compare/11.1.1...11.1.2
+[11.1.1]: https://github.com/THEOplayer/android-connector/compare/11.1.0...11.1.1
+[11.1.0]: https://github.com/THEOplayer/android-connector/compare/11.0.1...11.1.0
+[11.0.1]: https://github.com/THEOplayer/android-connector/compare/11.0.0...11.0.1
+[11.0.0]: https://github.com/THEOplayer/android-connector/commits/11.0.0
