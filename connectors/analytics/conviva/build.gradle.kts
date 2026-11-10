@@ -5,6 +5,11 @@ plugins {
 android {
     namespace = "com.theoplayer.android.connector.analytics.conviva"
 
+    defaultConfig {
+        // The IMA integration requires API 24.
+        minSdk = 24
+    }
+
     buildFeatures {
         buildConfig = true
     }
