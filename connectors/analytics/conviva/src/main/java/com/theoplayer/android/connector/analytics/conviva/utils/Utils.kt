@@ -54,35 +54,49 @@ fun calculateAdTypeAsString(ad: Ad): String {
     }
 }
 
-fun calculateCurrentAdBreakPosition(adBreak: AdBreak): String {
+fun calculateCurrentAdBreakPosition(adBreak: AdBreak): ConvivaSdkConstants.AdPosition {
     val timeOffset = adBreak.timeOffset
     return when {
-        timeOffset == 0 -> "Pre-roll"
-        timeOffset > 0 -> "Mid-roll"
-        else -> "Post-roll"
+        timeOffset == 0 -> ConvivaSdkConstants.AdPosition.PREROLL
+        timeOffset > 0 -> ConvivaSdkConstants.AdPosition.MIDROLL
+        else -> ConvivaSdkConstants.AdPosition.POSTROLL
+    }
+}
+
+/**
+ * The display label used for `c3.ad.position` ("Pre-roll" etc.), mapped from the
+ * enum returned by [calculateCurrentAdBreakPosition].
+ */
+private fun adPositionLabel(position: ConvivaSdkConstants.AdPosition): String {
+    return when (position) {
+        ConvivaSdkConstants.AdPosition.PREROLL -> "Pre-roll"
+        ConvivaSdkConstants.AdPosition.MIDROLL -> "Mid-roll"
+        ConvivaSdkConstants.AdPosition.POSTROLL -> "Post-roll"
     }
 }
 
 fun calculateCurrentAdBreakInfo(adBreak: AdBreak, adBreakIndex: Int): Map<String, Any> {
     return mapOf(
-        ConvivaSdkConstants.POD_POSITION to calculateCurrentAdBreakPosition(adBreak),
+        // Conviva Core parses this value with AdPosition.valueOf(), so it must be an enum name.
+        ConvivaSdkConstants.POD_POSITION to calculateCurrentAdBreakPosition(adBreak).name,
         ConvivaSdkConstants.POD_DURATION to adBreak.maxDuration,
         ConvivaSdkConstants.POD_INDEX to adBreakIndex
     )
 }
 
-fun calculateInterstitialAdBreakPosition(interstitial: Interstitial): String {
+fun calculateInterstitialAdBreakPosition(interstitial: Interstitial): ConvivaSdkConstants.AdPosition {
     val startTime = interstitial.startTime
     return when {
-        startTime == 0.0 -> "Pre-roll"
-        startTime < 0.0 || !startTime.isFinite() -> "Post-roll"
-        else -> "Mid-roll"
+        startTime == 0.0 -> ConvivaSdkConstants.AdPosition.PREROLL
+        startTime < 0.0 || !startTime.isFinite() -> ConvivaSdkConstants.AdPosition.POSTROLL
+        else -> ConvivaSdkConstants.AdPosition.MIDROLL
     }
 }
 
 fun calculateInterstitialAdBreakInfo(interstitial: Interstitial, adBreakIndex: Int): Map<String, Any> {
     return mapOf(
-        ConvivaSdkConstants.POD_POSITION to calculateInterstitialAdBreakPosition(interstitial),
+        // Conviva Core parses this value with AdPosition.valueOf(), so it must be an enum name.
+        ConvivaSdkConstants.POD_POSITION to calculateInterstitialAdBreakPosition(interstitial).name,
         ConvivaSdkConstants.POD_DURATION to (interstitial.duration?.toInt() ?: 0),
         ConvivaSdkConstants.POD_INDEX to adBreakIndex
     )
@@ -245,7 +259,7 @@ fun collectAdMetadata(ad: Ad): ConvivaMetadata {
 
         // [Required] The ad position as a string "Pre-roll", "Mid-roll" or "Post-roll"
         ad.adBreak?.let { adBreak ->
-            this["c3.ad.position"] = calculateCurrentAdBreakPosition(adBreak)
+            this["c3.ad.position"] = adPositionLabel(calculateCurrentAdBreakPosition(adBreak))
         }
     }
 }
