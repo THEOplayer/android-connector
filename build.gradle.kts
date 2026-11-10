@@ -26,6 +26,7 @@ version = libs.versions.androidConnector
 
 changelog {
     version = libs.versions.androidConnector.get()
+    versionPrefix = ""
     path = file("CHANGELOG.md").canonicalPath
     header = provider { "${version.get()} (${date()})" }
     headerParserRegex = """(\d+\.\d+\.\d+)""".toRegex()
