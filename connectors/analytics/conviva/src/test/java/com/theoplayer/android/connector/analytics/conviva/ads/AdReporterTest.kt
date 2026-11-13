@@ -181,7 +181,7 @@ class AdReporterTest {
     )
 
     @Test
-    fun a_breakBeginThenAdLifecycle_reportsOnePod() {
+    fun breakBeginThenAdLifecycle_reportsOnePod() {
         val brk = adBreak(0)
         val ad = linearAd(brk)
         fireBreakBegin(brk)
@@ -205,7 +205,7 @@ class AdReporterTest {
     }
 
     @Test
-    fun b_adErrorWhilePodOpenWithoutAd_setsAdInfoThenReportsFailure() {
+    fun adErrorWhilePodOpenWithoutAd_setsAdInfoThenReportsFailure() {
         val brk = adBreak(0)
         fireBreakBegin(brk)
         fireAdError(null, "media fail")
@@ -220,7 +220,7 @@ class AdReporterTest {
     }
 
     @Test
-    fun c_adErrorWithoutBreak_reportsErrorPodWithFallbackInfo() {
+    fun adErrorWithoutBreak_reportsErrorPodWithFallbackInfo() {
         fireAdError(null, "VAST timeout")
         inOrder(videoAnalytics, adAnalytics).apply {
             verify(videoAnalytics).reportAdBreakStarted(
@@ -235,7 +235,7 @@ class AdReporterTest {
     }
 
     @Test
-    fun d_genericAndImaErrorForOneFailure_reportsOneSequence() {
+    fun genericAndImaErrorForOneFailure_reportsOneSequence() {
         // The SDK forwards one IMA failure as GoogleImaAdEventType.AD_BREAK_FETCH_ERROR,
         // GoogleImaAdEventType.AD_ERROR and a generic AdsEventTypes.AD_ERROR; only the
         // generic event has a listener, so the failure is reported exactly once.
@@ -249,7 +249,7 @@ class AdReporterTest {
     }
 
     @Test
-    fun e_adBeginWithoutBreakBegin_opensPodOnce() {
+    fun adBeginWithoutBreakBegin_opensPodOnce() {
         val brk = adBreak(30)
         val ad = linearAd(brk)
         fireAdBegin(ad)
@@ -263,7 +263,7 @@ class AdReporterTest {
     }
 
     @Test
-    fun f_playerEventsBeforeAdBegin_reportNoAdMetrics() {
+    fun playerEventsBeforeAdBegin_reportNoAdMetrics() {
         fireBreakBegin(adBreak(0))
         fire(PlayerEventTypes.PLAY, mock<PlayEvent>())
         fire(PlayerEventTypes.PLAYING, mock<PlayingEvent>())
@@ -274,7 +274,7 @@ class AdReporterTest {
     }
 
     @Test
-    fun g_secondBreakEnd_reportsNoSecondPodEnd() {
+    fun secondBreakEnd_reportsNoSecondPodEnd() {
         fireBreakBegin(adBreak(0))
         fireBreakEnd()
         fireBreakEnd()
@@ -282,7 +282,7 @@ class AdReporterTest {
     }
 
     @Test
-    fun h_nonLinearBreak_reportsNothing() {
+    fun nonLinearBreak_reportsNothing() {
         fireBreakBegin(adBreak(0, listOf("nonlinear")))
         fireBreakEnd()
         verify(videoAnalytics, times(0)).reportAdBreakStarted(any(), any(), any<Map<String, Any>>())
@@ -290,7 +290,7 @@ class AdReporterTest {
     }
 
     @Test
-    fun i_destroyWithOpenPod_reportsEndsOnce() {
+    fun destroyWithOpenPod_reportsEndsOnce() {
         val brk = adBreak(0)
         val ad = linearAd(brk)
         fireBreakBegin(brk)
@@ -301,7 +301,7 @@ class AdReporterTest {
     }
 
     @Test
-    fun j_interstitialError_reportsUnchangedSgaiErrorPod() {
+    fun interstitialError_reportsUnchangedSgaiErrorPod() {
         theoAdsMock.close()
         val theoAds = mock<TheoAdsIntegration>()
         doAnswer { inv ->
@@ -337,7 +337,7 @@ class AdReporterTest {
     }
 
     @Test
-    fun k_breakPositions_mapToEnumNames() {
+    fun breakPositions_mapToEnumNames() {
         listOf(0 to "PREROLL", 30 to "MIDROLL", -1 to "POSTROLL").forEachIndexed { i, (offset, position) ->
             val r = AdReporter(player, videoAnalytics, adAnalytics, handler, null)
             fireBreakBegin(adBreak(offset))
@@ -355,7 +355,7 @@ class AdReporterTest {
     }
 
     @Test
-    fun l_resetWithOpenAdAndPod_reportsEndsOnce() {
+    fun resetWithOpenAdAndPod_reportsEndsOnce() {
         val brk = adBreak(0)
         val ad = linearAd(brk)
         fireBreakBegin(brk)
@@ -368,7 +368,7 @@ class AdReporterTest {
     }
 
     @Test
-    fun m_contentResumeRequested_closesPodOnce() {
+    fun contentResumeRequested_closesPodOnce() {
         fireBreakBegin(adBreak(0))
         fire(GoogleImaAdEventType.CONTENT_RESUME_REQUESTED, mock())
         fire(GoogleImaAdEventType.CONTENT_RESUME_REQUESTED, mock())
@@ -378,7 +378,7 @@ class AdReporterTest {
     }
 
     @Test
-    fun n_adEventsExtensionDispatcher_alsoOpensPod() {
+    fun adEventsExtensionDispatcher_alsoOpensPod() {
         val extListeners = mutableMapOf<EventType<*>, EventListener<*>>()
         val extAds = FakeAds(extListeners)
         reporter = AdReporter(player, videoAnalytics, adAnalytics, handler, extAds)
@@ -398,13 +398,13 @@ class AdReporterTest {
 
 
     @Test
-    fun o_adErrorWithoutMessage_reportsDefaultMessage() {
+    fun adErrorWithoutMessage_reportsDefaultMessage() {
         fireAdError(null, null)
         verify(adAnalytics, times(1)).reportAdFailed("Ad Request Failed")
     }
 
     @Test
-    fun p_playAfterBreakEnd_reportsNoAdMetric() {
+    fun playAfterBreakEnd_reportsNoAdMetric() {
         val brk = adBreak(0)
         fireBreakBegin(brk)
         fireAdBegin(linearAd(brk))
