@@ -22,6 +22,13 @@ dependencies {
     compileOnly(libs.conviva)
 
     implementation(libs.androidx.lifecycle.process)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.theoplayer)
+    testImplementation(libs.theoplayer.integration.theoads)
+    testImplementation(libs.conviva)
+    testImplementation(libs.mockito.inline)
+    testImplementation(libs.mockito.kotlin)
 }
 
 dokka {
