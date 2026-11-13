@@ -17,9 +17,6 @@ android {
     testOptions {
         unitTests {
             isReturnDefaultValues = true
-            all {
-                it.systemProperty("net.bytebuddy.experimental", "true")
-            }
         }
     }
 }
@@ -39,6 +36,8 @@ dependencies {
     testImplementation(libs.conviva)
     testImplementation(libs.mockito.inline)
     testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.bytebuddy)
+    testImplementation(libs.bytebuddy.agent)
 }
 
 dokka {
