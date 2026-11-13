@@ -16,6 +16,10 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
+
+        // Where the demo sends its Lens reports, e.g. -PlensReceiverUrl=http://localhost:8787/lens
+        val lensReceiverUrl = providers.gradleProperty("lensReceiverUrl").getOrElse("")
+        buildConfigField("String", "LENS_RECEIVER_URL", "\"$lensReceiverUrl\"")
     }
 
     buildTypes {
@@ -44,6 +48,7 @@ android {
     }
 
     buildFeatures {
+        buildConfig = true
         compose = true
     }
 }
@@ -100,6 +105,10 @@ dependencies {
 
     implementation(project(":connectors:analytics:conviva"))
     implementation(libs.conviva)
+
+    implementation(project(":connectors:analytics:lens"))
+    // The staging ingest, which only a demo or development build may depend on.
+    implementation(libs.lens.sdk.dev)
 
     implementation(project(":connectors:analytics:nielsen"))
     implementation(libs.nielsen)
