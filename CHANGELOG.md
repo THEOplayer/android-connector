@@ -21,8 +21,8 @@
 
 * 💥 Raised the minimum supported Android API level to 24 (Android 7.0), because the connector relies on the OptiView Player IMA integration, which requires API 24 since OptiView Player 11.11.0. ([#118](https://github.com/THEOplayer/android-connector/pull/118))
 * 🐛 Fixed an issue where the pre-roll ad break of the Google IMA integration was counted in Conviva's Video Startup Time, because it was reported with a `podPosition` value the Conviva SDK did not accept. ([#116](https://github.com/THEOplayer/android-connector/pull/116))
-* 🐛 Fixed an issue where ad breaks from the Google IMA integration were reported to Conviva only when the first ad started playing, so the time spent loading the ad creative was counted in Video Startup Time. The ad break is now reported as soon as the break begins. ([#XXX](https://github.com/THEOplayer/android-connector/pull/XXX))
-* 🐛 Fixed an issue where Google IMA ad requests that failed before any ad started (for example an empty VAST or an unreachable ad tag) were reported to Conviva without a surrounding ad break, so they were not counted as failed ad attempts. ([#XXX](https://github.com/THEOplayer/android-connector/pull/XXX))
+* 🐛 Fixed an issue where ad breaks from the Google IMA integration were reported to Conviva only when the first ad started playing, so the time spent loading the ad creative was counted in Video Startup Time. The ad break is now reported as soon as the break begins. ([#119](https://github.com/THEOplayer/android-connector/pull/119))
+* 🐛 Fixed an issue where Google IMA ad requests that failed before any ad started (for example an empty VAST or an unreachable ad tag) were reported to Conviva without a surrounding ad break, so they were not counted as failed ad attempts. ([#119](https://github.com/THEOplayer/android-connector/pull/119))
 
 ### MediaSession
 
