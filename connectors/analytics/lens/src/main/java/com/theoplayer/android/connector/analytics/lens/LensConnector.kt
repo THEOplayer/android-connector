@@ -4,11 +4,14 @@ import com.dolby.optiview.lens.Lens
 import com.dolby.optiview.lens.LensHandle
 import com.dolby.optiview.lens.LensJoinOptions
 import com.dolby.optiview.lens.LensPlayerAdapter
+import com.dolby.optiview.lens.LensSession
+import com.dolby.optiview.lens.LensSessionListener
 import com.theoplayer.android.api.THEOplayerView
 import com.theoplayer.android.api.event.EventListener
 import com.theoplayer.android.api.event.player.DestroyEvent
 import com.theoplayer.android.api.event.player.PlayerEventTypes
 import com.theoplayer.android.api.player.Player
+import com.theoplayer.android.connector.analytics.lens.internal.CmcdSessionLink
 import com.theoplayer.android.connector.analytics.lens.internal.THEOplayerLensAdapter
 
 private const val NAMESPACE = "theoplayer"
@@ -50,7 +53,17 @@ class LensConnector @JvmOverloads constructor(
     private val player: Player = theoplayerView.player
     private val onDestroy = EventListener<DestroyEvent> { destroy() }
 
+    /** Keeps THEOplayer's own CMCD reporting linked to the Lens session, so the backend can relate the two. */
+    private val cmcdSessionLink = CmcdSessionLink(player)
+    private val sessionListener =
+        handle.addSessionListener(
+            object : LensSessionListener {
+                override fun onSessionChange(session: LensSession?) = cmcdSessionLink.set(session?.sessionId)
+            },
+        )
+
     init {
+        cmcdSessionLink.set(handle.session?.sessionId)
         player.addEventListener(PlayerEventTypes.DESTROY, onDestroy)
     }
 
@@ -59,6 +72,8 @@ class LensConnector @JvmOverloads constructor(
      */
     fun destroy() {
         player.removeEventListener(PlayerEventTypes.DESTROY, onDestroy)
+        sessionListener.close()
         handle.dispose()
+        cmcdSessionLink.set(null)
     }
 }

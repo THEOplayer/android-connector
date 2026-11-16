@@ -81,6 +81,12 @@ lens.emitCustom("chapterStart", LensPayload(custom = mapOf("chapter" to 3)))
 
 `lensConnector.handle` is the Lens handle the connector joined with. Use it to set consent or to flush.
 
+### THEOplayer's own CMCD reporting
+
+On THEOplayer versions with `player.cmcd`, the connector keeps `player.cmcd.linkedSessionId` equal to the Lens session
+ID, so the player's own CMCD reports carry it as `lsid` and the backend can link them to the Lens session. It clears it
+when destroyed. On older versions, the connector reports to Lens without this link.
+
 ### Destroying
 
 The connector ends the session and stops reporting when the player is destroyed, or when you destroy it:
