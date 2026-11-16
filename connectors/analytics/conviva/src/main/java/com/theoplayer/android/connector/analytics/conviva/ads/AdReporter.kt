@@ -174,7 +174,7 @@ class AdReporter(
         }
 
         onAdError = EventListener<AdErrorEvent> { event ->
-            handleAdError(event.ad?.adBreak, event.error)
+            handleAdError(event.ad, event.error)
         }
 
         onInterstitialError = EventListener<InterstitialErrorEvent> { event ->
@@ -373,15 +373,16 @@ class AdReporter(
         }
     }
 
-    private fun handleAdError(adBreak: AdBreak?, message: String?) {
+    private fun handleAdError(ad: Ad?, message: String?) {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "reportAdFailed - $message")
         }
         val openBreak = this.currentAdBreak
-        if (openBreak != null) {
+        // Non-linear ads never open a pod, so their failures are not wrapped in one either.
+        if (openBreak != null || (ad != null && !isAdLinear(ad))) {
             // An error can now arrive after the pod opened but before the first ad;
             // attach the failure to the content session with ad info.
-            if (currentAd == null) {
+            if (openBreak != null && currentAd == null) {
                 convivaAdAnalytics.setAdInfo(failedAdMetadata(calculateAdTypeAsString(openBreak)))
             }
             convivaAdAnalytics.reportAdFailed(message ?: "Ad Request Failed")
@@ -391,7 +392,7 @@ class AdReporter(
         // Make sure the session is started
         convivaHandler.maybeReportPlaybackRequested()
 
-        val breakToReport = adBreak ?: player.ads.currentAdBreak
+        val breakToReport = ad?.adBreak ?: player.ads.currentAdBreak
         adBreakCounter++
         convivaVideoAnalytics.reportAdBreakStarted(
             ConvivaSdkConstants.AdPlayer.CONTENT,

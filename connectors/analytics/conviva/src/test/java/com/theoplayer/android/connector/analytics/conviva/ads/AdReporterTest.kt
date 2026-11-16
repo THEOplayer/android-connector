@@ -290,6 +290,15 @@ class AdReporterTest {
     }
 
     @Test
+    fun nonLinearAdError_reportsFailureWithoutPod() {
+        val brk = adBreak(0, listOf("nonlinear"))
+        fireAdError(brk.ads.first(), "overlay fail")
+        verify(adAnalytics, times(1)).reportAdFailed("overlay fail")
+        verify(videoAnalytics, times(0)).reportAdBreakStarted(any(), any(), any<Map<String, Any>>())
+        verify(videoAnalytics, times(0)).reportAdBreakEnded()
+    }
+
+    @Test
     fun destroyWithOpenPod_reportsEndsOnce() {
         val brk = adBreak(0)
         val ad = linearAd(brk)
