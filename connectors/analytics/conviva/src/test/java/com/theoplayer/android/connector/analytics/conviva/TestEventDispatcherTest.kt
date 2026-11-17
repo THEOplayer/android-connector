@@ -39,12 +39,14 @@ class TestEventDispatcherTest {
     fun dispatch_skipsRemovedListener() {
         val dispatcher = dispatcher()
         var received = 0
-        val removed = EventListener<PlayEvent> { }
+        var receivedByRemoved = 0
+        val removed = EventListener<PlayEvent> { receivedByRemoved++ }
         dispatcher.addEventListener(PlayerEventTypes.PLAY, EventListener<PlayEvent> { received++ })
         dispatcher.addEventListener(PlayerEventTypes.PLAY, removed)
         dispatcher.removeEventListener(PlayerEventTypes.PLAY, removed)
         dispatcher.dispatchEvent(PlayerEventTypes.PLAY, mock())
         assertEquals(1, received)
+        assertEquals(0, receivedByRemoved)
         assertTrue(dispatcher.hasListeners(PlayerEventTypes.PLAY))
     }
 
@@ -59,15 +61,19 @@ class TestEventDispatcherTest {
     fun dispatch_listenerRemovingItself_doesNotBreakDispatch() {
         val dispatcher = dispatcher()
         var received = 0
+        var receivedBySelfRemoving = 0
         val selfRemoving = object : EventListener<PlayEvent> {
             override fun handleEvent(event: PlayEvent) {
+                receivedBySelfRemoving++
                 dispatcher.removeEventListener(PlayerEventTypes.PLAY, this)
             }
         }
         dispatcher.addEventListener(PlayerEventTypes.PLAY, selfRemoving)
         dispatcher.addEventListener(PlayerEventTypes.PLAY, EventListener { received++ })
         dispatcher.dispatchEvent(PlayerEventTypes.PLAY, mock())
-        assertEquals(1, received)
+        dispatcher.dispatchEvent(PlayerEventTypes.PLAY, mock())
+        assertEquals(2, received)
+        assertEquals(1, receivedBySelfRemoving)
         assertTrue(dispatcher.hasListeners(PlayerEventTypes.PLAY))
     }
 }
