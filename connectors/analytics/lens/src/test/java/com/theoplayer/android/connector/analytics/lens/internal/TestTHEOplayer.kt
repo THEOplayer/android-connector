@@ -61,7 +61,7 @@ private fun <Q : Quality> mediaTrackList(dispatchers: Dispatchers, items: () -> 
 
 /** The shape of THEOplayer's `Cmcd`, which the THEOplayer the connector compiles against does not have yet. */
 internal interface TestCmcd {
-    var linkedSessionId: String?
+    var lensSessionId: String?
 }
 
 /** A THEOplayer `Player` with `getCmcd()`, as newer THEOplayer versions have it. */
@@ -73,7 +73,7 @@ internal interface PlayerWithCmcd : Player {
 internal class TestTHEOplayer(withCmcd: Boolean = true) {
     val dispatchers = Dispatchers()
     val cmcd = object : TestCmcd {
-        override var linkedSessionId: String? = null
+        override var lensSessionId: String? = null
     }
     val player: Player = if (withCmcd) mock<PlayerWithCmcd>().also { doReturn(cmcd).whenever(it).getCmcd() } else mock()
     val view: THEOplayerView = mock()

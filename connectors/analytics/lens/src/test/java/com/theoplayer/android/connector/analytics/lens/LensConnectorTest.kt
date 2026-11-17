@@ -31,23 +31,23 @@ class LensConnectorTest {
     private fun source(url: String) = SourceDescription(listOf(TypedSource(url)))
 
     @Test
-    fun cmcdLinkedSessionId_followsTheLensSessionUntilDestroy() {
+    fun cmcdLensSessionId_followsTheLensSessionUntilDestroy() {
         val theoplayer = TestTHEOplayer()
         val connector = connect(theoplayer)
-        assertNull(theoplayer.cmcd.linkedSessionId)
+        assertNull(theoplayer.cmcd.lensSessionId)
 
         theoplayer.setSource(source("https://cdn.example.com/a.m3u8"))
         val first = connector.handle.session?.sessionId
         assertNotNull(first)
-        assertEquals(first, theoplayer.cmcd.linkedSessionId)
+        assertEquals(first, theoplayer.cmcd.lensSessionId)
 
         theoplayer.setSource(source("https://cdn.example.com/b.m3u8"))
         val second = connector.handle.session?.sessionId
         assertNotEquals(first, second)
-        assertEquals(second, theoplayer.cmcd.linkedSessionId)
+        assertEquals(second, theoplayer.cmcd.lensSessionId)
 
         connector.destroy()
-        assertNull(theoplayer.cmcd.linkedSessionId)
+        assertNull(theoplayer.cmcd.lensSessionId)
     }
 
     @Test

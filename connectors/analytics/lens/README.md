@@ -83,7 +83,7 @@ lens.emitCustom("chapterStart", LensPayload(custom = mapOf("chapter" to 3)))
 
 ### THEOplayer's own CMCD reporting
 
-On THEOplayer versions with `player.cmcd`, the connector keeps `player.cmcd.linkedSessionId` equal to the Lens session
+On THEOplayer versions with `player.cmcd`, the connector keeps `player.cmcd.lensSessionId` equal to the Lens session
 ID, so the player's own CMCD reports carry it as `lsid` and the backend can link them to the Lens session. It clears it
 when destroyed. On older versions, the connector reports to Lens without this link.
 
