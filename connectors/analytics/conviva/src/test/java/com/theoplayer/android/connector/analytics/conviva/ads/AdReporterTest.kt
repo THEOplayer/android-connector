@@ -13,9 +13,10 @@ import com.theoplayer.android.api.ads.theoads.Interstitial
 import com.theoplayer.android.api.ads.theoads.InterstitialType
 import com.theoplayer.android.api.ads.theoads.TheoAdsIntegration
 import com.theoplayer.android.api.ads.theoads.event.InterstitialErrorEvent
+import com.theoplayer.android.api.ads.theoads.event.TheoAdsEvent
 import com.theoplayer.android.api.ads.theoads.event.TheoAdsEventTypes
 import com.theoplayer.android.api.ads.theoads.theoAds
-import com.theoplayer.android.api.event.Event
+import com.theoplayer.android.api.event.EventDispatcher
 import com.theoplayer.android.api.event.EventListener
 import com.theoplayer.android.api.event.EventType
 import com.theoplayer.android.api.event.ads.AdBeginEvent
@@ -33,6 +34,7 @@ import com.theoplayer.android.api.event.player.PlayingEvent
 import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.api.source.addescription.AdDescription
 import com.theoplayer.android.connector.analytics.conviva.ConvivaHandlerBase
+import com.theoplayer.android.connector.analytics.conviva.TestEventDispatcher
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -45,14 +47,15 @@ import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
-import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 class AdReporterTest {
 
-    private class FakeAds(private val listeners: MutableMap<EventType<*>, EventListener<*>>) : Ads {
+    private class FakeAds(dispatcher: TestEventDispatcher<AdEvent<*>>) :
+        Ads, EventDispatcher<AdEvent<*>> by dispatcher {
         var breakInProgress: AdBreak? = null
         var scheduled: List<Ad> = emptyList()
         override fun isPlaying() = false
@@ -63,15 +66,10 @@ class AdReporterTest {
         override fun skip() {}
         override fun getOmid(): Omid = throw UnsupportedOperationException()
         override fun registerServerSideIntegration(id: String, factory: ServerSideAdIntegrationFactory) {}
-        override fun <T : AdEvent<*>> addEventListener(type: EventType<T>, listener: EventListener<in T>) {
-            listeners[type] = listener
-        }
-        override fun <T : AdEvent<*>> removeEventListener(type: EventType<T>, listener: EventListener<in T>) {
-            listeners.remove(type)
-        }
     }
 
-    private val listeners = mutableMapOf<EventType<*>, EventListener<*>>()
+    private val adEvents = TestEventDispatcher<AdEvent<*>>()
+    private val playerEvents = TestEventDispatcher<PlayerEvent<*>>()
     private lateinit var ads: FakeAds
     private lateinit var player: Player
     private lateinit var videoAnalytics: ConvivaVideoAnalytics
@@ -105,8 +103,7 @@ class AdReporterTest {
 
     @Before
     fun setUp() {
-        listeners.clear()
-        ads = FakeAds(listeners)
+        ads = FakeAds(adEvents)
         videoAnalytics = mock {
             on { sessionId } doReturn 42
         }
@@ -119,10 +116,13 @@ class AdReporterTest {
             on { videoWidth } doReturn 1920
             on { videoHeight } doReturn 1080
         }
-        doAnswer { inv ->
-            listeners[inv.getArgument(0)] = inv.getArgument(1)
+        whenever(player.addEventListener(any<EventType<PlayerEvent<*>>>(), any())).thenAnswer {
+            playerEvents.addEventListener(
+                it.getArgument<EventType<PlayerEvent<*>>>(0),
+                it.getArgument<EventListener<in PlayerEvent<*>>>(1)
+            )
             null
-        }.`when`(player).addEventListener(any<EventType<PlayerEvent<*>>>(), any())
+        }
         theoAdsMock = mockStatic(Class.forName("com.theoplayer.android.api.ads.theoads.TheoAdsIntegrationKt"))
         theoAdsMock.`when`<TheoAdsIntegration?> { player.theoAds }.thenThrow(IllegalStateException())
         reporter = AdReporter(player, videoAnalytics, adAnalytics, handler, null)
@@ -133,9 +133,8 @@ class AdReporterTest {
         theoAdsMock.close()
     }
 
-    @Suppress("UNCHECKED_CAST")
-    private fun <E : Event<*>> fire(type: EventType<E>, event: E) {
-        (listeners[type] as? EventListener<E>)?.handleEvent(event)
+    private fun <E : AdEvent<*>> fire(type: EventType<E>, event: E) {
+        adEvents.dispatchEvent(type, event)
     }
 
     private fun fireBreakBegin(brk: AdBreak) {
@@ -265,9 +264,9 @@ class AdReporterTest {
     @Test
     fun playerEventsBeforeAdBegin_reportNoAdMetrics() {
         fireBreakBegin(adBreak(0))
-        fire(PlayerEventTypes.PLAY, mock<PlayEvent>())
-        fire(PlayerEventTypes.PLAYING, mock<PlayingEvent>())
-        fire(PlayerEventTypes.PAUSE, mock<PauseEvent>())
+        playerEvents.dispatchEvent(PlayerEventTypes.PLAY, mock<PlayEvent>())
+        playerEvents.dispatchEvent(PlayerEventTypes.PLAYING, mock<PlayingEvent>())
+        playerEvents.dispatchEvent(PlayerEventTypes.PAUSE, mock<PauseEvent>())
         fire(GoogleImaAdEventType.AD_BUFFERING, mock())
         fire(AdsEventTypes.AD_SKIP, mock())
         verify(adAnalytics, times(0)).reportAdMetric(eq(ConvivaSdkConstants.PLAYBACK.PLAYER_STATE), any())
@@ -312,11 +311,15 @@ class AdReporterTest {
     @Test
     fun interstitialError_reportsUnchangedSgaiErrorPod() {
         theoAdsMock.close()
+        val theoAdsEvents = TestEventDispatcher<TheoAdsEvent<*>>()
         val theoAds = mock<TheoAdsIntegration>()
-        doAnswer { inv ->
-            listeners[inv.getArgument(0)] = inv.getArgument(1)
+        whenever(theoAds.addEventListener(any(), any())).thenAnswer {
+            theoAdsEvents.addEventListener(
+                it.getArgument<EventType<TheoAdsEvent<*>>>(0),
+                it.getArgument<EventListener<in TheoAdsEvent<*>>>(1)
+            )
             null
-        }.`when`(theoAds).addEventListener(any(), any())
+        }
         theoAdsMock = mockStatic(Class.forName("com.theoplayer.android.api.ads.theoads.TheoAdsIntegrationKt"))
         theoAdsMock.`when`<TheoAdsIntegration?> { player.theoAds }.thenReturn(theoAds)
         reporter = AdReporter(player, videoAnalytics, adAnalytics, handler, null)
@@ -326,12 +329,13 @@ class AdReporterTest {
             on { startTime } doReturn 30.0
             on { duration } doReturn 30.0
         }
-        @Suppress("UNCHECKED_CAST")
-        (listeners[TheoAdsEventTypes.INTERSTITIAL_ERROR] as? EventListener<InterstitialErrorEvent>)
-            ?.handleEvent(mock {
+        theoAdsEvents.dispatchEvent(
+            TheoAdsEventTypes.INTERSTITIAL_ERROR,
+            mock<InterstitialErrorEvent> {
                 on { this.interstitial } doReturn interstitial
                 on { message } doReturn "no fill"
-            })
+            }
+        )
 
         inOrder(videoAnalytics, adAnalytics).apply {
             verify(videoAnalytics).reportAdBreakStarted(
@@ -347,6 +351,9 @@ class AdReporterTest {
 
     @Test
     fun breakPositions_mapToEnumNames() {
+        // Each iteration registers a new reporter; release the default one so only the
+        // iteration's reporter sees the dispatched event.
+        reporter.destroy()
         listOf(0 to "PREROLL", 30 to "MIDROLL", -1 to "POSTROLL").forEachIndexed { i, (offset, position) ->
             val r = AdReporter(player, videoAnalytics, adAnalytics, handler, null)
             fireBreakBegin(adBreak(offset))
@@ -358,7 +365,7 @@ class AdReporterTest {
             )
             assertEquals(position, captor.lastValue[ConvivaSdkConstants.POD_POSITION])
             assertEquals(1, captor.lastValue[ConvivaSdkConstants.POD_INDEX])
-            r.reset()
+            r.destroy()
             clearInvocations(videoAnalytics)
         }
     }
@@ -388,18 +395,18 @@ class AdReporterTest {
 
     @Test
     fun adEventsExtensionDispatcher_alsoOpensPod() {
-        val extListeners = mutableMapOf<EventType<*>, EventListener<*>>()
-        val extAds = FakeAds(extListeners)
+        val extEvents = TestEventDispatcher<AdEvent<*>>()
+        val extAds = FakeAds(extEvents)
         reporter = AdReporter(player, videoAnalytics, adAnalytics, handler, extAds)
 
         val brk = adBreak(0)
         val ad = linearAd(brk)
-        @Suppress("UNCHECKED_CAST")
-        (extListeners[AdsEventTypes.AD_BREAK_BEGIN] as? EventListener<AdBreakBeginEvent>)
-            ?.handleEvent(mock { on { this.adBreak } doReturn brk })
-        @Suppress("UNCHECKED_CAST")
-        (extListeners[AdsEventTypes.AD_BEGIN] as? EventListener<AdBeginEvent>)
-            ?.handleEvent(mock { on { this.ad } doReturn ad })
+        extEvents.dispatchEvent(AdsEventTypes.AD_BREAK_BEGIN, mock<AdBreakBeginEvent> {
+            on { this.adBreak } doReturn brk
+        })
+        extEvents.dispatchEvent(AdsEventTypes.AD_BEGIN, mock<AdBeginEvent> {
+            on { this.ad } doReturn ad
+        })
 
         verify(videoAnalytics, times(1)).reportAdBreakStarted(any(), any(), any<Map<String, Any>>())
         verify(adAnalytics, times(1)).reportAdStarted(any())
@@ -420,7 +427,7 @@ class AdReporterTest {
         fireBreakEnd()
         clearInvocations(videoAnalytics, adAnalytics)
 
-        fire(PlayerEventTypes.PLAY, mock<PlayEvent>())
+        playerEvents.dispatchEvent(PlayerEventTypes.PLAY, mock<PlayEvent>())
         verify(adAnalytics, times(0)).reportAdMetric(eq(ConvivaSdkConstants.PLAYBACK.PLAYER_STATE), any())
     }
 }
