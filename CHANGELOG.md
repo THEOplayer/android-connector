@@ -15,6 +15,20 @@
 
 ### Comscore
 
+### Conviva
+
+### MediaSession
+
+### Nielsen
+
+### Uplynk
+
+### Yospace
+
+## [11.2.0] (2026-11-18)
+
+### Comscore
+
 * 💥 Raised the minimum supported Android API level to 24 (Android 7.0), because the connector relies on the OptiView Player IMA integration, which requires API 24 since OptiView Player 11.11.0. ([#118](https://github.com/THEOplayer/android-connector/pull/118))
 
 ### Conviva
@@ -24,15 +38,9 @@
 * 🐛 Fixed an issue where ad breaks from the Google IMA integration were reported to Conviva only when the first ad started playing, so the time spent loading the ad creative was counted in Video Startup Time. The ad break is now reported as soon as the break begins. ([#119](https://github.com/THEOplayer/android-connector/pull/119))
 * 🐛 Fixed an issue where Google IMA ad requests that failed before any ad started (for example an empty VAST or an unreachable ad tag) were reported to Conviva without a surrounding ad break, so they were not counted as failed ad attempts. ([#119](https://github.com/THEOplayer/android-connector/pull/119))
 
-### MediaSession
-
 ### Nielsen
 
 * 💥 Raised the minimum supported Android API level to 24 (Android 7.0), because the connector relies on the OptiView Player IMA integration, which requires API 24 since OptiView Player 11.11.0. ([#118](https://github.com/THEOplayer/android-connector/pull/118))
-
-### Uplynk
-
-### Yospace
 
 ## [11.1.3] (2026-08-28)
 
@@ -91,7 +99,8 @@
 * 🐛 Fixed an issue where ad bitrate was reported incorrectly. ([#80](https://github.com/THEOplayer/android-connector/pull/80))
 * 🐛 Fixed an issue where ad event listeners were not removed when destroying the connector. ([#80](https://github.com/THEOplayer/android-connector/pull/80))
 
-[Unreleased]: https://github.com/THEOplayer/android-connector/compare/11.1.3...HEAD
+[Unreleased]: https://github.com/THEOplayer/android-connector/compare/11.2.0...HEAD
+[11.2.0]: https://github.com/THEOplayer/android-connector/compare/11.1.3...11.2.0
 [11.1.3]: https://github.com/THEOplayer/android-connector/compare/11.1.2...11.1.3
 [11.1.2]: https://github.com/THEOplayer/android-connector/compare/11.1.1...11.1.2
 [11.1.1]: https://github.com/THEOplayer/android-connector/compare/11.1.0...11.1.1
