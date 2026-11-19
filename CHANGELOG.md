@@ -17,6 +17,10 @@
 
 ### Conviva
 
+### Lens
+
+* 🚀 Added the OptiView Lens connector (`com.theoplayer.android-connector:lens`), which reports THEOplayer playback to [OptiView Lens](https://github.com/Dolby-OptiView/optiview-lens-sdk) as CMCD sessions. ([#114](https://github.com/THEOplayer/android-connector/pull/114))
+
 ### MediaSession
 
 ### Nielsen
