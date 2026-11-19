@@ -345,8 +345,7 @@ internal class THEOplayerLensAdapter(
         }
         player.listen(PlayerEventTypes.CURRENTSOURCECHANGE) {
             chosen = it.currentSource
-            // `player.source` is null while a new source is being set, so this is another source of the same
-            // description, as on a fallback: it keeps the viewing session.
+            // Another source chosen from the same description, as on a fallback, keeps the viewing session.
             val next = it.currentSource?.src
             if (source != null && description != null && player.source == description && next != null && next != source?.url) {
                 announce(continuation = true)
