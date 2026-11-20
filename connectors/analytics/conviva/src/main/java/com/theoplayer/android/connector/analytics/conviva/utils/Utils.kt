@@ -78,7 +78,7 @@ fun calculateCurrentAdBreakPosition(adBreak: AdBreak): ConvivaSdkConstants.AdPos
  * The display label used for `c3.ad.position` ("Pre-roll" etc.), mapped from the
  * enum returned by [calculateCurrentAdBreakPosition].
  */
-private fun adPositionLabel(position: ConvivaSdkConstants.AdPosition): String {
+internal fun adPositionLabel(position: ConvivaSdkConstants.AdPosition): String {
     return when (position) {
         ConvivaSdkConstants.AdPosition.PREROLL -> "Pre-roll"
         ConvivaSdkConstants.AdPosition.MIDROLL -> "Mid-roll"
@@ -95,25 +95,34 @@ fun calculateCurrentAdBreakInfo(adBreak: AdBreak, adBreakIndex: Int): Map<String
     )
 }
 
+// The scheduled break nearest to the playhead, if any. Used to attribute ad request
+// failures (e.g. an empty VAST) to a break when the error carries no ad.
+internal fun findNearestScheduledAdBreak(player: Player): AdBreak? {
+    return player.ads.scheduledAds
+        .mapNotNull { it.adBreak }
+        // Post-rolls have timeOffset -1 and would always win a mid-stream min.
+        .filter { it.timeOffset >= 0 }
+        .minByOrNull { abs(it.timeOffset - player.currentTime) }
+}
+
 // Pod position is a heuristic when no AdBreak is known (e.g. a failed ad request):
 // the scheduled break nearest to the playhead, else inferred from playback position.
-fun calculateFallbackAdBreakInfo(player: Player, adBreakIndex: Int): Map<String, Any> {
-    val position = when {
+internal fun calculateFallbackAdBreakPosition(player: Player): ConvivaSdkConstants.AdPosition {
+    return when {
         // An error after content ended belongs to a post-roll, not a nearby scheduled mid-roll.
-        player.isEnded -> ConvivaSdkConstants.AdPosition.POSTROLL.name
-        else -> player.ads.scheduledAds
-            .mapNotNull { it.adBreak }
-            // Post-rolls have timeOffset -1 and would always win a mid-stream min.
-            .filter { it.timeOffset >= 0 }
-            .minByOrNull { abs(it.timeOffset - player.currentTime) }
-            ?.let { calculateCurrentAdBreakPosition(it).name }
+        player.isEnded -> ConvivaSdkConstants.AdPosition.POSTROLL
+        else -> findNearestScheduledAdBreak(player)
+            ?.let { calculateCurrentAdBreakPosition(it) }
             ?: when {
-                player.currentTime == 0.0 -> ConvivaSdkConstants.AdPosition.PREROLL.name
-                else -> ConvivaSdkConstants.AdPosition.MIDROLL.name
+                player.currentTime == 0.0 -> ConvivaSdkConstants.AdPosition.PREROLL
+                else -> ConvivaSdkConstants.AdPosition.MIDROLL
             }
     }
+}
+
+internal fun calculateFallbackAdBreakInfo(position: ConvivaSdkConstants.AdPosition, adBreakIndex: Int): Map<String, Any> {
     return mapOf(
-        ConvivaSdkConstants.POD_POSITION to position,
+        ConvivaSdkConstants.POD_POSITION to position.name,
         ConvivaSdkConstants.POD_DURATION to 0,
         ConvivaSdkConstants.POD_INDEX to adBreakIndex
     )

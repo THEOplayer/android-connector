@@ -31,13 +31,18 @@ import com.theoplayer.android.api.player.Player
 import com.theoplayer.android.connector.analytics.conviva.BuildConfig
 import com.theoplayer.android.connector.analytics.conviva.ConvivaHandlerBase
 import com.theoplayer.android.connector.analytics.conviva.utils.SGAI_AD_TYPE
+import com.theoplayer.android.connector.analytics.conviva.utils.adPositionLabel
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateAdType
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateAdTypeAsString
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateCurrentAdBreakInfo
+import com.theoplayer.android.connector.analytics.conviva.utils.calculateCurrentAdBreakPosition
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateFallbackAdBreakInfo
+import com.theoplayer.android.connector.analytics.conviva.utils.calculateFallbackAdBreakPosition
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateInterstitialAdBreakInfo
+import com.theoplayer.android.connector.analytics.conviva.utils.calculateInterstitialAdBreakPosition
 import com.theoplayer.android.connector.analytics.conviva.utils.collectAdMetadata
 import com.theoplayer.android.connector.analytics.conviva.utils.collectPlayerInfo
+import com.theoplayer.android.connector.analytics.conviva.utils.findNearestScheduledAdBreak
 import com.theoplayer.android.connector.analytics.conviva.utils.updateAdMetadataForGoogleIma
 
 fun isAdLinear(ad: Ad?): Boolean {
@@ -264,8 +269,12 @@ class AdReporter(
         "contentAssetName" to convivaHandler.contentAssetName,
     )
 
-    private fun failedAdMetadata(technology: String): Map<String, Any> = collectBaseAdMetadata() + mapOf(
+    private fun failedAdMetadata(
+        technology: String,
+        position: ConvivaSdkConstants.AdPosition
+    ): Map<String, Any> = collectBaseAdMetadata() + mapOf(
         "c3.ad.technology" to technology,
+        "c3.ad.position" to adPositionLabel(position),
         ConvivaSdkConstants.IS_LIVE to false,
     )
 
@@ -383,7 +392,9 @@ class AdReporter(
             // An error can now arrive after the pod opened but before the first ad;
             // attach the failure to the content session with ad info.
             if (openBreak != null && currentAd == null) {
-                convivaAdAnalytics.setAdInfo(failedAdMetadata(calculateAdTypeAsString(openBreak)))
+                convivaAdAnalytics.setAdInfo(
+                    failedAdMetadata(calculateAdTypeAsString(openBreak), calculateCurrentAdBreakPosition(openBreak))
+                )
             }
             convivaAdAnalytics.reportAdFailed(message ?: "Ad Request Failed")
             return
@@ -393,15 +404,18 @@ class AdReporter(
         convivaHandler.maybeReportPlaybackRequested()
 
         val breakToReport = ad?.adBreak ?: player.ads.currentAdBreak
+            ?: findNearestScheduledAdBreak(player)
+        val position = breakToReport?.let { calculateCurrentAdBreakPosition(it) }
+            ?: calculateFallbackAdBreakPosition(player)
         adBreakCounter++
         convivaVideoAnalytics.reportAdBreakStarted(
             ConvivaSdkConstants.AdPlayer.CONTENT,
             breakToReport?.let { calculateAdType(it) } ?: ConvivaSdkConstants.AdType.CLIENT_SIDE,
             breakToReport?.let { calculateCurrentAdBreakInfo(it, adBreakCounter) }
-                ?: calculateFallbackAdBreakInfo(player, adBreakCounter)
+                ?: calculateFallbackAdBreakInfo(position, adBreakCounter)
         )
         convivaAdAnalytics.setAdInfo(
-            failedAdMetadata(breakToReport?.let { calculateAdTypeAsString(it) } ?: "Client Side")
+            failedAdMetadata(breakToReport?.let { calculateAdTypeAsString(it) } ?: "Client Side", position)
         )
         convivaAdAnalytics.reportAdFailed(message ?: "Ad Request Failed")
         convivaVideoAnalytics.reportAdBreakEnded()
@@ -441,7 +455,7 @@ class AdReporter(
             ConvivaSdkConstants.AdType.SERVER_SIDE,
             calculateInterstitialAdBreakInfo(interstitial, adBreakCounter)
         )
-        val adMetadata = failedAdMetadata(SGAI_AD_TYPE)
+        val adMetadata = failedAdMetadata(SGAI_AD_TYPE, calculateInterstitialAdBreakPosition(interstitial))
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "reportAdFailed - ${event.message}")
         }
