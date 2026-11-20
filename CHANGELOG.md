@@ -17,6 +17,8 @@
 
 ### Conviva
 
+* 🐛 Fixed an issue where ad breaks that failed before any ad started were reported to Conviva without an ad position, and failed OptiView Ads breaks were reported as Client Side. ([#121](https://github.com/THEOplayer/android-connector/pull/121))
+
 ### MediaSession
 
 ### Nielsen
