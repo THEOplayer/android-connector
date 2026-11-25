@@ -17,8 +17,8 @@
 
 ### Conviva
 
-* 🐛 Fixed an issue where the duration of a Google IMA pre-roll ad was reported to Conviva as the content length. ([#NNN](https://github.com/THEOplayer/android-connector/pull/NNN))
-* 🐛 Fixed an issue where a playback failure during an ad was reported to Conviva with the ad duration as the content length. ([#NNN](https://github.com/THEOplayer/android-connector/pull/NNN))
+* 🐛 Fixed an issue where the duration of a Google IMA pre-roll ad was reported to Conviva as the content length. ([#122](https://github.com/THEOplayer/android-connector/pull/122))
+* 🐛 Fixed an issue where a playback failure during an ad was reported to Conviva with the ad duration as the content length. ([#122](https://github.com/THEOplayer/android-connector/pull/122))
 
 ### MediaSession
 
