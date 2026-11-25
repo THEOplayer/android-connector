@@ -306,7 +306,7 @@ class ConvivaHandler(
 
         // Report error and cleanup immediately.
         // The contentInfo provides metadata for the failed video.
-        if (player.duration.isNaN()) {
+        if (player.duration.isNaN() || (isClientSideAdActive() && !hasKnownContentDuration())) {
             convivaVideoAnalytics.reportPlaybackFailed(errorMessage, mapOf<String, Any>(ConvivaSdkConstants.DURATION to -1))
         } else {
             convivaVideoAnalytics.reportPlaybackFailed(errorMessage)
@@ -546,6 +546,12 @@ class ConvivaHandler(
         }
         val adBreak = ads.currentAdBreak ?: return true
         return calculateAdType(adBreak) == ConvivaSdkConstants.AdType.CLIENT_SIDE
+    }
+
+    private fun hasKnownContentDuration(): Boolean {
+        return customMetadata.containsKey(ConvivaSdkConstants.DURATION) ||
+            convivaVideoAnalytics.metadataInfo?.containsKey(ConvivaSdkConstants.DURATION) == true ||
+            convivaMetadata.containsKey(ConvivaSdkConstants.DURATION)
     }
 
     /**
