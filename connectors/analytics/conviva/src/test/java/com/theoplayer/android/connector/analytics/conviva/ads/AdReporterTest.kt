@@ -5,9 +5,6 @@ import com.conviva.sdk.ConvivaSdkConstants
 import com.conviva.sdk.ConvivaVideoAnalytics
 import com.theoplayer.android.api.ads.Ad
 import com.theoplayer.android.api.ads.AdBreak
-import com.theoplayer.android.api.ads.Ads
-import com.theoplayer.android.api.ads.Omid
-import com.theoplayer.android.api.ads.ServerSideAdIntegrationFactory
 import com.theoplayer.android.api.ads.ima.GoogleImaAdEventType
 import com.theoplayer.android.api.ads.theoads.Interstitial
 import com.theoplayer.android.api.ads.theoads.InterstitialType
@@ -16,7 +13,6 @@ import com.theoplayer.android.api.ads.theoads.event.InterstitialErrorEvent
 import com.theoplayer.android.api.ads.theoads.event.TheoAdsEvent
 import com.theoplayer.android.api.ads.theoads.event.TheoAdsEventTypes
 import com.theoplayer.android.api.ads.theoads.theoAds
-import com.theoplayer.android.api.event.EventDispatcher
 import com.theoplayer.android.api.event.EventListener
 import com.theoplayer.android.api.event.EventType
 import com.theoplayer.android.api.event.ads.AdBeginEvent
@@ -32,8 +28,8 @@ import com.theoplayer.android.api.event.player.PlayerEvent
 import com.theoplayer.android.api.event.player.PlayerEventTypes
 import com.theoplayer.android.api.event.player.PlayingEvent
 import com.theoplayer.android.api.player.Player
-import com.theoplayer.android.api.source.addescription.AdDescription
 import com.theoplayer.android.connector.analytics.conviva.ConvivaHandlerBase
+import com.theoplayer.android.connector.analytics.conviva.FakeAds
 import com.theoplayer.android.connector.analytics.conviva.TestEventDispatcher
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -53,20 +49,6 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
 class AdReporterTest {
-
-    private class FakeAds(dispatcher: TestEventDispatcher<AdEvent<*>>) :
-        Ads, EventDispatcher<AdEvent<*>> by dispatcher {
-        var breakInProgress: AdBreak? = null
-        var scheduled: List<Ad> = emptyList()
-        override fun isPlaying() = false
-        override fun getCurrentAds(): List<Ad> = emptyList()
-        override fun getCurrentAdBreak(): AdBreak? = breakInProgress
-        override fun getScheduledAds(): List<Ad> = scheduled
-        override fun schedule(desc: AdDescription) {}
-        override fun skip() {}
-        override fun getOmid(): Omid = throw UnsupportedOperationException()
-        override fun registerServerSideIntegration(id: String, factory: ServerSideAdIntegrationFactory) {}
-    }
 
     private val adEvents = TestEventDispatcher<AdEvent<*>>()
     private val playerEvents = TestEventDispatcher<PlayerEvent<*>>()
