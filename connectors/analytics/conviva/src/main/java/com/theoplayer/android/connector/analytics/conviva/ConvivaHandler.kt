@@ -22,6 +22,7 @@ import com.theoplayer.android.api.player.ReadyState
 import com.theoplayer.android.connector.analytics.conviva.ads.AdReporter
 import com.theoplayer.android.connector.analytics.conviva.theolive.THEOliveReporter
 import com.theoplayer.android.connector.analytics.conviva.utils.ErrorReportBuilder
+import com.theoplayer.android.connector.analytics.conviva.utils.calculateAdType
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateBufferLength
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateConvivaOptions
 import com.theoplayer.android.connector.analytics.conviva.utils.calculateEncodingType
@@ -67,6 +68,8 @@ class ConvivaHandler(
 
     private var playbackRequested: Boolean = false
 
+    private var contentMetadataPending: Boolean = false
+
     private val onPlay: EventListener<PlayEvent>
     private val onPlaying: EventListener<PlayingEvent>
     private val onPause: EventListener<PauseEvent>
@@ -79,6 +82,7 @@ class ConvivaHandler(
     private val onSourceChange: EventListener<SourceChangeEvent>
     private val onEnded: EventListener<EndedEvent>
     private val onDurationChange: EventListener<DurationChangeEvent>
+    private val onTimeUpdate: EventListener<TimeUpdateEvent>
     private val errorReportBuilder = ErrorReportBuilder()
 
     init {
@@ -214,6 +218,15 @@ class ConvivaHandler(
             reportMetadata()
         }
 
+        onTimeUpdate = EventListener<TimeUpdateEvent> {
+            // Ad integrations dispatch playing/durationchange/adbreakend while the ad still
+            // owns playback and `duration`; a content timeupdate with no client-side ad
+            // active is the first safe signal to report the pending content metadata.
+            if (contentMetadataPending && playbackRequested && !isClientSideAdActive()) {
+                reportMetadata()
+            }
+        }
+
         // Listen for player events
         addEventListeners()
     }
@@ -293,7 +306,7 @@ class ConvivaHandler(
 
         // Report error and cleanup immediately.
         // The contentInfo provides metadata for the failed video.
-        if (player.duration.isNaN()) {
+        if (player.duration.isNaN() || (isClientSideAdActive() && !hasKnownContentDuration())) {
             convivaVideoAnalytics.reportPlaybackFailed(errorMessage, mapOf<String, Any>(ConvivaSdkConstants.DURATION to -1))
         } else {
             convivaVideoAnalytics.reportPlaybackFailed(errorMessage)
@@ -320,6 +333,7 @@ class ConvivaHandler(
         player.addEventListener(PlayerEventTypes.CURRENTSOURCECHANGE, onCurrentSourceChange)
         player.addEventListener(PlayerEventTypes.ENDED, onEnded)
         player.addEventListener(PlayerEventTypes.DURATIONCHANGE, onDurationChange)
+        player.addEventListener(PlayerEventTypes.TIMEUPDATE, onTimeUpdate)
 
         // Observe app switches between background and foreground
         lifecycleObserver = LifecycleEventObserver { _, event ->
@@ -364,6 +378,7 @@ class ConvivaHandler(
         player.removeEventListener(PlayerEventTypes.CURRENTSOURCECHANGE, onCurrentSourceChange)
         player.removeEventListener(PlayerEventTypes.ENDED, onEnded)
         player.removeEventListener(PlayerEventTypes.DURATIONCHANGE, onDurationChange)
+        player.removeEventListener(PlayerEventTypes.TIMEUPDATE, onTimeUpdate)
 
         mainHandler.post {
             ProcessLifecycleOwner.get().lifecycle.removeObserver(lifecycleObserver)
@@ -497,19 +512,46 @@ class ConvivaHandler(
                 val metadataInfo: Map<String, Any>? = convivaVideoAnalytics.metadataInfo
                 val configuredStreamType = metadataInfo?.get(ConvivaSdkConstants.IS_LIVE)
                     ?: metadataInfo?.get("Conviva.streamType")
-                // Only pass `isLive` property if pre-configured, or if we have a valid duration
-                val isLive = configuredStreamType ?: calculateStreamType(player)
-                isLive?.let {
-                    put(ConvivaSdkConstants.IS_LIVE, it)
-                }
+                if (isClientSideAdActive()) {
+                    // While a client-side ad is routed, `player.duration` is the ad's;
+                    // defer the content metadata until content playback resumes.
+                    contentMetadataPending = true
+                    configuredStreamType?.let {
+                        put(ConvivaSdkConstants.IS_LIVE, it)
+                    }
+                } else {
+                    contentMetadataPending = false
+                    // Only pass `isLive` property if pre-configured, or if we have a valid duration
+                    val isLive = configuredStreamType ?: calculateStreamType(player)
+                    isLive?.let {
+                        put(ConvivaSdkConstants.IS_LIVE, it)
+                    }
 
-                // Only pass a finite duration value, never NaN or Infinite.
-                player.duration.takeIf { it.isFinite() }?.let { duration ->
-                    // Report duration; Int (seconds)
-                    put(ConvivaSdkConstants.DURATION, duration.toInt())
+                    // Only pass a finite duration value, never NaN or Infinite.
+                    player.duration.takeIf { it.isFinite() }?.let { duration ->
+                        // Report duration; Int (seconds)
+                        put(ConvivaSdkConstants.DURATION, duration.toInt())
+                    }
                 }
             }
         )
+    }
+
+    // Without a break, `isPlaying` means the ad player is already routed and owns `duration`;
+    // server-side breaks (including custom server-side integrations) keep the stream's duration.
+    private fun isClientSideAdActive(): Boolean {
+        val ads = player.ads
+        if (!ads.isPlaying) {
+            return false
+        }
+        val adBreak = ads.currentAdBreak ?: return true
+        return calculateAdType(adBreak) == ConvivaSdkConstants.AdType.CLIENT_SIDE
+    }
+
+    private fun hasKnownContentDuration(): Boolean {
+        return customMetadata.containsKey(ConvivaSdkConstants.DURATION) ||
+            convivaVideoAnalytics.metadataInfo?.containsKey(ConvivaSdkConstants.DURATION) == true ||
+            convivaMetadata.containsKey(ConvivaSdkConstants.DURATION)
     }
 
     /**
