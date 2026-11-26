@@ -121,47 +121,59 @@ class UtilsTest {
     }
 
     @Test
-    fun calculateFallbackAdBreakInfo_picksNearestScheduledBreak() {
-        // Scheduled pre-roll (0) and mid-roll (30): the one nearest to the playhead wins.
-        val info = calculateFallbackAdBreakInfo(playerWithBreaks(listOf(0, 30), 28.0), 2)
+    fun calculateFallbackAdBreakInfo_mapsPositionAndIndex() {
+        val info = calculateFallbackAdBreakInfo(ConvivaSdkConstants.AdPosition.MIDROLL, 2)
+        // Conviva Core calls AdPosition.valueOf() on this value; must not throw.
+        ConvivaSdkConstants.AdPosition.valueOf(info[ConvivaSdkConstants.POD_POSITION] as String)
         assertEquals("MIDROLL", info[ConvivaSdkConstants.POD_POSITION])
         assertEquals(0, info[ConvivaSdkConstants.POD_DURATION])
         assertEquals(2, info[ConvivaSdkConstants.POD_INDEX])
-        // Conviva Core calls AdPosition.valueOf() on this value; must not throw.
-        ConvivaSdkConstants.AdPosition.valueOf(info[ConvivaSdkConstants.POD_POSITION] as String)
-
-        val nearPre = calculateFallbackAdBreakInfo(playerWithBreaks(listOf(0, 30), 1.0), 1)
-        assertEquals("PREROLL", nearPre[ConvivaSdkConstants.POD_POSITION])
     }
 
     @Test
-    fun calculateFallbackAdBreakInfo_ignoresScheduledPostRolls() {
+    fun calculateFallbackAdBreakPosition_picksNearestScheduledBreak() {
+        // Scheduled pre-roll (0) and mid-roll (30): the one nearest to the playhead wins.
+        assertEquals(
+            ConvivaSdkConstants.AdPosition.MIDROLL,
+            calculateFallbackAdBreakPosition(playerWithBreaks(listOf(0, 30), 28.0))
+        )
+        assertEquals(
+            ConvivaSdkConstants.AdPosition.PREROLL,
+            calculateFallbackAdBreakPosition(playerWithBreaks(listOf(0, 30), 1.0))
+        )
+    }
+
+    @Test
+    fun calculateFallbackAdBreakPosition_ignoresScheduledPostRolls() {
         // A scheduled post-roll (timeOffset -1) must not win a mid-stream lookup.
-        val info = calculateFallbackAdBreakInfo(playerWithBreaks(listOf(-1), 10.0), 1)
-        assertEquals("MIDROLL", info[ConvivaSdkConstants.POD_POSITION])
-        ConvivaSdkConstants.AdPosition.valueOf(info[ConvivaSdkConstants.POD_POSITION] as String)
+        assertEquals(
+            ConvivaSdkConstants.AdPosition.MIDROLL,
+            calculateFallbackAdBreakPosition(playerWithBreaks(listOf(-1), 10.0))
+        )
     }
 
     @Test
-    fun calculateFallbackAdBreakInfo_endedWinsOverScheduledBreaks() {
+    fun calculateFallbackAdBreakPosition_endedWinsOverScheduledBreaks() {
         // After content ended the failure belongs to a post-roll, not the nearest mid-roll.
-        val info = calculateFallbackAdBreakInfo(playerWithBreaks(listOf(0, 30), 10.0, isEnded = true), 1)
-        assertEquals("POSTROLL", info[ConvivaSdkConstants.POD_POSITION])
+        assertEquals(
+            ConvivaSdkConstants.AdPosition.POSTROLL,
+            calculateFallbackAdBreakPosition(playerWithBreaks(listOf(0, 30), 10.0, isEnded = true))
+        )
     }
 
     @Test
-    fun calculateFallbackAdBreakInfo_noScheduledBreaks_infersFromPlayback() {
+    fun calculateFallbackAdBreakPosition_noScheduledBreaks_infersFromPlayback() {
         assertEquals(
-            "PREROLL",
-            calculateFallbackAdBreakInfo(playerWithBreaks(emptyList(), 0.0), 1)[ConvivaSdkConstants.POD_POSITION]
+            ConvivaSdkConstants.AdPosition.PREROLL,
+            calculateFallbackAdBreakPosition(playerWithBreaks(emptyList(), 0.0))
         )
         assertEquals(
-            "POSTROLL",
-            calculateFallbackAdBreakInfo(playerWithBreaks(emptyList(), 10.0, isEnded = true), 1)[ConvivaSdkConstants.POD_POSITION]
+            ConvivaSdkConstants.AdPosition.POSTROLL,
+            calculateFallbackAdBreakPosition(playerWithBreaks(emptyList(), 10.0, isEnded = true))
         )
         assertEquals(
-            "MIDROLL",
-            calculateFallbackAdBreakInfo(playerWithBreaks(emptyList(), 10.0), 1)[ConvivaSdkConstants.POD_POSITION]
+            ConvivaSdkConstants.AdPosition.MIDROLL,
+            calculateFallbackAdBreakPosition(playerWithBreaks(emptyList(), 10.0))
         )
     }
 

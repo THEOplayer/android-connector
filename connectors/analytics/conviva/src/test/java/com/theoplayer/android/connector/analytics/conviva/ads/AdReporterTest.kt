@@ -78,19 +78,23 @@ class AdReporterTest {
     private lateinit var theoAdsMock: MockedStatic<*>
     private lateinit var reporter: AdReporter
 
-    private fun adBreak(timeOffset: Int, adTypes: List<String> = listOf("linear")): AdBreak {
+    private fun adBreak(
+        timeOffset: Int,
+        adTypes: List<String> = listOf("linear"),
+        integrationKind: AdIntegrationKind = AdIntegrationKind.GOOGLE_IMA
+    ): AdBreak {
         val adsList = adTypes.map { adType ->
             mock<Ad> {
                 on { id } doReturn "ad-$adType"
                 on { type } doReturn adType
-                on { integration } doReturn AdIntegrationKind.GOOGLE_IMA
+                on { integration } doReturn integrationKind
             }
         }
         return mock {
             on { this.timeOffset } doReturn timeOffset
             on { maxDuration } doReturn 30
             on { this.ads } doReturn adsList
-            on { integration } doReturn AdIntegrationKind.GOOGLE_IMA
+            on { integration } doReturn integrationKind
         }
     }
 
@@ -172,10 +176,11 @@ class AdReporterTest {
         ConvivaSdkConstants.POD_INDEX to index
     )
 
-    private fun expectedErrorAdInfo(technology: String = "Client Side") = mapOf(
+    private fun expectedErrorAdInfo(technology: String = "Client Side", position: String) = mapOf(
         "c3.csid" to "42",
         "contentAssetName" to "asset",
         "c3.ad.technology" to technology,
+        "c3.ad.position" to position,
         ConvivaSdkConstants.IS_LIVE to false
     )
 
@@ -211,10 +216,41 @@ class AdReporterTest {
         fireBreakEnd()
         inOrder(videoAnalytics, adAnalytics).apply {
             verify(videoAnalytics).reportAdBreakStarted(any(), any(), any())
-            verify(adAnalytics).setAdInfo(eq(expectedErrorAdInfo()))
+            verify(adAnalytics).setAdInfo(eq(expectedErrorAdInfo(position = "Pre-roll")))
             verify(adAnalytics).reportAdFailed("media fail")
             verify(videoAnalytics).reportAdBreakEnded()
             verifyNoMoreInteractions()
+        }
+    }
+
+    @Test
+    fun adErrorWhilePodOpenWithoutAd_midRoll_setsMidRollPosition() {
+        fireBreakBegin(adBreak(30))
+        fireAdError(null, "media fail")
+        inOrder(videoAnalytics, adAnalytics).apply {
+            verify(videoAnalytics).reportAdBreakStarted(
+                eq(ConvivaSdkConstants.AdPlayer.CONTENT),
+                eq(ConvivaSdkConstants.AdType.CLIENT_SIDE),
+                eq(podInfo("MIDROLL", 1))
+            )
+            verify(adAnalytics).setAdInfo(eq(expectedErrorAdInfo(position = "Mid-roll")))
+            verify(adAnalytics).reportAdFailed("media fail")
+        }
+    }
+
+    @Test
+    fun adErrorWithKnownBreak_reportsErrorPodWithBreakPosition() {
+        val brk = adBreak(30)
+        fireAdError(linearAd(brk), "VAST 404")
+        inOrder(videoAnalytics, adAnalytics).apply {
+            verify(videoAnalytics).reportAdBreakStarted(
+                eq(ConvivaSdkConstants.AdPlayer.CONTENT),
+                eq(ConvivaSdkConstants.AdType.CLIENT_SIDE),
+                eq(podInfo("MIDROLL", 1))
+            )
+            verify(adAnalytics).setAdInfo(eq(expectedErrorAdInfo(position = "Mid-roll")))
+            verify(adAnalytics).reportAdFailed("VAST 404")
+            verify(videoAnalytics).reportAdBreakEnded()
         }
     }
 
@@ -227,7 +263,85 @@ class AdReporterTest {
                 eq(ConvivaSdkConstants.AdType.CLIENT_SIDE),
                 eq(fallbackPodInfo("PREROLL", 1))
             )
-            verify(adAnalytics).setAdInfo(eq(expectedErrorAdInfo()))
+            verify(adAnalytics).setAdInfo(eq(expectedErrorAdInfo(position = "Pre-roll")))
+            verify(adAnalytics).reportAdFailed("VAST timeout")
+            verify(videoAnalytics).reportAdBreakEnded()
+        }
+    }
+
+    @Test
+    fun adErrorWithoutBreak_usesOnePositionForPodAndAdInfo() {
+        // The fallback position must be classified once: a second read of currentTime
+        // must not give the ad info a different position than the pod.
+        whenever(player.currentTime).thenReturn(10.0, 0.0)
+        fireAdError(null, "VAST timeout")
+        inOrder(videoAnalytics, adAnalytics).apply {
+            verify(videoAnalytics).reportAdBreakStarted(
+                eq(ConvivaSdkConstants.AdPlayer.CONTENT),
+                eq(ConvivaSdkConstants.AdType.CLIENT_SIDE),
+                eq(fallbackPodInfo("MIDROLL", 1))
+            )
+            verify(adAnalytics).setAdInfo(eq(expectedErrorAdInfo(position = "Mid-roll")))
+            verify(adAnalytics).reportAdFailed("VAST timeout")
+            verify(videoAnalytics).reportAdBreakEnded()
+        }
+    }
+
+    @Test
+    fun adErrorWithCurrentBreakFromPlayer_reportsErrorPodWithBreakPosition() {
+        // No open pod and no ad in the error event, but the player still reports the
+        // break in progress; its position is used for both the pod and the ad info.
+        ads.breakInProgress = adBreak(30)
+        fireAdError(null, "VAST 404")
+        inOrder(videoAnalytics, adAnalytics).apply {
+            verify(videoAnalytics).reportAdBreakStarted(
+                eq(ConvivaSdkConstants.AdPlayer.CONTENT),
+                eq(ConvivaSdkConstants.AdType.CLIENT_SIDE),
+                eq(podInfo("MIDROLL", 1))
+            )
+            verify(adAnalytics).setAdInfo(eq(expectedErrorAdInfo(position = "Mid-roll")))
+            verify(adAnalytics).reportAdFailed("VAST 404")
+            verify(videoAnalytics).reportAdBreakEnded()
+        }
+    }
+
+    @Test
+    fun adErrorWithScheduledTheoAdsBreak_reportsErrorPodAsServerGuided() {
+        // A failed THEOads (SGAI) break is dispatched as a generic ad error without an
+        // ad, but its scheduled break is still listed; use it for the pod and ad info.
+        val theoAdsBreak = adBreak(20, integrationKind = AdIntegrationKind.THEO_ADS)
+        ads.scheduled = listOf(mock { on { adBreak } doReturn theoAdsBreak })
+        whenever(player.currentTime).thenReturn(1.0)
+        fireAdError(null, "No Ads VAST response")
+        inOrder(videoAnalytics, adAnalytics).apply {
+            verify(videoAnalytics).reportAdBreakStarted(
+                eq(ConvivaSdkConstants.AdPlayer.CONTENT),
+                eq(ConvivaSdkConstants.AdType.SERVER_SIDE),
+                eq(podInfo("MIDROLL", 1))
+            )
+            verify(adAnalytics).setAdInfo(
+                eq(expectedErrorAdInfo(technology = "Server Guided", position = "Mid-roll"))
+            )
+            verify(adAnalytics).reportAdFailed("No Ads VAST response")
+            verify(videoAnalytics).reportAdBreakEnded()
+        }
+    }
+
+    @Test
+    fun adErrorWithScheduledImaBreak_usesItsInfo() {
+        // A failed client-side break still scheduled near the playhead keeps its own
+        // technology and position instead of the playhead heuristic.
+        val imaBreak = adBreak(30)
+        ads.scheduled = listOf(mock { on { adBreak } doReturn imaBreak })
+        whenever(player.currentTime).thenReturn(10.0)
+        fireAdError(null, "VAST timeout")
+        inOrder(videoAnalytics, adAnalytics).apply {
+            verify(videoAnalytics).reportAdBreakStarted(
+                eq(ConvivaSdkConstants.AdPlayer.CONTENT),
+                eq(ConvivaSdkConstants.AdType.CLIENT_SIDE),
+                eq(podInfo("MIDROLL", 1))
+            )
+            verify(adAnalytics).setAdInfo(eq(expectedErrorAdInfo(position = "Mid-roll")))
             verify(adAnalytics).reportAdFailed("VAST timeout")
             verify(videoAnalytics).reportAdBreakEnded()
         }
@@ -308,8 +422,7 @@ class AdReporterTest {
         verify(videoAnalytics, times(1)).reportAdBreakEnded()
     }
 
-    @Test
-    fun interstitialError_reportsUnchangedSgaiErrorPod() {
+    private fun setUpTheoAds(): TestEventDispatcher<TheoAdsEvent<*>> {
         theoAdsMock.close()
         val theoAdsEvents = TestEventDispatcher<TheoAdsEvent<*>>()
         val theoAds = mock<TheoAdsIntegration>()
@@ -322,20 +435,34 @@ class AdReporterTest {
         }
         theoAdsMock = mockStatic(Class.forName("com.theoplayer.android.api.ads.theoads.TheoAdsIntegrationKt"))
         theoAdsMock.`when`<TheoAdsIntegration?> { player.theoAds }.thenReturn(theoAds)
-        reporter = AdReporter(player, videoAnalytics, adAnalytics, handler, null)
+        return theoAdsEvents
+    }
 
+    private fun fireInterstitialError(
+        theoAdsEvents: TestEventDispatcher<TheoAdsEvent<*>>,
+        startTime: Double,
+        message: String
+    ) {
         val interstitial = mock<Interstitial> {
             on { type } doReturn InterstitialType.ADBREAK
-            on { startTime } doReturn 30.0
+            on { this.startTime } doReturn startTime
             on { duration } doReturn 30.0
         }
         theoAdsEvents.dispatchEvent(
             TheoAdsEventTypes.INTERSTITIAL_ERROR,
             mock<InterstitialErrorEvent> {
                 on { this.interstitial } doReturn interstitial
-                on { message } doReturn "no fill"
+                on { this.message } doReturn message
             }
         )
+    }
+
+    @Test
+    fun interstitialError_reportsSgaiErrorPodWithPosition() {
+        val theoAdsEvents = setUpTheoAds()
+        reporter = AdReporter(player, videoAnalytics, adAnalytics, handler, null)
+
+        fireInterstitialError(theoAdsEvents, 30.0, "no fill")
 
         inOrder(videoAnalytics, adAnalytics).apply {
             verify(videoAnalytics).reportAdBreakStarted(
@@ -343,9 +470,31 @@ class AdReporterTest {
                 eq(ConvivaSdkConstants.AdType.SERVER_SIDE),
                 eq(podInfo("MIDROLL", 1))
             )
-            verify(adAnalytics).setAdInfo(any())
+            verify(adAnalytics).setAdInfo(eq(expectedErrorAdInfo("Server Guided", "Mid-roll")))
             verify(adAnalytics).reportAdFailed("no fill")
             verify(videoAnalytics).reportAdBreakEnded()
+        }
+    }
+
+    @Test
+    fun interstitialErrorPositions_mapToLabels() {
+        // The default reporter is not registered on a THEOads dispatcher (the mocked player has
+        // no THEOads integration), so each iteration only needs a fresh dispatcher + reporter.
+        listOf(
+            0.0 to ("PREROLL" to "Pre-roll"),
+            -1.0 to ("POSTROLL" to "Post-roll"),
+            Double.POSITIVE_INFINITY to ("POSTROLL" to "Post-roll")
+        ).forEach { (startTime, expected) ->
+            val theoAdsEvents = setUpTheoAds()
+            AdReporter(player, videoAnalytics, adAnalytics, handler, null)
+            fireInterstitialError(theoAdsEvents, startTime, "no fill")
+
+            val podCaptor = argumentCaptor<Map<String, Any>>()
+            verify(videoAnalytics).reportAdBreakStarted(any(), any(), podCaptor.capture())
+            assertEquals(expected.first, podCaptor.lastValue[ConvivaSdkConstants.POD_POSITION])
+            verify(adAnalytics).setAdInfo(eq(expectedErrorAdInfo("Server Guided", expected.second)))
+
+            clearInvocations(videoAnalytics, adAnalytics)
         }
     }
 
