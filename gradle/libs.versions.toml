@@ -38,6 +38,7 @@ conviva = "4.0.51"
 nielsen = "9.2.0.0"
 comscore = "6.14.0"
 yospace = { strictly = "[3.10.0, 4.0)", prefer = "3.11.2" }
+lens = "0.7.0"
 
 [libraries]
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidxAppCompat" }
@@ -73,6 +74,9 @@ conviva = { group = "com.conviva.sdk", name = "conviva-core-sdk", version.ref = 
 nielsen = { group = "com.nielsenappsdk.global", name = "ad", version.ref = "nielsen" }
 comscore = { group = "com.comscore", name = "android-analytics", version.ref = "comscore" }
 yospace = { group = "com.yospace", name = "admanagement-sdk", version.ref = "yospace" }
+lens-sdk = { group = "com.dolby.optiview", name = "lens-sdk", version.ref = "lens" }
+lens-sdk-context = { group = "com.dolby.optiview", name = "lens-sdk-context", version.ref = "lens" }
+lens-sdk-dev = { group = "com.dolby.optiview", name = "lens-sdk-dev", version.ref = "lens" }
 
 # build-logic
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle-api", version.ref = "androidGradlePlugin" }

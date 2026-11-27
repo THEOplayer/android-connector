@@ -45,7 +45,7 @@ changelog {
     itemPrefix = "*"
     keepUnreleasedSection = true
     unreleasedTerm = "Unreleased"
-    groups = listOf("All connectors", "Comscore", "Conviva", "MediaSession", "Nielsen", "Uplynk", "Yospace")
+    groups = listOf("All connectors", "Comscore", "Conviva", "Lens", "MediaSession", "Nielsen", "Uplynk", "Yospace")
     lineSeparator = "\n"
     combinePreReleases = true
     repositoryUrl = "https://github.com/THEOplayer/android-connector"
@@ -96,6 +96,7 @@ tasks.register("updatePlayerVersion") {
 dependencies {
     dokka(project(":connectors:analytics:comscore"))
     dokka(project(":connectors:analytics:conviva"))
+    dokka(project(":connectors:analytics:lens"))
     dokka(project(":connectors:analytics:nielsen"))
     dokka(project(":connectors:mediasession"))
     dokka(project(":connectors:yospace"))

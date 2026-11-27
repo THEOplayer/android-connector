@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The demo may send Lens reports to test receivers over plain HTTP: the in-app one, one on the development machine,
+     or a test endpoint configured in the app. -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>
